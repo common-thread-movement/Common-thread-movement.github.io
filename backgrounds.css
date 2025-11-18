@@ -1,0 +1,26 @@
+/* Rotating background images — medium speed (8 seconds) */
+
+body {
+    animation: rotateBackground 80s infinite linear;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* 10 background images rotating every 8 seconds 
+   (I will add *all* flags once you confirm this works) */
+
+@keyframes rotateBackground {
+    0%   { background-image: url('https://i.imgur.com/7bCjNDU.jpg'); } /* Betsy Ross */
+    10%  { background-image: url('https://i.imgur.com/5wzRmQd.jpg'); } /* 50-star flag */
+    20%  { background-image: url('https://i.imgur.com/FTEzXtW.png'); } /* Texas flag */
+    30%  { background-image: url('https://i.imgur.com/wvmuFqW.png'); } /* California */
+    40%  { background-image: url('https://i.imgur.com/ykdQ6GQ.png'); } /* New York */
+    50%  { background-image: url('https://i.imgur.com/Jcp6nL5.png'); } /* Florida */
+    60%  { background-image: url('https://i.imgur.com/6qZzBJF.png'); } /* Puerto Rico */
+    70%  { background-image: url('https://i.imgur.com/6AGlbdB.png'); } /* Guam */
+    80%  { background-image: url('https://i.imgur.com/03zrh0a.png'); } /* US Virgin Islands */
+    90%  { background-image: url('https://i.imgur.com/CgpzqL2.png'); } /* Washington DC */
+    100% { background-image: url('https://i.imgur.com/7bCjNDU.jpg'); } /* loop back */
+}
