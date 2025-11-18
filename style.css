@@ -1,97 +1,82 @@
-/* Global page background & base font */
+/* Basic global styles */
 body {
     margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif;
-    background: url('https://i.imgur.com/Frjkos0.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+
+    /* Sharp, infinite-resolution American flag (never blurs) */
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/5c/US_Flag_34_Stars.svg');
     background-repeat: no-repeat;
+    background-position: top center;
+    background-size: 100% auto; /* Keeps flag crisp, not stretched */
+
+    background-color: #111; /* fallback for below the flag */
+    color: #000;
 }
 
-/* Header bar at the top */
+/* Header */
 header {
-    background: rgba(0, 0, 0, 0.78); /* dark translucent strip */
-    color: white;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
     padding: 20px;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    color: white;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Site title */
+/* Title */
 header h1 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 26px;
+    font-weight: bold;
 }
 
-/* Navigation links */
+/* Navigation */
 nav {
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 nav a {
-    color: #f0f0f0;
-    margin: 0 12px;
+    color: white;
     text-decoration: none;
+    margin: 0 15px;
+    font-size: 18px;
     font-weight: bold;
-    font-size: 0.95rem;
 }
 
 nav a:hover {
-    text-decoration: underline;
+    color: #ffcc00;
 }
 
-/* Main content cards */
+/* Content Card */
 section {
-    background: rgba(255, 255, 255, 0.82); /* translucent white card */
-    padding: 30px;
-    margin: 40px auto;
     max-width: 900px;
-    border-radius: 12px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.3);
-    backdrop-filter: blur(6px); /* frosted glass effect */
+    margin: 40px auto;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 25px;
+    border-radius: 15px;
+    color: black;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Headings inside content */
-h2 {
+/* Headings inside sections */
+section h2 {
     margin-top: 0;
-    font-size: 1.6rem;
-}
-
-h3 {
-    margin-top: 20px;
-    font-size: 1.2rem;
-}
-
-/* Paragraph spacing */
-p {
-    line-height: 1.5;
-    margin: 10px 0;
+    font-size: 28px;
+    font-weight: bold;
 }
 
 /* Lists */
-ul {
+section ul {
     padding-left: 20px;
 }
 
-li {
-    margin-bottom: 6px;
+/* Links inside text */
+section a {
+    color: #0044cc;
+    font-weight: bold;
 }
 
-/* Make it look okay on small screens */
-@media (max-width: 600px) {
-    header h1 {
-        font-size: 1.4rem;
-    }
-
-    section {
-        margin: 20px 10px;
-        padding: 20px;
-    }
-
-    nav a {
-        display: inline-block;
-        margin: 4px 8px;
-        font-size: 0.9rem;
-    }
+section a:hover {
+    text-decoration: underline;
 }
