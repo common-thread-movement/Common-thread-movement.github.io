@@ -1,40 +1,97 @@
+/* Global page background & base font */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f7f7f7;
+    background: url('https://i.imgur.com/Frjkos0.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 }
 
+/* Header bar at the top */
 header {
-    background: #222;
+    background: rgba(0, 0, 0, 0.78); /* dark translucent strip */
+    color: white;
     padding: 20px;
     text-align: center;
-    color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
+/* Site title */
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+/* Navigation links */
 nav {
     margin-top: 10px;
 }
 
 nav a {
-    color: #ddd;
-    margin: 0 15px;
+    color: #f0f0f0;
+    margin: 0 12px;
     text-decoration: none;
     font-weight: bold;
+    font-size: 0.95rem;
 }
 
 nav a:hover {
-    color: white;
+    text-decoration: underline;
 }
 
+/* Main content cards */
 section {
-    max-width: 900px;
-    background: white;
+    background: rgba(255, 255, 255, 0.82); /* translucent white card */
     padding: 30px;
     margin: 40px auto;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-width: 900px;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+    backdrop-filter: blur(6px); /* frosted glass effect */
 }
 
+/* Headings inside content */
 h2 {
     margin-top: 0;
+    font-size: 1.6rem;
+}
+
+h3 {
+    margin-top: 20px;
+    font-size: 1.2rem;
+}
+
+/* Paragraph spacing */
+p {
+    line-height: 1.5;
+    margin: 10px 0;
+}
+
+/* Lists */
+ul {
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 6px;
+}
+
+/* Make it look okay on small screens */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 1.4rem;
+    }
+
+    section {
+        margin: 20px 10px;
+        padding: 20px;
+    }
+
+    nav a {
+        display: inline-block;
+        margin: 4px 8px;
+        font-size: 0.9rem;
+    }
 }
