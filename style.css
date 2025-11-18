@@ -80,3 +80,6 @@ section a {
 section a:hover {
     text-decoration: underline;
 }
+.essay-page {
+    color: white !important;
+}
