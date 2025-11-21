@@ -1,116 +1,226 @@
-/* Basic global styles */
-body {
+/* ---------------------------------------------------------
+   GLOBAL RESET
+--------------------------------------------------------- */
+* {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
-
-    /* Sharp, infinite-resolution American flag (never blurs) */
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/5c/US_Flag_34_Stars.svg');
-    background-repeat: no-repeat;
-    background-position: top center;
-    background-size: 100% auto; /* Keeps flag crisp, not stretched */
-
-    background-color: #111; /* fallback for below the flag */
-    color: #000;
+    box-sizing: border-box;
 }
+
 body {
-    line-height: 1.6;
-}
-/* Header */
-header {
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(5px);
-    padding: 20px;
-    text-align: center;
-    color: white;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f4f4; /* Light civic background */
+    color: #0b0b0b;
+    line-height: 1.65;
+    padding-bottom: 60px;
 }
 
-/* Title */
+/* ---------------------------------------------------------
+   HEADER WITH LOGO + TITLE
+--------------------------------------------------------- */
+header {
+    background: #0a2342; /* Deep navy */
+    color: white;
+    text-align: center;
+    padding: 28px 15px 22px 15px;
+    border-bottom: 3px solid #d4a017; /* Gold accent */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+/* Circle logo spacing */
+header svg {
+    margin-bottom: 10px;
+}
+
 header h1 {
     margin: 0;
-    font-size: 26px;
+    font-size: 32px;
     font-weight: bold;
+    letter-spacing: 0.5px;
 }
 
-/* Navigation */
+header p {
+    margin-top: 6px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* ---------------------------------------------------------
+   NAVIGATION BAR
+--------------------------------------------------------- */
 nav {
-    margin-top: 12px;
+    margin-top: 16px;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline-block;
+    margin: 0 18px;
 }
 
 nav a {
-    color: white;
-    text-decoration: none;
-    margin: 0 15px;
-    font-size: 18px;
+    color: #ffffff;
     font-weight: bold;
+    font-size: 18px;
+    text-decoration: none;
+    letter-spacing: 0.4px;
+    transition: 0.25s;
 }
 
 nav a:hover {
-    color: #ffcc00;
+    color: #d4a017; /* Gold hover */
 }
 
-/* Content Card */
-section {
+/* ---------------------------------------------------------
+   MAIN CONTENT BOX / CARD
+--------------------------------------------------------- */
+section,
+.content-box {
     max-width: 900px;
-    margin: 40px auto;
-    background: rgba(255, 255, 255, 0.85);
-    padding: 25px;
-    border-radius: 15px;
-    color: black;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin: 45px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    color: #0b0b0b;
 }
 
-/* Headings inside sections */
-section h2 {
-    margin-top: 0;
-    font-size: 28px;
+/* Headings inside content */
+section h1,
+.content-box h1 {
+    font-size: 30px;
+    margin-bottom: 18px;
     font-weight: bold;
+    color: #0a2342;
 }
 
-/* Lists */
-section ul {
-    padding-left: 20px;
+section h2,
+.content-box h2 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #0a2342;
 }
 
-/* Links inside text */
-section a {
+/* Paragraph spacing */
+section p,
+.content-box p {
+    margin-bottom: 1em;
+}
+
+/* Links inside content */
+section a,
+.content-box a {
     color: #0044cc;
     font-weight: bold;
 }
 
-section a:hover {
+section a:hover,
+.content-box a:hover {
     text-decoration: underline;
 }
+
+/* Lists */
+.content-box ul,
+.content-box ol,
+section ul,
+section ol {
+    margin-left: 1.4em;
+    margin-bottom: 1em;
+}
+
+.content-box li,
+section li {
+    margin-bottom: 0.4em;
+}
+
+/* ---------------------------------------------------------
+   ESSAY PAGES DARK MODE OPTION
+--------------------------------------------------------- */
 .essay-page {
     color: white !important;
 }
+
+/* ---------------------------------------------------------
+   FOOTER
+--------------------------------------------------------- */
 footer {
     text-align: center;
-    padding: 20px;
-    margin-top: 40px;
+    padding: 25px;
+    margin-top: 60px;
+    background: #0a2342;
     color: white;
-    background: rgba(0, 0, 0, 0.6);
     font-size: 0.9rem;
+    border-top: 3px solid #d4a017;
 }
-/* Mobile readability improvements */
+
+/* Footer links */
+footer a {
+    color: #ffd76d;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* ---------------------------------------------------------
+   FORMS (future-proofed)
+--------------------------------------------------------- */
+input[type="text"],
+input[type="email"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    background: white;
+    margin-bottom: 14px;
+}
+
+button,
+input[type="submit"] {
+    background: #d4a017;
+    border: none;
+    padding: 10px 22px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    color: #0b0b0b;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background: #e2b63a;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE DESIGN (MOBILE)
+--------------------------------------------------------- */
 @media (max-width: 700px) {
-    body {
-        padding: 0 15px;
-    }
 
-    .content-box {
-        padding: 20px;
-        margin: 20px 0;
-    }
-
-    nav ul {
-        flex-wrap: wrap;
-        gap: 10px;
+    header h1 {
+        font-size: 26px;
     }
 
     nav ul li {
-        display: inline-block;
-        margin: 5px 0;
+        display: block;
+        margin: 10px 0;
+    }
+
+    nav a {
+        font-size: 17px;
+    }
+
+    section,
+    .content-box {
+        padding: 20px;
+        margin: 20px auto;
     }
 }
