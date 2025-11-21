@@ -83,3 +83,11 @@ section a:hover {
 .essay-page {
     color: white !important;
 }
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    font-size: 0.9rem;
+}
