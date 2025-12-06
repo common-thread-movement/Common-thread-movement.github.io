@@ -10,27 +10,88 @@
   <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json">
 
-  <!-- Your existing site styles -->
+  <!-- Site styles -->
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* Hide private tools by default */
-    .private-section {
+    /* Hidden by default; shown in app mode by JS */
+    .app-only {
       display: none;
+    }
+    .operator-only {
+      display: none;
+    }
+
+    .operator-nav {
+      margin: 1rem 0;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+    .operator-nav button {
+      margin: 0 0.25rem;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.85rem;
+      background: transparent;
+      border: 1px solid #666;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .operator-nav button.active {
+      text-decoration: underline;
+      border-color: #aaa;
+    }
+
+    .week-row {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+      margin-bottom: 0.25rem;
+    }
+    .week-label {
+      width: 3.5rem;
+      opacity: 0.8;
+    }
+    .week-bar {
+      flex: 1;
+      height: 0.4rem;
+      background: #444;
+      margin: 0 0.5rem;
+    }
+    .week-score {
+      width: 2rem;
+      text-align: right;
+      opacity: 0.8;
+    }
+
+    .log-entry {
+      border-top: 1px solid #444;
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
+    }
+    .log-entry-date {
+      font-weight: bold;
+      opacity: 0.9;
+    }
+    .log-entry-meta {
+      opacity: 0.8;
+    }
+    .small-note {
+      font-size: 0.8rem;
+      opacity: 0.75;
     }
   </style>
 </head>
 
 <body>
 
-  <header>
+  <header id="appHeader">
     <h1>Common Thread · Field Kit</h1>
     <p>Quiet operations for responsible citizens.</p>
   </header>
 
   <section class="content-box">
 
-    <!-- ========== DOCUMENT LINKS ========== -->
+    <!-- PUBLIC DOCUMENTS -->
     <h2>Field Documents</h2>
     <p style="margin-bottom: 0.5rem;">Tap any document below to open it:</p>
 
@@ -51,8 +112,10 @@
         </a>
       </li>
     </ul>
+
     <hr>
 
+    <!-- INSTALL DIRECTIONS -->
     <h2>Using the Field Kit as an App</h2>
     <p style="font-size:0.9rem; opacity:0.8;">
       <strong>On iPhone / iPad:</strong> open this page in Safari, tap the
@@ -64,17 +127,30 @@
       menu (⋮) and choose <strong>Add to Home screen</strong> or
       <strong>Install app</strong>.
     </p>
-    <p id="publicHint" style="margin-top:2rem; font-size:0.8rem; opacity:0.5; text-align:center;">
-      Operator tools available in app mode.
+
+    <p id="publicHint" style="margin-top:1rem; font-size:0.8rem; opacity:0.5; text-align:center;">
+      Operator tools available in app mode (double-tap the header in the app).
     </p>
 
-    <!-- ========== PRIVATE OPERATOR TOOLS (HIDDEN ON NORMAL WEBSITE) ========== -->
-    <div class="private-section" id="privateTools">
+    <!-- APP-ONLY NAV + TOOLS (HIDDEN IN NORMAL BROWSER) -->
+
+    <!-- App navigation (appears only in installed app & after unlock) -->
+    <div id="operatorNav" class="app-only operator-only operator-nav">
+      <button data-page="page-dashboard" class="active">Dashboard</button>
+      <button data-page="page-streaks">Streaks</button>
+      <button data-page="page-logbook">Logbook</button>
+      <button data-page="page-settings">Settings</button>
+    </div>
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="app-only operator-only">
 
       <hr>
 
-      <!-- ========== DAILY CIVIC POSTURE CHECKLIST ========== -->
       <h2>Daily Civic Posture Checklist</h2>
+      <p class="small-note">
+        This mirrors the checklist in the Field Kit. Saved only on this device.
+      </p>
 
       <form id="dailyChecklist">
 
@@ -101,7 +177,7 @@
 
         <h3>Boundary Health</h3>
         <label><input type="checkbox" id="boundary1"> Did I maintain realistic boundaries?</label><br>
-        <label><input type="checkbox" id="boundary2"> Did I avoid guilt/pressure from moving me out of position?</label>
+        <label><input type="checkbox" id="boundary2"> Did I avoid guilt/pressure moving me out of position?</label>
 
         <h3>Operator Integrity</h3>
         <label><input type="checkbox" id="integrity1"> Did I act within the law?</label><br>
@@ -114,13 +190,13 @@
 
         <br><br>
         <button type="button" onclick="saveChecklist()">Save Today’s Checklist</button>
+        <button type="button" onclick="resetToday()" style="margin-left:0.5rem;">Reset Today</button>
       </form>
 
       <p id="saveMessage" style="color:#5f5; font-weight:bold;"></p>
 
       <hr>
 
-      <!-- ========== COMMUNITY BAGS OF TRASH COUNTER ========== -->
       <h2>Community Bags of Trash</h2>
 
       <div style="text-align:center; margin-bottom: 1rem;">
@@ -134,7 +210,6 @@
 
       <hr>
 
-      <!-- ========== DAILY SCORE ========== -->
       <h2>Today’s Score</h2>
 
       <div style="text-align:center;">
@@ -145,22 +220,154 @@
         <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
       </div>
 
-    </div> <!-- END PRIVATE SECTION -->
+      <p class="small-note" style="text-align:center; margin-top:0.5rem;">
+        Score = checklist items + tomorrow’s improvement + total bags of trash.
+      </p>
+
+    </div>
+
+    <!-- STREAKS + WEEKLY GRAPH PAGE -->
+    <div id="page-streaks" class="app-only operator-only" style="display:none;">
+
+      <hr>
+
+      <h2>Streak & Weekly Overview</h2>
+
+      <p class="small-note">
+        Streak counts consecutive days with a non-zero score. Weekly chart shows the last 7 days.
+      </p>
+
+      <h3>Current Streak</h3>
+      <p style="font-size:1.2rem;">
+        <strong><span id="streakCount">0</span> day(s)</strong> of continuous posture.
+      </p>
+
+      <h3>Last 7 Days</h3>
+      <div id="weekContainer"></div>
+    </div>
+
+    <!-- LOGBOOK PAGE -->
+    <div id="page-logbook" class="app-only operator-only" style="display:none;">
+
+      <hr>
+
+      <h2>Operator Logbook</h2>
+      <p class="small-note">
+        Local record of your daily scores, bags, and tomorrow’s focus. Stored only on this device.
+      </p>
+
+      <div id="logEntries"></div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="app-only operator-only" style="display:none;">
+
+      <hr>
+
+      <h2>Settings</h2>
+
+      <p class="small-note">
+        These controls only affect data on this device. They do not touch anything on the server.
+      </p>
+
+      <button type="button" onclick="resetToday()">Reset Today (checklist, score & bags)</button>
+      <br><br>
+      <button type="button" onclick="clearAllData()">
+        Clear All Local Field Kit Data
+      </button>
+      <p class="small-note" style="margin-top:0.5rem;">
+        Clearing all data will reset scores, streak, trash count, and the logbook.
+      </p>
+    </div>
 
   </section>
 
-  <!-- ========== SCRIPT ========== -->
   <script>
-    // Determine if running as installed app
-    const isApp = window.matchMedia('(display-mode: standalone)').matches;
+    // ------ BASIC MODE DETECTION & UNLOCK ------
 
-    // Show private tools only in app mode
-    if (isApp) {
-      document.querySelector('.private-section').style.display = 'block';
-      document.getElementById('publicHint').style.display = 'none';
+    const isApp = window.matchMedia &&
+                  window.matchMedia('(display-mode: standalone)').matches;
+
+    let operatorUnlocked = false;
+
+    function unlockOperatorTools() {
+      operatorUnlocked = true;
+      const appOnly = document.querySelectorAll('.app-only');
+      const opOnly = document.querySelectorAll('.operator-only');
+      appOnly.forEach(el => el.style.display = '');
+      opOnly.forEach(el => el.style.display = '');
+      const publicHint = document.getElementById('publicHint');
+      if (publicHint) publicHint.style.display = 'none';
+      // After unlock, render streak & logbook views
+      renderStreakAndWeek();
+      renderLogbook();
     }
 
-    // Checklist items
+    document.addEventListener('DOMContentLoaded', function() {
+      // Double-tap header to unlock operator tools (only in app mode)
+      const header = document.getElementById('appHeader');
+      let lastTap = 0;
+      if (isApp && header) {
+        header.addEventListener('click', function() {
+          const now = Date.now();
+          if (now - lastTap < 400 && !operatorUnlocked) {
+            unlockOperatorTools();
+            if (navigator.vibrate) navigator.vibrate(40);
+          }
+          lastTap = now;
+        });
+      }
+
+      // If not running as app, don't show any operator sections at all
+      if (!isApp) {
+        // nothing to do; they remain hidden
+      }
+
+      // Load data (if we later unlock, these values will already be there)
+      loadChecklist();
+      loadTrash();
+      loadScore();
+
+      // Nav buttons (only active after unlock)
+      const nav = document.getElementById('operatorNav');
+      if (nav) {
+        nav.addEventListener('click', function(e) {
+          if (!operatorUnlocked) return;
+          if (e.target.tagName.toLowerCase() !== 'button') return;
+          const targetPage = e.target.getAttribute('data-page');
+          switchPage(targetPage, e.target);
+          if (navigator.vibrate) navigator.vibrate(20);
+        });
+      }
+
+      // Service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .catch(() => {});
+      }
+    });
+
+    function switchPage(pageId, buttonEl) {
+      const pages = ['page-dashboard', 'page-streaks', 'page-logbook', 'page-settings'];
+      pages.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = (id === pageId) ? '' : 'none';
+      });
+
+      const buttons = document.querySelectorAll('#operatorNav button');
+      buttons.forEach(b => b.classList.remove('active'));
+      if (buttonEl) buttonEl.classList.add('active');
+
+      if (pageId === 'page-streaks') {
+        renderStreakAndWeek();
+      }
+      if (pageId === 'page-logbook') {
+        renderLogbook();
+      }
+    }
+
+    // ------ CHECKLIST, SCORE, LOGBOOK, STREAK, WEEKLY GRAPH ------
+
     const checklistFields = [
       "grounding1","grounding2",
       "truth1","truth2","truth3",
@@ -171,38 +378,36 @@
       "integrity1","integrity2","integrity3",
       "selfImprove"
     ];
-
     const checkboxFields = checklistFields.slice(0,16); // first 16 are checkboxes
 
-    document.addEventListener("DOMContentLoaded", function() {
+    function todayDateKey() {
+      return new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    }
 
-      // Load checklist
+    function loadChecklist() {
       checklistFields.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-
         const stored = localStorage.getItem("ct_" + id);
-
         if (el.type === "checkbox") el.checked = stored === "true";
         else el.value = stored || "";
       });
+    }
 
-      // Load trash count
-      const trashCount = localStorage.getItem("trashBags");
-      if (trashCount !== null)
-        document.getElementById("trashCountDisplay").innerText = trashCount;
+    function loadTrash() {
+      const saved = localStorage.getItem("trashBags");
+      const display = document.getElementById("trashCountDisplay");
+      if (display) display.innerText = saved !== null ? saved : "0";
+    }
 
-      // Load score
+    function loadScore() {
       const savedScore = localStorage.getItem("ct_score_today");
       const savedBest = localStorage.getItem("ct_score_best");
-      if (savedScore) document.getElementById("scoreCurrent").innerText = savedScore;
-      if (savedBest) document.getElementById("scoreBest").innerText = savedBest;
-
-      // Register service worker
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("service-worker.js");
-      }
-    });
+      const scoreCurrentEl = document.getElementById("scoreCurrent");
+      const scoreBestEl = document.getElementById("scoreBest");
+      if (scoreCurrentEl) scoreCurrentEl.innerText = savedScore || "0";
+      if (scoreBestEl) scoreBestEl.innerText = savedBest || "0";
+    }
 
     function computeScore() {
       let score = 0;
@@ -218,56 +423,270 @@
       if (text && text.value.trim().length > 0) score += 1;
 
       // Bags of trash
-      const bags = parseInt(localStorage.getItem("trashBags") || "0");
+      const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
       score += bags;
 
       return score;
     }
 
+    function getLogbook() {
+      try {
+        const raw = localStorage.getItem("ct_logbook");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function setLogbook(entries) {
+      localStorage.setItem("ct_logbook", JSON.stringify(entries));
+    }
+
+    function upsertTodayLog(score) {
+      const date = todayDateKey();
+      const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
+      const noteEl = document.getElementById("selfImprove");
+      const note = noteEl ? noteEl.value.trim() : "";
+
+      let log = getLogbook();
+      const existingIdx = log.findIndex(e => e.date === date);
+      const entry = { date, score, bags, note };
+
+      if (existingIdx >= 0) log[existingIdx] = entry;
+      else log.push(entry);
+
+      // keep sorted by date ascending
+      log.sort((a,b) => a.date.localeCompare(b.date));
+      setLogbook(log);
+    }
+
+    function computeStreak(log) {
+      if (!log.length) return 0;
+
+      // Map date -> score
+      const map = {};
+      log.forEach(e => { map[e.date] = e.score; });
+
+      let streak = 0;
+      // anchor on today; if no entry for today, anchor on last logged day
+      let anchor = todayDateKey();
+      if (!map[anchor] || map[anchor] === 0) {
+        const last = log[log.length - 1];
+        anchor = last.date;
+        if (!last.score || last.score === 0) return 0;
+      }
+
+      let cursor = new Date(anchor);
+      while (true) {
+        const key = cursor.toISOString().slice(0,10);
+        if (!map[key] || map[key] === 0) break;
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+
+      return streak;
+    }
+
+    function renderStreakAndWeek() {
+      const log = getLogbook();
+      const streakEl = document.getElementById("streakCount");
+      if (streakEl) streakEl.innerText = computeStreak(log);
+
+      const container = document.getElementById("weekContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      // Map date -> score for convenience
+      const map = {};
+      log.forEach(e => { map[e.date] = e.score; });
+
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0,10);
+        const label = (d.getMonth() + 1) + "/" + d.getDate();
+        const score = map[key] || 0;
+        const row = document.createElement("div");
+        row.className = "week-row";
+
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "week-label";
+        labelSpan.textContent = label;
+
+        const bar = document.createElement("div");
+        bar.className = "week-bar";
+        const maxBarWidth = 120; // px
+        const width = Math.min(maxBarWidth, score * 6);
+        bar.style.width = width + "px";
+
+        const scoreSpan = document.createElement("span");
+        scoreSpan.className = "week-score";
+        scoreSpan.textContent = score;
+
+        row.appendChild(labelSpan);
+        row.appendChild(bar);
+        row.appendChild(scoreSpan);
+        container.appendChild(row);
+      }
+    }
+
+    function renderLogbook() {
+      const container = document.getElementById("logEntries");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const log = getLogbook().slice().sort((a,b) => b.date.localeCompare(a.date)); // newest first
+      if (!log.length) {
+        container.innerHTML = "<p class='small-note'>No entries yet.</p>";
+        return;
+      }
+
+      log.forEach(entry => {
+        const div = document.createElement("div");
+        div.className = "log-entry";
+
+        const dateP = document.createElement("div");
+        dateP.className = "log-entry-date";
+        dateP.textContent = entry.date;
+
+        const metaP = document.createElement("div");
+        metaP.className = "log-entry-meta";
+        metaP.textContent = "Score: " + entry.score + " · Bags: " + entry.bags;
+
+        div.appendChild(dateP);
+        div.appendChild(metaP);
+
+        if (entry.note) {
+          const noteP = document.createElement("div");
+          noteP.textContent = "Tomorrow: " + entry.note;
+          div.appendChild(noteP);
+        }
+
+        container.appendChild(div);
+      });
+    }
+
     function saveChecklist() {
-      // Save fields
+      // Save checklist fields
       checklistFields.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-
-        if (el.type === "checkbox") localStorage.setItem("ct_" + id, el.checked);
-        else localStorage.setItem("ct_" + id, el.value);
+        if (el.type === "checkbox") {
+          localStorage.setItem("ct_" + id, el.checked);
+        } else {
+          localStorage.setItem("ct_" + id, el.value);
+        }
       });
 
-      // Save score
+      // Compute and store score
       const score = computeScore();
       localStorage.setItem("ct_score_today", score);
 
-      let best = parseInt(localStorage.getItem("ct_score_best") || "0");
+      let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
       if (score > best) {
         best = score;
         localStorage.setItem("ct_score_best", best);
       }
 
-      document.getElementById("scoreCurrent").innerText = score;
-      document.getElementById("scoreBest").innerText = best;
+      // Update logbook
+      upsertTodayLog(score);
 
-      document.getElementById("saveMessage").innerText =
-        (score === best) ?
-        "Checklist saved ✔ New personal best." :
-        "Checklist saved ✔";
+      // Update display
+      const scoreCurrentEl = document.getElementById("scoreCurrent");
+      const scoreBestEl = document.getElementById("scoreBest");
+      if (scoreCurrentEl) scoreCurrentEl.innerText = score;
+      if (scoreBestEl) scoreBestEl.innerText = best;
+
+      const msg = document.getElementById("saveMessage");
+      if (msg) {
+        msg.innerText =
+          (score === best && score !== 0)
+          ? "Checklist saved ✔ New personal best."
+          : "Checklist saved ✔";
+      }
+
+      if (navigator.vibrate) navigator.vibrate(30);
+
+      // Refresh streak/week/logbook if visible
+      if (operatorUnlocked) {
+        renderStreakAndWeek();
+        renderLogbook();
+      }
     }
 
-    // Trash counter
+    function resetToday() {
+      // Clear today's checklist fields but keep log history & personal best
+      checklistFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === "checkbox") el.checked = false;
+        else el.value = "";
+        localStorage.removeItem("ct_" + id);
+      });
+
+      // Reset trash count for today (but keep logbook entries untouched until next save)
+      localStorage.setItem("trashBags", "0");
+      loadTrash();
+
+      // Reset today's score (but not best)
+      localStorage.setItem("ct_score_today", "0");
+      loadScore();
+
+      const msg = document.getElementById("saveMessage");
+      if (msg) msg.innerText = "Today reset ✔";
+
+      if (navigator.vibrate) navigator.vibrate(20);
+    }
+
+    function clearAllData() {
+      if (!confirm("Clear all local Field Kit data on this device?")) return;
+      // Only clear keys we use
+      checklistFields.forEach(id => localStorage.removeItem("ct_" + id));
+      localStorage.removeItem("trashBags");
+      localStorage.removeItem("ct_score_today");
+      localStorage.removeItem("ct_score_best");
+      localStorage.removeItem("ct_logbook");
+
+      loadChecklist();
+      loadTrash();
+      loadScore();
+      const log = document.getElementById("logEntries");
+      if (log) log.innerHTML = "<p class='small-note'>All data cleared.</p>";
+      const streakEl = document.getElementById("streakCount");
+      if (streakEl) streakEl.innerText = "0";
+      const week = document.getElementById("weekContainer");
+      if (week) week.innerHTML = "";
+
+      if (navigator.vibrate) navigator.vibrate(40);
+    }
+
+    // ------ TRASH COUNTER ------
+
     function getTrashCount() {
-      return parseInt(localStorage.getItem("trashBags") || "0");
+      return parseInt(localStorage.getItem("trashBags") || "0", 10);
     }
 
     function setTrashCount(value) {
       if (value < 0) value = 0;
       localStorage.setItem("trashBags", value);
-      document.getElementById("trashCountDisplay").innerText = value;
-      document.getElementById("trashMessage").innerText = "Updated ✔";
+      const display = document.getElementById("trashCountDisplay");
+      if (display) display.innerText = value;
+      const msg = document.getElementById("trashMessage");
+      if (msg) msg.innerText = "Updated ✔";
     }
 
-    function incrementTrash() { setTrashCount(getTrashCount() + 1); }
-    function decrementTrash() { setTrashCount(getTrashCount() - 1); }
+    function incrementTrash() {
+      setTrashCount(getTrashCount() + 1);
+      if (navigator.vibrate) navigator.vibrate(15);
+    }
 
+    function decrementTrash() {
+      setTrashCount(getTrashCount() - 1);
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
   </script>
 
 </body>
