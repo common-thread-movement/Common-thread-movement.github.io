@@ -12,6 +12,13 @@
 
   <!-- Your existing site styles -->
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Hide private tools by default */
+    .private-section {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
@@ -25,7 +32,7 @@
 
     <!-- ========== DOCUMENT LINKS ========== -->
     <h2>Field Documents</h2>
-    <p>Tap any document below to open it:</p>
+    <p style="margin-bottom: 0.5rem;">Tap any document below to open it:</p>
 
     <ul>
       <li>
@@ -33,13 +40,11 @@
           CT-PRC-004 — Principles Package (4-Page Brief)
         </a>
       </li>
-
       <li>
         <a href="docs/handbook.pdf" target="_blank">
           CT-HBK-001 — Internal Handbook (Restricted)
         </a>
       </li>
-
       <li>
         <a href="docs/Fieldkit.pdf" target="_blank">
           CT-FLD-010 — Field Kit (Operator Issue)
@@ -47,107 +52,210 @@
       </li>
     </ul>
 
-
-    <!-- ========== DAILY CHECKLIST ========== -->
-    <h2>Daily Operations Checklist</h2>
-
-    <form id="dailyChecklist">
-
-      <label>
-        <input type="checkbox" id="bathroomClean">
-        Bathroom cleaned today
-      </label>
-      <br>
-
-      <label>
-        <input type="checkbox" id="serviceDone">
-        Completed one act of quiet service
-      </label>
-      <br>
-
-      <label>
-        Times I chose curiosity over anger today:
-        <input type="number" id="curiosityCount" min="0" value="0">
-      </label>
-      <br><br>
-
-      <label>
-        Notes:
-        <br>
-        <textarea id="notes" rows="3"></textarea>
-      </label>
-      <br><br>
-
-      <button type="button" onclick="saveChecklist()">Save Today’s Entry</button>
-    </form>
-
-    <p id="saveMessage" style="color: #5f5; font-weight: bold;"></p>
-
-    <p style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
-      Tip: On your phone, open this page and use your browser’s
-      <strong>Add to Home Screen</strong> option to keep it like an app.
+    <p id="publicHint" style="margin-top:2rem; font-size:0.8rem; opacity:0.5; text-align:center;">
+      Operator tools available in app mode.
     </p>
+
+    <!-- ========== PRIVATE OPERATOR TOOLS (HIDDEN ON NORMAL WEBSITE) ========== -->
+    <div class="private-section" id="privateTools">
+
+      <hr>
+
+      <!-- ========== DAILY CIVIC POSTURE CHECKLIST ========== -->
+      <h2>Daily Civic Posture Checklist</h2>
+
+      <form id="dailyChecklist">
+
+        <h3>Grounding</h3>
+        <label><input type="checkbox" id="grounding1"> Did I take 3 seconds before responding?</label><br>
+        <label><input type="checkbox" id="grounding2"> Did I observe instead of react at least once?</label>
+
+        <h3>Truth Discipline</h3>
+        <label><input type="checkbox" id="truth1"> Did I avoid sharing anything unverified?</label><br>
+        <label><input type="checkbox" id="truth2"> Did I admit “I don’t know” when needed?</label><br>
+        <label><input type="checkbox" id="truth3"> Did I correct myself or my “side” if wrong?</label>
+
+        <h3>Non-Tribal Posture</h3>
+        <label><input type="checkbox" id="nontribal1"> Did I disagree respectfully with someone today?</label><br>
+        <label><input type="checkbox" id="nontribal2"> Did I treat people as humans, not camp avatars?</label>
+
+        <h3>De-Escalation</h3>
+        <label><input type="checkbox" id="deesc1"> Did I cool down at least one rising situation?</label><br>
+        <label><input type="checkbox" id="deesc2"> Did I avoid fueling any conflict?</label>
+
+        <h3>Quiet Uplift</h3>
+        <label><input type="checkbox" id="uplift1"> Did I do one helpful act without telling anyone?</label><br>
+        <label><input type="checkbox" id="uplift2"> Did I support someone quietly who needed it?</label>
+
+        <h3>Boundary Health</h3>
+        <label><input type="checkbox" id="boundary1"> Did I maintain realistic boundaries?</label><br>
+        <label><input type="checkbox" id="boundary2"> Did I avoid guilt/pressure from moving me out of position?</label>
+
+        <h3>Operator Integrity</h3>
+        <label><input type="checkbox" id="integrity1"> Did I act within the law?</label><br>
+        <label><input type="checkbox" id="integrity2"> Did I avoid anything harmful to the movement?</label><br>
+        <label><input type="checkbox" id="integrity3"> Did I remain nonpartisan, nonviolent, grounded?</label>
+
+        <h3>Final Self-Audit</h3>
+        <label>What one thing will I improve tomorrow?</label><br>
+        <textarea id="selfImprove" rows="3" style="width:100%;"></textarea>
+
+        <br><br>
+        <button type="button" onclick="saveChecklist()">Save Today’s Checklist</button>
+      </form>
+
+      <p id="saveMessage" style="color:#5f5; font-weight:bold;"></p>
+
+      <hr>
+
+      <!-- ========== COMMUNITY BAGS OF TRASH COUNTER ========== -->
+      <h2>Community Bags of Trash</h2>
+
+      <div style="text-align:center; margin-bottom: 1rem;">
+        <div style="font-size:0.85rem; opacity:0.7;">TOTAL BAGS RECORDED</div>
+        <div id="trashCountDisplay" style="font-size:2rem; font-weight:bold;">0</div>
+        <button onclick="incrementTrash()">+1 Bag</button>
+        <button onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
+      </div>
+
+      <p id="trashMessage" style="color:#5f5; font-weight:bold; text-align:center;"></p>
+
+      <hr>
+
+      <!-- ========== DAILY SCORE ========== -->
+      <h2>Today’s Score</h2>
+
+      <div style="text-align:center;">
+        <div style="font-size:0.85rem; opacity:0.7;">CURRENT SCORE</div>
+        <div id="scoreCurrent" style="font-size:2.2rem; font-weight:bold;">0</div>
+
+        <div style="font-size:0.85rem; opacity:0.7;">PERSONAL BEST</div>
+        <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
+      </div>
+
+    </div> <!-- END PRIVATE SECTION -->
 
   </section>
 
-  <!-- ========== CHECKLIST SCRIPT & SERVICE WORKER REGISTER ========== -->
+  <!-- ========== SCRIPT ========== -->
   <script>
-    // Load saved values when page loads
+    // Determine if running as installed app
+    const isApp = window.matchMedia('(display-mode: standalone)').matches;
+
+    // Show private tools only in app mode
+    if (isApp) {
+      document.querySelector('.private-section').style.display = 'block';
+      document.getElementById('publicHint').style.display = 'none';
+    }
+
+    // Checklist items
+    const checklistFields = [
+      "grounding1","grounding2",
+      "truth1","truth2","truth3",
+      "nontribal1","nontribal2",
+      "deesc1","deesc2",
+      "uplift1","uplift2",
+      "boundary1","boundary2",
+      "integrity1","integrity2","integrity3",
+      "selfImprove"
+    ];
+
+    const checkboxFields = checklistFields.slice(0,16); // first 16 are checkboxes
+
     document.addEventListener("DOMContentLoaded", function() {
 
-      // Checklist load
-      var bathroom = document.getElementById("bathroomClean");
-      var service = document.getElementById("serviceDone");
-      var curiosity = document.getElementById("curiosityCount");
-      var notes = document.getElementById("notes");
+      // Load checklist
+      checklistFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
 
-      if (bathroom) {
-        bathroom.checked = localStorage.getItem("bathroomClean") === "true";
-      }
-      if (service) {
-        service.checked = localStorage.getItem("serviceDone") === "true";
-      }
-      if (curiosity) {
-        curiosity.value = localStorage.getItem("curiosityCount") || 0;
-      }
-      if (notes) {
-        notes.value = localStorage.getItem("notes") || "";
-      }
+        const stored = localStorage.getItem("ct_" + id);
 
-      // Service worker registration for PWA
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js')
-          .catch(function (err) {
-            console.log('Service worker registration failed:', err);
-          });
+        if (el.type === "checkbox") el.checked = stored === "true";
+        else el.value = stored || "";
+      });
+
+      // Load trash count
+      const trashCount = localStorage.getItem("trashBags");
+      if (trashCount !== null)
+        document.getElementById("trashCountDisplay").innerText = trashCount;
+
+      // Load score
+      const savedScore = localStorage.getItem("ct_score_today");
+      const savedBest = localStorage.getItem("ct_score_best");
+      if (savedScore) document.getElementById("scoreCurrent").innerText = savedScore;
+      if (savedBest) document.getElementById("scoreBest").innerText = savedBest;
+
+      // Register service worker
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
       }
     });
 
-    // Save function
-    function saveChecklist() {
-      var bathroom = document.getElementById("bathroomClean");
-      var service = document.getElementById("serviceDone");
-      var curiosity = document.getElementById("curiosityCount");
-      var notes = document.getElementById("notes");
+    function computeScore() {
+      let score = 0;
 
-      if (bathroom) {
-        localStorage.setItem("bathroomClean", bathroom.checked);
-      }
-      if (service) {
-        localStorage.setItem("serviceDone", service.checked);
-      }
-      if (curiosity) {
-        localStorage.setItem("curiosityCount", curiosity.value);
-      }
-      if (notes) {
-        localStorage.setItem("notes", notes.value);
-      }
+      // Checkboxes
+      checkboxFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.checked) score += 1;
+      });
 
-      var msg = document.getElementById("saveMessage");
-      if (msg) {
-        msg.innerText = "Checklist saved ✔";
-      }
+      // Self-improvement text
+      const text = document.getElementById("selfImprove");
+      if (text && text.value.trim().length > 0) score += 1;
+
+      // Bags of trash
+      const bags = parseInt(localStorage.getItem("trashBags") || "0");
+      score += bags;
+
+      return score;
     }
+
+    function saveChecklist() {
+      // Save fields
+      checklistFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        if (el.type === "checkbox") localStorage.setItem("ct_" + id, el.checked);
+        else localStorage.setItem("ct_" + id, el.value);
+      });
+
+      // Save score
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+
+      let best = parseInt(localStorage.getItem("ct_score_best") || "0");
+      if (score > best) {
+        best = score;
+        localStorage.setItem("ct_score_best", best);
+      }
+
+      document.getElementById("scoreCurrent").innerText = score;
+      document.getElementById("scoreBest").innerText = best;
+
+      document.getElementById("saveMessage").innerText =
+        (score === best) ?
+        "Checklist saved ✔ New personal best." :
+        "Checklist saved ✔";
+    }
+
+    // Trash counter
+    function getTrashCount() {
+      return parseInt(localStorage.getItem("trashBags") || "0");
+    }
+
+    function setTrashCount(value) {
+      if (value < 0) value = 0;
+      localStorage.setItem("trashBags", value);
+      document.getElementById("trashCountDisplay").innerText = value;
+      document.getElementById("trashMessage").innerText = "Updated ✔";
+    }
+
+    function incrementTrash() { setTrashCount(getTrashCount() + 1); }
+    function decrementTrash() { setTrashCount(getTrashCount() - 1); }
+
   </script>
 
 </body>
