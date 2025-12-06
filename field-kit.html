@@ -7,7 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
 
-  <!-- Use your existing site styles -->
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Your existing site styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -80,43 +83,70 @@
 
     <p id="saveMessage" style="color: #5f5; font-weight: bold;"></p>
 
+    <p style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
+      Tip: On your phone, open this page and use your browser’s
+      <strong>Add to Home Screen</strong> option to keep it like an app.
+    </p>
 
   </section>
 
-  <!-- ========== CHECKLIST SCRIPT ========== -->
+  <!-- ========== CHECKLIST SCRIPT & SERVICE WORKER REGISTER ========== -->
   <script>
     // Load saved values when page loads
     document.addEventListener("DOMContentLoaded", function() {
 
-      document.getElementById("bathroomClean").checked =
-        localStorage.getItem("bathroomClean") === "true";
+      // Checklist load
+      var bathroom = document.getElementById("bathroomClean");
+      var service = document.getElementById("serviceDone");
+      var curiosity = document.getElementById("curiosityCount");
+      var notes = document.getElementById("notes");
 
-      document.getElementById("serviceDone").checked =
-        localStorage.getItem("serviceDone") === "true";
+      if (bathroom) {
+        bathroom.checked = localStorage.getItem("bathroomClean") === "true";
+      }
+      if (service) {
+        service.checked = localStorage.getItem("serviceDone") === "true";
+      }
+      if (curiosity) {
+        curiosity.value = localStorage.getItem("curiosityCount") || 0;
+      }
+      if (notes) {
+        notes.value = localStorage.getItem("notes") || "";
+      }
 
-      document.getElementById("curiosityCount").value =
-        localStorage.getItem("curiosityCount") || 0;
-
-      document.getElementById("notes").value =
-        localStorage.getItem("notes") || "";
+      // Service worker registration for PWA
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .catch(function (err) {
+            console.log('Service worker registration failed:', err);
+          });
+      }
     });
 
     // Save function
     function saveChecklist() {
-      localStorage.setItem("bathroomClean",
-        document.getElementById("bathroomClean").checked);
+      var bathroom = document.getElementById("bathroomClean");
+      var service = document.getElementById("serviceDone");
+      var curiosity = document.getElementById("curiosityCount");
+      var notes = document.getElementById("notes");
 
-      localStorage.setItem("serviceDone",
-        document.getElementById("serviceDone").checked);
+      if (bathroom) {
+        localStorage.setItem("bathroomClean", bathroom.checked);
+      }
+      if (service) {
+        localStorage.setItem("serviceDone", service.checked);
+      }
+      if (curiosity) {
+        localStorage.setItem("curiosityCount", curiosity.value);
+      }
+      if (notes) {
+        localStorage.setItem("notes", notes.value);
+      }
 
-      localStorage.setItem("curiosityCount",
-        document.getElementById("curiosityCount").value);
-
-      localStorage.setItem("notes",
-        document.getElementById("notes").value);
-
-      document.getElementById("saveMessage").innerText =
-        "Checklist saved ✔";
+      var msg = document.getElementById("saveMessage");
+      if (msg) {
+        msg.innerText = "Checklist saved ✔";
+      }
     }
   </script>
 
