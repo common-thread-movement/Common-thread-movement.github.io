@@ -1,0 +1,10 @@
+{
+  "name": "Common Thread Field Kit",
+  "short_name": "Field Kit",
+  "start_url": "field-kit.html",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "description": "Quiet field kit for Common Thread operators: documents and daily checklist."
+}
