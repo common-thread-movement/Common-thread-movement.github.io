@@ -3,655 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <title>Common Thread · Field Kit</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
 
-  <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json">
-
-  <!-- Site styles -->
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* Hidden by default; shown automatically in app (standalone) mode */
-    .app-only {
+    /* Hidden unless app is opened in standalone mode */
+    #appTools {
       display: none;
-    }
-    .operator-only {
-      display: none;
-    }
-
-    .operator-nav {
-      margin: 1rem 0;
-      text-align: center;
-      font-size: 0.85rem;
-    }
-    .operator-nav button {
-      margin: 0 0.25rem;
-      padding: 0.35rem 0.7rem;
-      font-size: 0.85rem;
-      background: transparent;
-      border: 1px solid #666;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-    .operator-nav button.active {
-      text-decoration: underline;
-      border-color: #aaa;
-    }
-
-    .week-row {
-      display: flex;
-      align-items: center;
-      font-size: 0.8rem;
-      margin-bottom: 0.25rem;
-    }
-    .week-label {
-      width: 3.5rem;
-      opacity: 0.8;
-    }
-    .week-bar {
-      flex: 1;
-      height: 0.4rem;
-      background: #444;
-      margin: 0 0.5rem;
-    }
-    .week-score {
-      width: 2rem;
-      text-align: right;
-      opacity: 0.8;
-    }
-
-    .log-entry {
-      border-top: 1px solid #444;
-      padding: 0.4rem 0;
-      font-size: 0.85rem;
-    }
-    .log-entry-date {
-      font-weight: bold;
-      opacity: 0.9;
-    }
-    .log-entry-meta {
-      opacity: 0.8;
+      margin-top: 2rem;
     }
     .small-note {
       font-size: 0.8rem;
-      opacity: 0.75;
+      opacity: 0.65;
     }
   </style>
 </head>
 
 <body>
 
-  <header id="appHeader">
-    <h1>Common Thread · Field Kit</h1>
-    <p>Quiet operations for responsible citizens.</p>
-  </header>
+<header>
+  <h1>Common Thread · Field Kit</h1>
+  <p>Quiet operations for responsible citizens.</p>
+</header>
 
-  <section class="content-box">
+<section class="content-box">
 
-    <!-- PUBLIC DOCUMENTS -->
-    <h2>Field Documents</h2>
-    <p style="margin-bottom: 0.5rem;">Tap any document below to open it:</p>
+  <h2>Field Documents</h2>
+  <p>Tap any document below to open it:</p>
 
-    <ul>
-      <li>
-        <a href="docs/Fourpages.pdf" target="_blank">
-          CT-PRC-004 — Principles Package (4-Page Brief)
-        </a>
-      </li>
-      <li>
-        <a href="docs/handbook.pdf" target="_blank">
-          CT-HBK-001 — Internal Handbook (Restricted)
-        </a>
-      </li>
-      <li>
-        <a href="docs/Fieldkit.pdf" target="_blank">
-          CT-FLD-010 — Field Kit (Operator Issue)
-        </a>
-      </li>
-    </ul>
+  <ul>
+    <li><a href="docs/Fourpages.pdf" target="_blank">CT-PRC-004 — Principles Package</a></li>
+    <li><a href="docs/handbook.pdf" target="_blank">CT-HBK-001 — Internal Handbook (Restricted)</a></li>
+    <li><a href="docs/Fieldkit.pdf" target="_blank">CT-FLD-010 — Field Kit (Operator)</a></li>
+  </ul>
+
+  <hr>
+
+  <h2>Using the Field Kit as an App</h2>
+  <p><strong>On iPhone/iPad:</strong> open this page in Safari → Share → Add to Home Screen.</p>
+  <p><strong>On Android:</strong> open in Chrome → Menu (⋮) → Add to Home Screen.</p>
+  <p class="small-note">Operator tools appear automatically when opened from your Home Screen.</p>
+
+  <!-- APP-ONLY SECTION -->
+  <div id="appTools">
 
     <hr>
 
-    <!-- INSTALL DIRECTIONS -->
-    <h2>Using the Field Kit as an App</h2>
-    <p style="font-size:0.9rem; opacity:0.8;">
-      <strong>On iPhone / iPad:</strong> open this page in Safari, tap the
-      <em>Share</em> icon (square with an arrow), then choose
-      <strong>Add to Home Screen</strong>.
-    </p>
-    <p style="font-size:0.9rem; opacity:0.8;">
-      <strong>On Android:</strong> open this page in Chrome, tap the
-      menu (⋮) and choose <strong>Add to Home screen</strong> or
-      <strong>Install app</strong>.
-    </p>
+    <h2>Daily Civic Posture Checklist</h2>
+    <form id="dailyChecklist">
 
-    <p id="publicHint" class="small-note" style="margin-top:0.5rem; text-align:center;">
-      Operator tools load automatically when opened as an app from your Home Screen.
-    </p>
+      <label><input type="checkbox" id="chk1"> 3-second pause before responding</label><br>
+      <label><input type="checkbox" id="chk2"> Observed instead of reacting</label><br>
+      <label><input type="checkbox" id="chk3"> Avoided unverified information</label><br>
+      <label><input type="checkbox" id="chk4"> Admitted “I don’t know” when needed</label><br>
+      <label><input type="checkbox" id="chk5"> Corrected self/side when wrong</label><br>
+      <label><input type="checkbox" id="chk6"> Disagreed respectfully</label><br>
+      <label><input type="checkbox" id="chk7"> Treated others as humans not tribes</label><br>
+      <label><input type="checkbox" id="chk8"> De-escalated a moment</label><br>
+      <label><input type="checkbox" id="chk9"> Avoided fueling conflict</label><br>
+      <label><input type="checkbox" id="chk10"> Quietly helped someone</label><br>
+      <label><input type="checkbox" id="chk11"> Quiet personal uplift</label><br>
+      <label><input type="checkbox" id="chk12"> Maintained boundaries</label><br>
+      <label><input type="checkbox" id="chk13"> Avoided guilt-pressure</label><br>
+      <label><input type="checkbox" id="chk14"> Acted within law</label><br>
+      <label><input type="checkbox" id="chk15"> Avoided harm to movement</label><br>
+      <label><input type="checkbox" id="chk16"> Remained grounded & non-tribal</label><br>
 
-    <!-- OPERATOR NAV + TOOLS (AUTO IN APP MODE) -->
+      <p style="margin-top:1rem;">Improvement focus for tomorrow:</p>
+      <textarea id="improveTxt" rows="3" style="width:100%;"></textarea>
 
-    <!-- Operator navigation -->
-    <div id="operatorNav" class="app-only operator-only operator-nav">
-      <button data-page="page-dashboard" class="active">Dashboard</button>
-      <button data-page="page-streaks">Streaks</button>
-      <button data-page="page-logbook">Logbook</button>
-      <button data-page="page-settings">Settings</button>
-    </div>
-
-    <!-- DASHBOARD PAGE -->
-    <div id="page-dashboard" class="app-only operator-only">
-
-      <hr>
-
-      <h2>Daily Civic Posture Checklist</h2>
-      <p class="small-note">
-        This mirrors the checklist in the Field Kit. Saved only on this device.
-      </p>
-
-      <form id="dailyChecklist">
-
-        <h3>Grounding</h3>
-        <label><input type="checkbox" id="grounding1"> Did I take 3 seconds before responding?</label><br>
-        <label><input type="checkbox" id="grounding2"> Did I observe instead of react at least once?</label>
-
-        <h3>Truth Discipline</h3>
-        <label><input type="checkbox" id="truth1"> Did I avoid sharing anything unverified?</label><br>
-        <label><input type="checkbox" id="truth2"> Did I admit “I don’t know” when needed?</label><br>
-        <label><input type="checkbox" id="truth3"> Did I correct myself or my “side” if wrong?</label>
-
-        <h3>Non-Tribal Posture</h3>
-        <label><input type="checkbox" id="nontribal1"> Did I disagree respectfully with someone today?</label><br>
-        <label><input type="checkbox" id="nontribal2"> Did I treat people as humans, not camp avatars?</label>
-
-        <h3>De-Escalation</h3>
-        <label><input type="checkbox" id="deesc1"> Did I cool down at least one rising situation?</label><br>
-        <label><input type="checkbox" id="deesc2"> Did I avoid fueling any conflict?</label>
-
-        <h3>Quiet Uplift</h3>
-        <label><input type="checkbox" id="uplift1"> Did I do one helpful act without telling anyone?</label><br>
-        <label><input type="checkbox" id="uplift2"> Did I support someone quietly who needed it?</label>
-
-        <h3>Boundary Health</h3>
-        <label><input type="checkbox" id="boundary1"> Did I maintain realistic boundaries?</label><br>
-        <label><input type="checkbox" id="boundary2"> Did I avoid guilt/pressure moving me out of position?</label>
-
-        <h3>Operator Integrity</h3>
-        <label><input type="checkbox" id="integrity1"> Did I act within the law?</label><br>
-        <label><input type="checkbox" id="integrity2"> Did I avoid anything harmful to the movement?</label><br>
-        <label><input type="checkbox" id="integrity3"> Did I remain nonpartisan, nonviolent, grounded?</label>
-
-        <h3>Final Self-Audit</h3>
-        <label>What one thing will I improve tomorrow?</label><br>
-        <textarea id="selfImprove" rows="3" style="width:100%;"></textarea>
-
-        <br><br>
-        <button type="button" onclick="saveChecklist()">Save Today’s Checklist</button>
-        <button type="button" onclick="resetToday()" style="margin-left:0.5rem;">Reset Today</button>
-      </form>
-
-      <p id="saveMessage" style="color:#5f5; font-weight:bold;"></p>
-
-      <hr>
-
-      <h2>Community Bags of Trash</h2>
-
-      <div style="text-align:center; margin-bottom: 1rem;">
-        <div style="font-size:0.85rem; opacity:0.7;">TOTAL BAGS RECORDED</div>
-        <div id="trashCountDisplay" style="font-size:2rem; font-weight:bold;">0</div>
-        <button type="button" onclick="incrementTrash()">+1 Bag</button>
-        <button type="button" onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
-      </div>
-
-      <p id="trashMessage" style="color:#5f5; font-weight:bold; text-align:center;"></p>
-
-      <hr>
-
-      <h2>Today’s Score</h2>
-
-      <div style="text-align:center;">
-        <div style="font-size:0.85rem; opacity:0.7;">CURRENT SCORE</div>
-        <div id="scoreCurrent" style="font-size:2.2rem; font-weight:bold;">0</div>
-
-        <div style="font-size:0.85rem; opacity:0.7;">PERSONAL BEST</div>
-        <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
-      </div>
-
-      <p class="small-note" style="text-align:center; margin-top:0.5rem;">
-        Score = checklist items + tomorrow’s improvement + total bags of trash.
-      </p>
-
-    </div>
-
-    <!-- STREAKS + WEEKLY GRAPH PAGE -->
-    <div id="page-streaks" class="app-only operator-only" style="display:none;">
-
-      <hr>
-
-      <h2>Streak & Weekly Overview</h2>
-
-      <p class="small-note">
-        Streak counts consecutive days with a non-zero score. Weekly chart shows the last 7 days.
-      </p>
-
-      <h3>Current Streak</h3>
-      <p style="font-size:1.2rem;">
-        <strong><span id="streakCount">0</span> day(s)</strong> of continuous posture.
-      </p>
-
-      <h3>Last 7 Days</h3>
-      <div id="weekContainer"></div>
-    </div>
-
-    <!-- LOGBOOK PAGE -->
-    <div id="page-logbook" class="app-only operator-only" style="display:none;">
-
-      <hr>
-
-      <h2>Operator Logbook</h2>
-      <p class="small-note">
-        Local record of your daily scores, bags, and tomorrow’s focus. Stored only on this device.
-      </p>
-
-      <div id="logEntries"></div>
-    </div>
-
-    <!-- SETTINGS PAGE -->
-    <div id="page-settings" class="app-only operator-only" style="display:none;">
-
-      <hr>
-
-      <h2>Settings</h2>
-
-      <p class="small-note">
-        These controls only affect data on this device. They do not touch anything on the server.
-      </p>
-
-      <button type="button" onclick="resetToday()">Reset Today (checklist, score & bags)</button>
       <br><br>
-      <button type="button" onclick="clearAllData()">
-        Clear All Local Field Kit Data
-      </button>
-      <p class="small-note" style="margin-top:0.5rem;">
-        Clearing all data will reset scores, streak, trash count, and the logbook.
-      </p>
+      <button type="button" onclick="saveChecklist()">Save Today</button>
+      <button type="button" onclick="resetToday()" style="margin-left:0.6rem;">Reset</button>
+    </form>
+
+    <p id="saveMessage" style="color:#44ff44; font-weight:bold;"></p>
+
+    <hr>
+
+    <h2>Community Bags of Trash</h2>
+    <div style="text-align:center;">
+      <div style="opacity:0.7;">TOTAL BAGS</div>
+      <div id="bagCount" style="font-size:2rem; font-weight:bold;">0</div>
+      <button onclick="addBag()">+1 Bag</button>
+      <button onclick="undoBag()" style="margin-left:0.5rem;">Undo</button>
     </div>
 
-  </section>
+    <hr>
 
-  <script>
-    let operatorUnlocked = false;
+    <h2>Daily Score</h2>
+    <div style="text-align:center;">
+      <div>Score Today</div>
+      <div id="scoreToday" style="font-size:2rem; font-weight:bold;">0</div>
 
-    function isStandaloneApp() {
-      const mq = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
-      const iosStandalone = window.navigator.standalone === true;
-      return mq || iosStandalone;
+      <div style="margin-top:0.5rem;">Personal Best</div>
+      <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<script>
+  // Detect app mode
+  function inStandalone() {
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true
+    );
+  }
+
+  // Show tools ONLY when in app mode
+  document.addEventListener("DOMContentLoaded", function() {
+    if (inStandalone()) {
+      document.getElementById("appTools").style.display = "";
+    }
+    loadAll();
+  });
+
+  function saveChecklist() {
+    let score = 0;
+    for (let i = 1; i <= 16; i++) {
+      const box = document.getElementById("chk" + i);
+      if (box.checked) score++;
+      localStorage.setItem("ct_chk" + i, box.checked);
     }
 
-    function unlockOperatorTools() {
-      if (operatorUnlocked) return;
-      operatorUnlocked = true;
+    const note = document.getElementById("improveTxt").value;
+    if (note.trim() !== "") score++;
+    localStorage.setItem("ct_note", note);
 
-      const appOnly = document.querySelectorAll('.app-only');
-      const opOnly = document.querySelectorAll('.operator-only');
-      appOnly.forEach(function (el) { el.style.display = ''; });
-      opOnly.forEach(function (el) { el.style.display = ''; });
+    const bags = parseInt(localStorage.getItem("ct_bags") || "0");
+    score += bags;
 
-      const hint = document.getElementById('publicHint');
-      if (hint) hint.style.display = 'none';
+    localStorage.setItem("ct_score", score);
 
-      renderStreakAndWeek();
-      renderLogbook();
+    const best = parseInt(localStorage.getItem("ct_best") || "0");
+    if (score > best) {
+      localStorage.setItem("ct_best", score);
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      // If running as installed app, auto-unlock tools
-      if (isStandaloneApp()) {
-        unlockOperatorTools();
-      }
+    loadScores();
+    document.getElementById("saveMessage").innerText = "Saved ✔";
+  }
 
-      loadChecklist();
-      loadTrash();
-      loadScore();
-
-      const nav = document.getElementById('operatorNav');
-      if (nav) {
-        nav.addEventListener('click', function(e) {
-          if (!operatorUnlocked) return;
-          if (e.target.tagName.toLowerCase() !== 'button') return;
-          const targetPage = e.target.getAttribute('data-page');
-          switchPage(targetPage, e.target);
-          if (navigator.vibrate) navigator.vibrate(20);
-        });
-      }
-
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js').catch(function () {});
-      }
-    });
-
-    function switchPage(pageId, buttonEl) {
-      const pages = ['page-dashboard', 'page-streaks', 'page-logbook', 'page-settings'];
-      pages.forEach(function (id) {
-        const el = document.getElementById(id);
-        if (el) el.style.display = (id === pageId) ? '' : 'none';
-      });
-
-      const buttons = document.querySelectorAll('#operatorNav button');
-      buttons.forEach(function (b) { b.classList.remove('active'); });
-      if (buttonEl) buttonEl.classList.add('active');
-
-      if (pageId === 'page-streaks') {
-        renderStreakAndWeek();
-      }
-      if (pageId === 'page-logbook') {
-        renderLogbook();
-      }
+  function resetToday() {
+    for (let i = 1; i <= 16; i++) {
+      const box = document.getElementById("chk" + i);
+      box.checked = false;
+      localStorage.removeItem("ct_chk" + i);
     }
+    document.getElementById("improveTxt").value = "";
+    localStorage.removeItem("ct_note");
+    localStorage.setItem("ct_score", "0");
+    loadScores();
+    document.getElementById("saveMessage").innerText = "Reset ✔";
+  }
 
-    const checklistFields = [
-      "grounding1","grounding2",
-      "truth1","truth2","truth3",
-      "nontribal1","nontribal2",
-      "deesc1","deesc2",
-      "uplift1","uplift2",
-      "boundary1","boundary2",
-      "integrity1","integrity2","integrity3",
-      "selfImprove"
-    ];
-    const checkboxFields = checklistFields.slice(0,16);
+  function addBag() {
+    let bags = parseInt(localStorage.getItem("ct_bags") || "0");
+    bags++;
+    localStorage.setItem("ct_bags", bags);
+    loadBags();
+  }
 
-    function todayDateKey() {
-      return new Date().toISOString().slice(0,10);
+  function undoBag() {
+    let bags = parseInt(localStorage.getItem("ct_bags") || "0");
+    bags = Math.max(0, bags - 1);
+    localStorage.setItem("ct_bags", bags);
+    loadBags();
+  }
+
+  function loadAll() {
+    loadChecklist();
+    loadScores();
+    loadBags();
+  }
+
+  function loadChecklist() {
+    for (let i = 1; i <= 16; i++) {
+      const stored = localStorage.getItem("ct_chk" + i);
+      if (stored === "true") document.getElementById("chk" + i).checked = true;
     }
+    const note = localStorage.getItem("ct_note") || "";
+    document.getElementById("improveTxt").value = note;
+  }
 
-    function loadChecklist() {
-      checklistFields.forEach(function (id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const stored = localStorage.getItem("ct_" + id);
-        if (el.type === "checkbox") el.checked = stored === "true";
-        else el.value = stored || "";
-      });
-    }
+  function loadScores() {
+    document.getElementById("scoreToday").innerText =
+      localStorage.getItem("ct_score") || "0";
+    document.getElementById("scoreBest").innerText =
+      localStorage.getItem("ct_best") || "0";
+  }
 
-    function loadTrash() {
-      const saved = localStorage.getItem("trashBags");
-      const display = document.getElementById("trashCountDisplay");
-      if (display) display.innerText = saved !== null ? saved : "0";
-    }
-
-    function loadScore() {
-      const savedScore = localStorage.getItem("ct_score_today");
-      const savedBest = localStorage.getItem("ct_score_best");
-      const scoreCurrentEl = document.getElementById("scoreCurrent");
-      const scoreBestEl = document.getElementById("scoreBest");
-      if (scoreCurrentEl) scoreCurrentEl.innerText = savedScore || "0";
-      if (scoreBestEl) scoreBestEl.innerText = savedBest || "0";
-    }
-
-    function computeScore() {
-      let score = 0;
-      checkboxFields.forEach(function (id) {
-        const el = document.getElementById(id);
-        if (el && el.checked) score += 1;
-      });
-      const text = document.getElementById("selfImprove");
-      if (text && text.value.trim().length > 0) score += 1;
-      const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
-      score += bags;
-      return score;
-    }
-
-    function getLogbook() {
-      try {
-        const raw = localStorage.getItem("ct_logbook");
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function setLogbook(entries) {
-      localStorage.setItem("ct_logbook", JSON.stringify(entries));
-    }
-
-    function upsertTodayLog(score) {
-      const date = todayDateKey();
-      const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
-      const noteEl = document.getElementById("selfImprove");
-      const note = noteEl ? noteEl.value.trim() : "";
-
-      let log = getLogbook();
-      const existingIdx = log.findIndex(function (e) { return e.date === date; });
-      const entry = { date: date, score: score, bags: bags, note: note };
-
-      if (existingIdx >= 0) log[existingIdx] = entry;
-      else log.push(entry);
-
-      log.sort(function (a, b) { return a.date.localeCompare(b.date); });
-      setLogbook(log);
-    }
-
-    function computeStreak(log) {
-      if (!log.length) return 0;
-      const map = {};
-      log.forEach(function (e) { map[e.date] = e.score; });
-
-      let streak = 0;
-      let anchor = todayDateKey();
-      if (!map[anchor] || map[anchor] === 0) {
-        const last = log[log.length - 1];
-        anchor = last.date;
-        if (!last.score || last.score === 0) return 0;
-      }
-
-      let cursor = new Date(anchor);
-      while (true) {
-        const key = cursor.toISOString().slice(0,10);
-        if (!map[key] || map[key] === 0) break;
-        streak += 1;
-        cursor.setDate(cursor.getDate() - 1);
-      }
-
-      return streak;
-    }
-
-    function renderStreakAndWeek() {
-      const log = getLogbook();
-      const streakEl = document.getElementById("streakCount");
-      if (streakEl) streakEl.innerText = computeStreak(log);
-
-      const container = document.getElementById("weekContainer");
-      if (!container) return;
-      container.innerHTML = "";
-
-      const map = {};
-      log.forEach(function (e) { map[e.date] = e.score; });
-
-      const today = new Date();
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0,10);
-        const label = (d.getMonth() + 1) + "/" + d.getDate();
-        const score = map[key] || 0;
-
-        const row = document.createElement("div");
-        row.className = "week-row";
-
-        const labelSpan = document.createElement("span");
-        labelSpan.className = "week-label";
-        labelSpan.textContent = label;
-
-        const bar = document.createElement("div");
-        bar.className = "week-bar";
-        const maxBarWidth = 120;
-        const width = Math.min(maxBarWidth, score * 6);
-        bar.style.width = width + "px";
-
-        const scoreSpan = document.createElement("span");
-        scoreSpan.className = "week-score";
-        scoreSpan.textContent = score;
-
-        row.appendChild(labelSpan);
-        row.appendChild(bar);
-        row.appendChild(scoreSpan);
-        container.appendChild(row);
-      }
-    }
-
-    function renderLogbook() {
-      const container = document.getElementById("logEntries");
-      if (!container) return;
-      container.innerHTML = "";
-
-      const log = getLogbook().slice().sort(function (a, b) {
-        return b.date.localeCompare(a.date);
-      });
-      if (!log.length) {
-        container.innerHTML = "<p class='small-note'>No entries yet.</p>";
-        return;
-      }
-
-      log.forEach(function (entry) {
-        const div = document.createElement("div");
-        div.className = "log-entry";
-
-        const dateP = document.createElement("div");
-        dateP.className = "log-entry-date";
-        dateP.textContent = entry.date;
-
-        const metaP = document.createElement("div");
-        metaP.className = "log-entry-meta";
-        metaP.textContent = "Score: " + entry.score + " · Bags: " + entry.bags;
-
-        div.appendChild(dateP);
-        div.appendChild(metaP);
-
-        if (entry.note) {
-          const noteP = document.createElement("div");
-          noteP.textContent = "Tomorrow: " + entry.note;
-          div.appendChild(noteP);
-        }
-
-        container.appendChild(div);
-      });
-    }
-
-    function saveChecklist() {
-      checklistFields.forEach(function (id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (el.type === "checkbox") {
-          localStorage.setItem("ct_" + id, el.checked);
-        } else {
-          localStorage.setItem("ct_" + id, el.value);
-        }
-      });
-
-      const score = computeScore();
-      localStorage.setItem("ct_score_today", score);
-
-      let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
-      if (score > best) {
-        best = score;
-        localStorage.setItem("ct_score_best", best);
-      }
-
-      upsertTodayLog(score);
-
-      const scoreCurrentEl = document.getElementById("scoreCurrent");
-      const scoreBestEl = document.getElementById("scoreBest");
-      if (scoreCurrentEl) scoreCurrentEl.innerText = score;
-      if (scoreBestEl) scoreBestEl.innerText = best;
-
-      const msg = document.getElementById("saveMessage");
-      if (msg) {
-        msg.innerText =
-          (score === best && score !== 0)
-          ? "Checklist saved ✔ New personal best."
-          : "Checklist saved ✔";
-      }
-
-      if (navigator.vibrate) navigator.vibrate(30);
-
-      if (operatorUnlocked) {
-        renderStreakAndWeek();
-        renderLogbook();
-      }
-    }
-
-    function resetToday() {
-      checklistFields.forEach(function (id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (el.type === "checkbox") el.checked = false;
-        else el.value = "";
-        localStorage.removeItem("ct_" + id);
-      });
-
-      localStorage.setItem("trashBags", "0");
-      loadTrash();
-
-      localStorage.setItem("ct_score_today", "0");
-      loadScore();
-
-      const msg = document.getElementById("saveMessage");
-      if (msg) msg.innerText = "Today reset ✔";
-
-      if (navigator.vibrate) navigator.vibrate(20);
-    }
-
-    function clearAllData() {
-      if (!confirm("Clear all local Field Kit data on this device?")) return;
-      checklistFields.forEach(function (id) { localStorage.removeItem("ct_" + id); });
-      localStorage.removeItem("trashBags");
-      localStorage.removeItem("ct_score_today");
-      localStorage.removeItem("ct_score_best");
-      localStorage.removeItem("ct_logbook");
-
-      loadChecklist();
-      loadTrash();
-      loadScore();
-      const log = document.getElementById("logEntries");
-      if (log) log.innerHTML = "<p class='small-note'>All data cleared.</p>";
-      const streakEl = document.getElementById("streakCount");
-      if (streakEl) streakEl.innerText = "0";
-      const week = document.getElementById("weekContainer");
-      if (week) week.innerHTML = "";
-
-      if (navigator.vibrate) navigator.vibrate(40);
-    }
-
-    function getTrashCount() {
-      return parseInt(localStorage.getItem("trashBags") || "0", 10);
-    }
-
-    function setTrashCount(value) {
-      if (value < 0) value = 0;
-      localStorage.setItem("trashBags", value);
-      const display = document.getElementById("trashCountDisplay");
-      if (display) display.innerText = value;
-      const msg = document.getElementById("trashMessage");
-      if (msg) msg.innerText = "Updated ✔";
-    }
-
-    function incrementTrash() {
-      setTrashCount(getTrashCount() + 1);
-      if (navigator.vibrate) navigator.vibrate(15);
-    }
-
-    function decrementTrash() {
-      setTrashCount(getTrashCount() - 1);
-      if (navigator.vibrate) navigator.vibrate(10);
-    }
-  </script>
+  function loadBags() {
+    document.getElementById("bagCount").innerText =
+      localStorage.getItem("ct_bags") || "0";
+  }
+</script>
 
 </body>
 </html>
