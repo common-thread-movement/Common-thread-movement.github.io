@@ -26,6 +26,51 @@
       font-size: 0.8rem;
       opacity: 0.65;
     }
+
+    .log-entry {
+      border-top: 1px solid #444;
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
+    }
+    .log-entry-date {
+      font-weight: bold;
+      opacity: 0.9;
+    }
+    .log-entry-meta {
+      opacity: 0.8;
+    }
+
+    /* PDF overlay for app mode */
+    #pdfOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 9999;
+    }
+    #pdfClose {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+    }
+    #pdfFrame {
+      position: absolute;
+      top: 2.5rem;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: calc(100% - 2.5rem);
+      border: none;
+      background: #222;
+    }
   </style>
 </head>
 
@@ -44,17 +89,26 @@
 
     <ul>
       <li>
-        <a href="docs/Fourpages.pdf" target="_blank">
+        <a href="docs/Fourpages.pdf"
+           target="_blank"
+           class="doc-link"
+           data-doc="docs/Fourpages.pdf">
           CT-PRC-004 — Principles Package (4-Page Brief)
         </a>
       </li>
       <li>
-        <a href="docs/handbook.pdf" target="_blank">
+        <a href="docs/handbook.pdf"
+           target="_blank"
+           class="doc-link"
+           data-doc="docs/handbook.pdf">
           CT-HBK-001 — Internal Handbook (Restricted)
         </a>
       </li>
       <li>
-        <a href="docs/Fieldkit.pdf" target="_blank">
+        <a href="docs/Fieldkit.pdf"
+           target="_blank"
+           class="doc-link"
+           data-doc="docs/Fieldkit.pdf">
           CT-FLD-010 — Field Kit (Operator Issue)
         </a>
       </li>
@@ -167,9 +221,40 @@
         <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
       </div>
 
+      <hr>
+
+      <!-- ========== OPERATOR LOG + STREAK ========== -->
+      <h2>Operator Log</h2>
+      <p class="small-note">
+        Local record of recent days: score, bags, and tomorrow’s focus. Stored only on this device.
+      </p>
+
+      <p class="small-note" id="streakText"></p>
+
+      <div id="logContainer"></div>
+
+      <hr>
+
+      <!-- ========== OPERATION JOURNAL ========== -->
+      <h2>Operation Journal</h2>
+      <p class="small-note">
+        Free-form notes on conversations, situations, and observations. Saved only on this device.
+      </p>
+
+      <textarea id="opJournal" rows="6" style="width:100%;"></textarea>
+      <br><br>
+      <button type="button" onclick="saveJournal()">Save Journal</button>
+      <p id="journalMessage" style="color:#5f5; font-weight:bold;"></p>
+
     </div> <!-- END PRIVATE SECTION -->
 
   </section>
+
+  <!-- PDF OVERLAY (APP MODE ONLY) -->
+  <div id="pdfOverlay">
+    <button id="pdfClose">Close</button>
+    <iframe id="pdfFrame" src=""></iframe>
+  </div>
 
   <!-- ========== SCRIPT ========== -->
   <script>
@@ -179,14 +264,6 @@
         window.matchMedia('(display-mode: standalone)').matches;
       const iosStandalone = window.navigator.standalone === true;
       return standaloneMatch || iosStandalone;
-    }
-
-    // Show private tools only in app mode
-    if (isAppMode()) {
-      const priv = document.querySelector('.private-section');
-      if (priv) priv.style.display = 'block';
-      const hint = document.getElementById('publicHint');
-      if (hint) hint.style.display = 'none';
     }
 
     // Checklist items
@@ -200,10 +277,234 @@
       "integrity1","integrity2","integrity3",
       "selfImprove"
     ];
-
     const checkboxFields = checklistFields.slice(0,16); // first 16 are checkboxes
 
+    function todayKey() {
+      return new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    }
+
+    function getLog() {
+      try {
+        const raw = localStorage.getItem("ct_log");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function setLog(entries) {
+      localStorage.setItem("ct_log", JSON.stringify(entries));
+    }
+
+    function upsertTodayLog(score) {
+      const date = todayKey();
+      const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
+      const noteEl = document.getElementById("selfImprove");
+      const note = noteEl ? noteEl.value.trim() : "";
+
+      let log = getLog();
+      const idx = log.findIndex(e => e.date === date);
+      const entry = { date, score, bags, note };
+
+      if (idx >= 0) log[idx] = entry;
+      else log.push(entry);
+
+      log.sort((a, b) => a.date.localeCompare(b.date));
+
+      if (log.length > 30) {
+        log = log.slice(log.length - 30);
+      }
+
+      setLog(log);
+    }
+
+    function computeStreakFromLog(log) {
+      if (!log.length) return 0;
+
+      const map = {};
+      log.forEach(e => { map[e.date] = e.score; });
+
+      let streak = 0;
+      let cursor = new Date(todayKey());
+
+      while (true) {
+        const key = cursor.toISOString().slice(0,10);
+        if (!map[key] || map[key] <= 0) break;
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+
+      return streak;
+    }
+
+    function renderLog() {
+      const container = document.getElementById("logContainer");
+      if (!container) return;
+
+      const log = getLog().slice().sort((a, b) => b.date.localeCompare(a.date));
+
+      if (!log.length) {
+        container.innerHTML = "<p class='small-note'>No entries yet.</p>";
+        return;
+      }
+
+      const recent = log.slice(0, 14);
+      container.innerHTML = "";
+      recent.forEach(entry => {
+        const div = document.createElement("div");
+        div.className = "log-entry";
+
+        const dateEl = document.createElement("div");
+        dateEl.className = "log-entry-date";
+        dateEl.textContent = entry.date;
+
+        const metaEl = document.createElement("div");
+        metaEl.className = "log-entry-meta";
+        metaEl.textContent = "Score: " + entry.score + " · Bags: " + entry.bags;
+
+        div.appendChild(dateEl);
+        div.appendChild(metaEl);
+
+        if (entry.note) {
+          const noteEl = document.createElement("div");
+          noteEl.textContent = "Tomorrow: " + entry.note;
+          div.appendChild(noteEl);
+        }
+
+        container.appendChild(div);
+      });
+    }
+
+    function renderStreak() {
+      const streakText = document.getElementById("streakText");
+      if (!streakText) return;
+
+      const log = getLog();
+      const streak = computeStreakFromLog(log);
+
+      if (streak === 0) {
+        streakText.textContent = "Current streak: 0 days.";
+      } else if (streak === 1) {
+        streakText.textContent = "Current streak: 1 day of posture.";
+      } else {
+        streakText.textContent = "Current streak: " + streak + " days of posture.";
+      }
+    }
+
+    function computeScore() {
+      let score = 0;
+
+      checkboxFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.checked) score += 1;
+      });
+
+      const text = document.getElementById("selfImprove");
+      if (text && text.value.trim().length > 0) score += 1;
+
+      const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
+      score += bags;
+
+      return score;
+    }
+
+    function saveChecklist() {
+      checklistFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        if (el.type === "checkbox") localStorage.setItem("ct_" + id, el.checked);
+        else localStorage.setItem("ct_" + id, el.value);
+      });
+
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+
+      let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
+      if (score > best) {
+        best = score;
+        localStorage.setItem("ct_score_best", best);
+      }
+
+      document.getElementById("scoreCurrent").innerText = score;
+      document.getElementById("scoreBest").innerText = best;
+
+      upsertTodayLog(score);
+      renderLog();
+      renderStreak();
+
+      document.getElementById("saveMessage").innerText =
+        (score === best) ?
+        "Checklist saved ✔ New personal best." :
+        "Checklist saved ✔";
+    }
+
+    function getTrashCount() {
+      return parseInt(localStorage.getItem("trashBags") || "0", 10);
+    }
+
+    function setTrashCount(value) {
+      if (value < 0) value = 0;
+      localStorage.setItem("trashBags", value);
+      const display = document.getElementById("trashCountDisplay");
+      if (display) display.innerText = value;
+      const msg = document.getElementById("trashMessage");
+      if (msg) msg.innerText = "Updated ✔";
+    }
+
+    function incrementTrash() {
+      setTrashCount(getTrashCount() + 1);
+    }
+
+    function decrementTrash() {
+      setTrashCount(getTrashCount() - 1);
+    }
+
+    // Operation Journal
+    function saveJournal() {
+      const el = document.getElementById("opJournal");
+      if (!el) return;
+      localStorage.setItem("ct_journal", el.value);
+      const msg = document.getElementById("journalMessage");
+      if (msg) msg.innerText = "Journal saved ✔";
+    }
+
+    function loadJournal() {
+      const el = document.getElementById("opJournal");
+      if (!el) return;
+      const stored = localStorage.getItem("ct_journal");
+      if (stored !== null) el.value = stored;
+    }
+
+    // PDF overlay helpers
+    function openPdfOverlay(url) {
+      const overlay = document.getElementById("pdfOverlay");
+      const frame = document.getElementById("pdfFrame");
+      if (!overlay || !frame) return;
+      frame.src = url;
+      overlay.style.display = "block";
+    }
+
+    function closePdfOverlay() {
+      const overlay = document.getElementById("pdfOverlay");
+      const frame = document.getElementById("pdfFrame");
+      if (!overlay || !frame) return;
+      frame.src = "";
+      overlay.style.display = "none";
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
+      const inApp = isAppMode();
+
+      // Show private tools only in app mode
+      if (inApp) {
+        const priv = document.querySelector(".private-section");
+        if (priv) priv.style.display = "block";
+        const hint = document.getElementById("publicHint");
+        if (hint) hint.style.display = "none";
+      }
 
       // Load checklist
       checklistFields.forEach(id => {
@@ -227,76 +528,35 @@
       if (savedScore) document.getElementById("scoreCurrent").innerText = savedScore;
       if (savedBest) document.getElementById("scoreBest").innerText = savedBest;
 
+      // Load & render log and streak
+      renderLog();
+      renderStreak();
+
+      // Load journal
+      loadJournal();
+
+      // Hook up PDF overlay in app mode only
+      const docLinks = document.querySelectorAll(".doc-link");
+      if (inApp) {
+        docLinks.forEach(link => {
+          link.addEventListener("click", function(e) {
+            e.preventDefault();
+            const url = link.getAttribute("data-doc") || link.href;
+            openPdfOverlay(url);
+          });
+        });
+      }
+
+      const closeBtn = document.getElementById("pdfClose");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", closePdfOverlay);
+      }
+
       // Register service worker (safe no-op if missing)
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("service-worker.js").catch(() => {});
       }
     });
-
-    function computeScore() {
-      let score = 0;
-
-      // Checkboxes
-      checkboxFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && el.checked) score += 1;
-      });
-
-      // Self-improvement text
-      const text = document.getElementById("selfImprove");
-      if (text && text.value.trim().length > 0) score += 1;
-
-      // Bags of trash
-      const bags = parseInt(localStorage.getItem("trashBags") || "0");
-      score += bags;
-
-      return score;
-    }
-
-    function saveChecklist() {
-      // Save fields
-      checklistFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-
-        if (el.type === "checkbox") localStorage.setItem("ct_" + id, el.checked);
-        else localStorage.setItem("ct_" + id, el.value);
-      });
-
-      // Save score
-      const score = computeScore();
-      localStorage.setItem("ct_score_today", score);
-
-      let best = parseInt(localStorage.getItem("ct_score_best") || "0");
-      if (score > best) {
-        best = score;
-        localStorage.setItem("ct_score_best", best);
-      }
-
-      document.getElementById("scoreCurrent").innerText = score;
-      document.getElementById("scoreBest").innerText = best;
-
-      document.getElementById("saveMessage").innerText =
-        (score === best) ?
-        "Checklist saved ✔ New personal best." :
-        "Checklist saved ✔";
-    }
-
-    // Trash counter
-    function getTrashCount() {
-      return parseInt(localStorage.getItem("trashBags") || "0");
-    }
-
-    function setTrashCount(value) {
-      if (value < 0) value = 0;
-      localStorage.setItem("trashBags", value);
-      document.getElementById("trashCountDisplay").innerText = value;
-      document.getElementById("trashMessage").innerText = "Updated ✔";
-    }
-
-    function incrementTrash() { setTrashCount(getTrashCount() + 1); }
-    function decrementTrash() { setTrashCount(getTrashCount() - 1); }
-
   </script>
 
 </body>
