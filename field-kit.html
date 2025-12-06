@@ -47,6 +47,7 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.9);
       z-index: 9999;
+      overflow: hidden; /* keep scrolling inside the frame */
     }
     #pdfClose {
       position: absolute;
@@ -59,17 +60,19 @@
       background: #111;
       color: #fff;
       cursor: pointer;
+      z-index: 10000;
     }
     #pdfFrame {
       position: absolute;
-      top: 2.5rem;
+      top: 0;
       left: 0;
       right: 0;
       bottom: 0;
       width: 100%;
-      height: calc(100% - 2.5rem);
+      height: 100%;
       border: none;
       background: #222;
+      -webkit-overflow-scrolling: touch;
     }
   </style>
 </head>
@@ -485,6 +488,8 @@
       if (!overlay || !frame) return;
       frame.src = url;
       overlay.style.display = "block";
+      // prevent background scrolling while PDF is open
+      document.body.style.overflow = "hidden";
     }
 
     function closePdfOverlay() {
@@ -493,6 +498,8 @@
       if (!overlay || !frame) return;
       frame.src = "";
       overlay.style.display = "none";
+      // restore scrolling
+      document.body.style.overflow = "";
     }
 
     document.addEventListener("DOMContentLoaded", function() {
