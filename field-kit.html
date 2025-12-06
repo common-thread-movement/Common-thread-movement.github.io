@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* Hidden by default; shown after unlock */
+    /* Hidden by default; shown automatically in app (standalone) mode */
     .app-only {
       display: none;
     }
@@ -128,17 +128,11 @@
       <strong>Install app</strong>.
     </p>
 
-    <!-- OPERATOR TOOLS BUTTON -->
-    <div style="text-align:center; margin-top:1.5rem;">
-      <button id="openOperatorBtn" style="padding:0.5rem 1rem; font-size:0.95rem;">
-        Open Operator Tools
-      </button>
-      <p id="publicHint" class="small-note" style="margin-top:0.5rem;">
-        Operator checklist, score, streaks, and logbook are stored only on this device.
-      </p>
-    </div>
+    <p id="publicHint" class="small-note" style="margin-top:0.5rem; text-align:center;">
+      Operator tools load automatically when opened as an app from your Home Screen.
+    </p>
 
-    <!-- OPERATOR NAV + TOOLS (UNLOCKED BY BUTTON) -->
+    <!-- OPERATOR NAV + TOOLS (AUTO IN APP MODE) -->
 
     <!-- Operator navigation -->
     <div id="operatorNav" class="app-only operator-only operator-nav">
@@ -291,6 +285,12 @@
   <script>
     let operatorUnlocked = false;
 
+    function isStandaloneApp() {
+      const mq = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      const iosStandalone = window.navigator.standalone === true;
+      return mq || iosStandalone;
+    }
+
     function unlockOperatorTools() {
       if (operatorUnlocked) return;
       operatorUnlocked = true;
@@ -298,25 +298,19 @@
       const appOnly = document.querySelectorAll('.app-only');
       const opOnly = document.querySelectorAll('.operator-only');
       appOnly.forEach(el => el.style.display = '');
-      opOnly.forEach(el => el.style.display = '');
+      opOnly.forEach(el => el.style.display = '';
 
       const hint = document.getElementById('publicHint');
       if (hint) hint.style.display = 'none';
-
-      const btn = document.getElementById('openOperatorBtn');
-      if (btn) btn.style.display = 'none';
 
       renderStreakAndWeek();
       renderLogbook();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      const openBtn = document.getElementById('openOperatorBtn');
-      if (openBtn) {
-        openBtn.addEventListener('click', function() {
-          unlockOperatorTools();
-          if (navigator.vibrate) navigator.vibrate(40);
-        });
+      // If running as installed app, auto-unlock tools
+      if (isStandaloneApp()) {
+        unlockOperatorTools();
       }
 
       loadChecklist();
