@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Common Thread · Field Kit</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+
+  <!-- Use your existing site styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header>
+    <h1>Common Thread · Field Kit</h1>
+    <p>Quiet operations for responsible citizens.</p>
+  </header>
+
+  <section class="content-box">
+
+    <!-- ========== DOCUMENT LINKS ========== -->
+    <h2>Field Documents</h2>
+    <p>Tap any document below to open it:</p>
+
+    <ul>
+      <li>
+        <a href="docs/Fourpages.pdf" target="_blank">
+          CT-PRC-004 — Principles Package (4-Page Brief)
+        </a>
+      </li>
+
+      <li>
+        <a href="docs/handbook.pdf" target="_blank">
+          CT-HBK-001 — Internal Handbook (Restricted)
+        </a>
+      </li>
+
+      <li>
+        <a href="docs/Fieldkit.pdf" target="_blank">
+          CT-FLD-010 — Field Kit (Operator Issue)
+        </a>
+      </li>
+    </ul>
+
+
+    <!-- ========== DAILY CHECKLIST ========== -->
+    <h2>Daily Operations Checklist</h2>
+
+    <form id="dailyChecklist">
+
+      <label>
+        <input type="checkbox" id="bathroomClean">
+        Bathroom cleaned today
+      </label>
+      <br>
+
+      <label>
+        <input type="checkbox" id="serviceDone">
+        Completed one act of quiet service
+      </label>
+      <br>
+
+      <label>
+        Times I chose curiosity over anger today:
+        <input type="number" id="curiosityCount" min="0" value="0">
+      </label>
+      <br><br>
+
+      <label>
+        Notes:
+        <br>
+        <textarea id="notes" rows="3"></textarea>
+      </label>
+      <br><br>
+
+      <button type="button" onclick="saveChecklist()">Save Today’s Entry</button>
+    </form>
+
+    <p id="saveMessage" style="color: #5f5; font-weight: bold;"></p>
+
+
+  </section>
+
+  <!-- ========== CHECKLIST SCRIPT ========== -->
+  <script>
+    // Load saved values when page loads
+    document.addEventListener("DOMContentLoaded", function() {
+
+      document.getElementById("bathroomClean").checked =
+        localStorage.getItem("bathroomClean") === "true";
+
+      document.getElementById("serviceDone").checked =
+        localStorage.getItem("serviceDone") === "true";
+
+      document.getElementById("curiosityCount").value =
+        localStorage.getItem("curiosityCount") || 0;
+
+      document.getElementById("notes").value =
+        localStorage.getItem("notes") || "";
+    });
+
+    // Save function
+    function saveChecklist() {
+      localStorage.setItem("bathroomClean",
+        document.getElementById("bathroomClean").checked);
+
+      localStorage.setItem("serviceDone",
+        document.getElementById("serviceDone").checked);
+
+      localStorage.setItem("curiosityCount",
+        document.getElementById("curiosityCount").value);
+
+      localStorage.setItem("notes",
+        document.getElementById("notes").value);
+
+      document.getElementById("saveMessage").innerText =
+        "Checklist saved ✔";
+    }
+  </script>
+
+</body>
+</html>
