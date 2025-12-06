@@ -202,8 +202,8 @@
       <div style="text-align:center; margin-bottom: 1rem;">
         <div style="font-size:0.85rem; opacity:0.7;">TOTAL BAGS RECORDED</div>
         <div id="trashCountDisplay" style="font-size:2rem; font-weight:bold;">0</div>
-        <button onclick="incrementTrash()">+1 Bag</button>
-        <button onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
+        <button type="button" onclick="incrementTrash()">+1 Bag</button>
+        <button type="button" onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
       </div>
 
       <p id="trashMessage" style="color:#5f5; font-weight:bold; text-align:center;"></p>
@@ -297,8 +297,8 @@
 
       const appOnly = document.querySelectorAll('.app-only');
       const opOnly = document.querySelectorAll('.operator-only');
-      appOnly.forEach(el => el.style.display = '');
-      opOnly.forEach(el => el.style.display = '';
+      appOnly.forEach(function (el) { el.style.display = ''; });
+      opOnly.forEach(function (el) { el.style.display = ''; });
 
       const hint = document.getElementById('publicHint');
       if (hint) hint.style.display = 'none';
@@ -329,19 +329,19 @@
       }
 
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        navigator.serviceWorker.register('service-worker.js').catch(function () {});
       }
     });
 
     function switchPage(pageId, buttonEl) {
       const pages = ['page-dashboard', 'page-streaks', 'page-logbook', 'page-settings'];
-      pages.forEach(id => {
+      pages.forEach(function (id) {
         const el = document.getElementById(id);
         if (el) el.style.display = (id === pageId) ? '' : 'none';
       });
 
       const buttons = document.querySelectorAll('#operatorNav button');
-      buttons.forEach(b => b.classList.remove('active'));
+      buttons.forEach(function (b) { b.classList.remove('active'); });
       if (buttonEl) buttonEl.classList.add('active');
 
       if (pageId === 'page-streaks') {
@@ -369,7 +369,7 @@
     }
 
     function loadChecklist() {
-      checklistFields.forEach(id => {
+      checklistFields.forEach(function (id) {
         const el = document.getElementById(id);
         if (!el) return;
         const stored = localStorage.getItem("ct_" + id);
@@ -395,7 +395,7 @@
 
     function computeScore() {
       let score = 0;
-      checkboxFields.forEach(id => {
+      checkboxFields.forEach(function (id) {
         const el = document.getElementById(id);
         if (el && el.checked) score += 1;
       });
@@ -412,7 +412,7 @@
         if (!raw) return [];
         const parsed = JSON.parse(raw);
         return Array.isArray(parsed) ? parsed : [];
-      } catch {
+      } catch (e) {
         return [];
       }
     }
@@ -428,20 +428,20 @@
       const note = noteEl ? noteEl.value.trim() : "";
 
       let log = getLogbook();
-      const existingIdx = log.findIndex(e => e.date === date);
-      const entry = { date, score, bags, note };
+      const existingIdx = log.findIndex(function (e) { return e.date === date; });
+      const entry = { date: date, score: score, bags: bags, note: note };
 
       if (existingIdx >= 0) log[existingIdx] = entry;
       else log.push(entry);
 
-      log.sort((a,b) => a.date.localeCompare(b.date));
+      log.sort(function (a, b) { return a.date.localeCompare(b.date); });
       setLogbook(log);
     }
 
     function computeStreak(log) {
       if (!log.length) return 0;
       const map = {};
-      log.forEach(e => { map[e.date] = e.score; });
+      log.forEach(function (e) { map[e.date] = e.score; });
 
       let streak = 0;
       let anchor = todayDateKey();
@@ -472,7 +472,7 @@
       container.innerHTML = "";
 
       const map = {};
-      log.forEach(e => { map[e.date] = e.score; });
+      log.forEach(function (e) { map[e.date] = e.score; });
 
       const today = new Date();
       for (let i = 6; i >= 0; i--) {
@@ -511,13 +511,15 @@
       if (!container) return;
       container.innerHTML = "";
 
-      const log = getLogbook().slice().sort((a,b) => b.date.localeCompare(a.date));
+      const log = getLogbook().slice().sort(function (a, b) {
+        return b.date.localeCompare(a.date);
+      });
       if (!log.length) {
         container.innerHTML = "<p class='small-note'>No entries yet.</p>";
         return;
       }
 
-      log.forEach(entry => {
+      log.forEach(function (entry) {
         const div = document.createElement("div");
         div.className = "log-entry";
 
@@ -543,7 +545,7 @@
     }
 
     function saveChecklist() {
-      checklistFields.forEach(id => {
+      checklistFields.forEach(function (id) {
         const el = document.getElementById(id);
         if (!el) return;
         if (el.type === "checkbox") {
@@ -586,7 +588,7 @@
     }
 
     function resetToday() {
-      checklistFields.forEach(id => {
+      checklistFields.forEach(function (id) {
         const el = document.getElementById(id);
         if (!el) return;
         if (el.type === "checkbox") el.checked = false;
@@ -608,7 +610,7 @@
 
     function clearAllData() {
       if (!confirm("Clear all local Field Kit data on this device?")) return;
-      checklistFields.forEach(id => localStorage.removeItem("ct_" + id));
+      checklistFields.forEach(function (id) { localStorage.removeItem("ct_" + id); });
       localStorage.removeItem("trashBags");
       localStorage.removeItem("ct_score_today");
       localStorage.removeItem("ct_score_best");
