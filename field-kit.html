@@ -39,6 +39,26 @@
     .log-entry-meta {
       opacity: 0.8;
     }
+
+    .mission-card {
+      border: 1px solid #444;
+      padding: 0.6rem;
+      border-radius: 4px;
+      margin: 0.4rem 0 0.6rem 0;
+      font-size: 0.9rem;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .quiz-question {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .quiz-options button {
+      display: block;
+      width: 100%;
+      margin-bottom: 0.3rem;
+    }
   </style>
 </head>
 
@@ -57,20 +77,17 @@
 
     <ul>
       <li>
-        <a href="docs/Fourpages.pdf"
-           target="_blank">
+        <a href="docs/Fourpages.pdf" target="_blank">
           CT-PRC-004 — Principles Package (4-Page Brief)
         </a>
       </li>
       <li>
-        <a href="docs/handbook.pdf"
-           target="_blank">
+        <a href="docs/handbook.pdf" target="_blank">
           CT-HBK-001 — Internal Handbook (Restricted)
         </a>
       </li>
       <li>
-        <a href="docs/Fieldkit.pdf"
-           target="_blank">
+        <a href="docs/Fieldkit.pdf" target="_blank">
           CT-FLD-010 — Field Kit (Operator Issue)
         </a>
       </li>
@@ -89,7 +106,7 @@
     <p>
       <strong>On iPhone / iPad:</strong><br>
       1. Open this page in Safari.<br>
-      2. Tap the <em>Share</em> icon (square with the arrow).<br>
+      2. Tap the Share icon (square with the arrow).<br>
       3. Scroll down and tap <strong>Add to Home Screen</strong>.<br>
       4. Tap <strong>Add</strong>. Use the new icon to open the Field Kit.
     </p>
@@ -122,8 +139,8 @@
 
         <h3>Truth Discipline</h3>
         <label><input type="checkbox" id="truth1"> Did I avoid sharing anything unverified?</label><br>
-        <label><input type="checkbox" id="truth2"> Did I admit “I don’t know” when needed?</label><br>
-        <label><input type="checkbox" id="truth3"> Did I correct myself or my “side” if wrong?</label>
+        <label><input type="checkbox" id="truth2"> Did I admit "I don't know" when needed?</label><br>
+        <label><input type="checkbox" id="truth3"> Did I correct myself or my "side" if wrong?</label>
 
         <h3>Non-Tribal Posture</h3>
         <label><input type="checkbox" id="nontribal1"> Did I disagree respectfully with someone today?</label><br>
@@ -151,7 +168,7 @@
         <textarea id="selfImprove" rows="3" style="width:100%;"></textarea>
 
         <br><br>
-        <button type="button" onclick="saveChecklist()">Save Today’s Checklist</button>
+        <button type="button" onclick="saveChecklist()">Save Today's Checklist</button>
       </form>
 
       <p id="saveMessage" style="color:#5f5; font-weight:bold;"></p>
@@ -164,8 +181,8 @@
       <div style="text-align:center; margin-bottom: 1rem;">
         <div style="font-size:0.85rem; opacity:0.7;">TOTAL BAGS RECORDED</div>
         <div id="trashCountDisplay" style="font-size:2rem; font-weight:bold;">0</div>
-        <button onclick="incrementTrash()">+1 Bag</button>
-        <button onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
+        <button type="button" onclick="incrementTrash()">+1 Bag</button>
+        <button type="button" onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
       </div>
 
       <p id="trashMessage" style="color:#5f5; font-weight:bold; text-align:center;"></p>
@@ -182,6 +199,42 @@
         <div style="font-size:0.85rem; opacity:0.7;">PERSONAL BEST</div>
         <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
       </div>
+
+      <hr>
+
+      <!-- ========== DAILY MISSION CARD GAME ========== -->
+      <h2>Daily Mission Card</h2>
+      <p class="small-note">
+        One quiet operation for today. Completing it adds to your score. Missions reset each day.
+      </p>
+
+      <div id="missionCard" class="mission-card">
+        <span id="missionText">Tap "Draw Today’s Mission" to begin.</span>
+      </div>
+
+      <button type="button" onclick="drawMission()">Draw Today’s Mission</button>
+      <button type="button" onclick="completeMission()" style="margin-left:0.5rem;">
+        Mark Mission Complete
+      </button>
+      <p id="missionStatus" class="small-note" style="margin-top:0.4rem;"></p>
+
+      <hr>
+
+      <!-- ========== PATTERN SPOTTER — INSTINCT SPIKE GAME ========== -->
+      <h2>Pattern Spotter — Instinct Spike</h2>
+      <p class="small-note">
+        Quick drills to spot Instinct Spike language (amygdala flare) versus grounded or cooling CT posture.
+      </p>
+
+      <div id="quizQuestion" class="quiz-question"></div>
+      <div class="quiz-options">
+        <button type="button" onclick="answerQuiz(0)">Instinct Spike / tribal escalation</button>
+        <button type="button" onclick="answerQuiz(1)">Grounded disagreement</button>
+        <button type="button" onclick="answerQuiz(2)">Cooling / de-escalation</button>
+        <button type="button" onclick="answerQuiz(3)">Neutral / factual</button>
+      </div>
+      <p id="quizFeedback" class="small-note" style="margin-top:0.4rem;"></p>
+      <button type="button" onclick="nextQuiz()" style="margin-top:0.4rem;">New Scenario</button>
 
       <hr>
 
@@ -235,10 +288,78 @@
     ];
     const checkboxFields = checklistFields.slice(0,16); // first 16 are checkboxes
 
+    // Daily Mission data
+    const MISSIONS = [
+      "Pick up trash in a spot that bothers you and leave without posting about it.",
+      "Defend someone you disagree with from unfair treatment or mockery.",
+      "Ask one person a curious question instead of arguing your point.",
+      "Quietly fix or clean one thing nobody asked you to touch.",
+      "Clarify someone’s position before you criticize it: repeat it back fairly first.",
+      "Offer a sincere compliment to someone outside your usual circle or tribe.",
+      "De-escalate one tense moment by lowering your tone and pace.",
+      "Admit one small fault today without blame-shifting or excuse.",
+      "Choose not to share one piece of outrage content you normally would.",
+      "Support someone’s good idea even if they’re from a different camp than you."
+    ];
+
+    // Pattern Spotter questions
+    const QUIZ_QUESTIONS = [
+      {
+        text: "\"Those people are destroying everything.\"",
+        correct: 0,
+        explanation:
+          "This is Instinct Spike / tribal escalation: it collapses complex people into a hostile camp."
+      },
+      {
+        text: "\"I don’t like this policy because I think it harms working families.\"",
+        correct: 1,
+        explanation:
+          "This is grounded disagreement: specific concern, not an attack on a tribe."
+      },
+      {
+        text: "\"From their point of view, this actually makes sense even if I disagree.\"",
+        correct: 2,
+        explanation:
+          "This is cooling language: it lowers Instinct Spike by humanizing the other side."
+      },
+      {
+        text: "\"The report says turnout increased by 7% this year.\"",
+        correct: 3,
+        explanation:
+          "This is neutral / factual language: it can be used well or badly, but isn’t Instinct Spike by itself."
+      },
+      {
+        text: "\"Anyone who disagrees with this is either stupid or evil.\"",
+        correct: 0,
+        explanation:
+          "Classic Instinct Spike pattern: moral condemnation of a whole category of people."
+      },
+      {
+        text: "\"I’m angry, but I want to understand what you were trying to do.\"",
+        correct: 2,
+        explanation:
+          "Cooling / de-escalation: acknowledges emotion while steering toward understanding."
+      },
+      {
+        text: "\"They always play the victim.\"",
+        correct: 0,
+        explanation:
+          "Instinct Spike: broad, contemptuous generalization about a group."
+      },
+      {
+        text: "\"Here’s what I heard you say; tell me if I’m missing anything.\"",
+        correct: 2,
+        explanation:
+          "Cooling posture: slows things down and checks understanding instead of reacting."
+      }
+    ];
+    let currentQuizIndex = -1;
+
     function todayKey() {
       return new Date().toISOString().slice(0,10); // YYYY-MM-DD
     }
 
+    // ---- Log utilities ----
     function getLog() {
       try {
         const raw = localStorage.getItem("ct_log");
@@ -349,32 +470,44 @@
       }
     }
 
+    // ---- Score computation ----
     function computeScore() {
       let score = 0;
 
-      checkboxFields.forEach(id => {
+      // Checkboxes
+      checkboxFields.forEach(function(id) {
         const el = document.getElementById(id);
         if (el && el.checked) score += 1;
       });
 
+      // Self-improvement note
       const text = document.getElementById("selfImprove");
-      if (text && text.value.trim() > 0) score += 1;
+      if (text && text.value.trim().length > 0) score += 1;
 
+      // Bags of trash
       const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
       score += bags;
+
+      // Mission completion (1 point if completed)
+      const missionDone = localStorage.getItem("ct_mission_done") === "true";
+      if (missionDone) score += 1;
 
       return score;
     }
 
     function saveChecklist() {
-      checklistFields.forEach(id => {
+      // Save checklist + note
+      checklistFields.forEach(function(id) {
         const el = document.getElementById(id);
         if (!el) return;
-
-        if (el.type === "checkbox") localStorage.setItem("ct_" + id, el.checked);
-        else localStorage.setItem("ct_" + id, el.value);
+        if (el.type === "checkbox") {
+          localStorage.setItem("ct_" + id, el.checked);
+        } else {
+          localStorage.setItem("ct_" + id, el.value);
+        }
       });
 
+      // Compute + save score
       const score = computeScore();
       localStorage.setItem("ct_score_today", score);
 
@@ -387,6 +520,7 @@
       document.getElementById("scoreCurrent").innerText = score;
       document.getElementById("scoreBest").innerText = best;
 
+      // Update log + streak
       upsertTodayLog(score);
       renderLog();
       renderStreak();
@@ -397,6 +531,7 @@
         "Checklist saved ✔";
     }
 
+    // ---- Trash counter ----
     function getTrashCount() {
       return parseInt(localStorage.getItem("trashBags") || "0", 10);
     }
@@ -418,7 +553,7 @@
       setTrashCount(getTrashCount() - 1);
     }
 
-    // Operation Journal
+    // ---- Operation Journal ----
     function saveJournal() {
       const el = document.getElementById("opJournal");
       if (!el) return;
@@ -434,6 +569,121 @@
       if (stored !== null) el.value = stored;
     }
 
+    // ---- Daily Mission game ----
+    function loadMissionFromStorage() {
+      const date = localStorage.getItem("ct_mission_date");
+      const text = localStorage.getItem("ct_mission_text");
+      const done = localStorage.getItem("ct_mission_done") === "true";
+      const today = todayKey();
+
+      const missionTextEl = document.getElementById("missionText");
+      const missionStatusEl = document.getElementById("missionStatus");
+
+      if (date === today && text) {
+        missionTextEl.textContent = text;
+        missionStatusEl.textContent = done ? "Mission marked complete for today." : "";
+      } else {
+        // Old mission; clear
+        localStorage.removeItem("ct_mission_date");
+        localStorage.removeItem("ct_mission_text");
+        localStorage.removeItem("ct_mission_done");
+        missionTextEl.textContent = 'Tap "Draw Today’s Mission" to begin.';
+        missionStatusEl.textContent = "";
+      }
+    }
+
+    function drawMission() {
+      const today = todayKey();
+      const randomIndex = Math.floor(Math.random() * MISSIONS.length);
+      const text = MISSIONS[randomIndex];
+
+      localStorage.setItem("ct_mission_date", today);
+      localStorage.setItem("ct_mission_text", text);
+      localStorage.setItem("ct_mission_done", "false");
+
+      document.getElementById("missionText").textContent = text;
+      document.getElementById("missionStatus").textContent = "Mission set for today.";
+
+      // Recompute score (in case we removed a previously completed mission)
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+      document.getElementById("scoreCurrent").innerText = score;
+    }
+
+    function completeMission() {
+      const date = localStorage.getItem("ct_mission_date");
+      const today = todayKey();
+      if (date !== today) {
+        document.getElementById("missionStatus").textContent =
+          "Draw today’s mission first.";
+        return;
+      }
+      localStorage.setItem("ct_mission_done", "true");
+      document.getElementById("missionStatus").textContent =
+        "Mission marked complete for today.";
+
+      // Recompute + save score with mission bonus
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+
+      let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
+      if (score > best) {
+        best = score;
+        localStorage.setItem("ct_score_best", best);
+      }
+
+      document.getElementById("scoreCurrent").innerText = score;
+      document.getElementById("scoreBest").innerText = best;
+
+      upsertTodayLog(score);
+      renderLog();
+      renderStreak();
+    }
+
+    // ---- Pattern Spotter — Instinct Spike game ----
+    function renderQuizQuestion() {
+      const qEl = document.getElementById("quizQuestion");
+      const feedbackEl = document.getElementById("quizFeedback");
+      if (!qEl || !feedbackEl) return;
+
+      if (currentQuizIndex < 0 || currentQuizIndex >= QUIZ_QUESTIONS.length) {
+        qEl.textContent = 'Tap "New Scenario" to start a drill.';
+        feedbackEl.textContent = "";
+        return;
+      }
+
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      qEl.textContent = q.text;
+      feedbackEl.textContent = "";
+    }
+
+    function nextQuiz() {
+      currentQuizIndex = Math.floor(Math.random() * QUIZ_QUESTIONS.length);
+      renderQuizQuestion();
+    }
+
+    function answerQuiz(choiceIndex) {
+      if (currentQuizIndex < 0 || currentQuizIndex >= QUIZ_QUESTIONS.length) {
+        return;
+      }
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      const feedbackEl = document.getElementById("quizFeedback");
+      if (!feedbackEl) return;
+
+      if (choiceIndex === q.correct) {
+        feedbackEl.textContent = "Correct. " + q.explanation;
+      } else {
+        let label = "";
+        if (choiceIndex === 0) label = "Instinct Spike / tribal escalation";
+        if (choiceIndex === 1) label = "grounded disagreement";
+        if (choiceIndex === 2) label = "cooling / de-escalation";
+        if (choiceIndex === 3) label = "neutral / factual";
+        feedbackEl.textContent =
+          "Not quite (" + label + "). " + q.explanation;
+      }
+    }
+
+    // ---- DOM Ready ----
     document.addEventListener("DOMContentLoaded", function() {
       const inApp = isAppMode();
 
@@ -446,26 +696,29 @@
       }
 
       // Load checklist
-      checklistFields.forEach(id => {
+      checklistFields.forEach(function(id) {
         const el = document.getElementById(id);
         if (!el) return;
-
         const stored = localStorage.getItem("ct_" + id);
-
         if (el.type === "checkbox") el.checked = stored === "true";
         else el.value = stored || "";
       });
 
       // Load trash count
       const trashCount = localStorage.getItem("trashBags");
-      if (trashCount !== null)
-        document.getElementById("trashCountDisplay").innerText = trashCount;
+      if (trashCount !== null) {
+        const display = document.getElementById("trashCountDisplay");
+        if (display) display.innerText = trashCount;
+      }
 
       // Load score
       const savedScore = localStorage.getItem("ct_score_today");
       const savedBest = localStorage.getItem("ct_score_best");
       if (savedScore) document.getElementById("scoreCurrent").innerText = savedScore;
       if (savedBest) document.getElementById("scoreBest").innerText = savedBest;
+
+      // Load mission
+      loadMissionFromStorage();
 
       // Load & render log and streak
       renderLog();
@@ -474,9 +727,12 @@
       // Load journal
       loadJournal();
 
+      // Initialize quiz
+      renderQuizQuestion();
+
       // Register service worker (safe no-op if missing)
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("service-worker.js").catch(() => {});
+        navigator.serviceWorker.register("service-worker.js").catch(function() {});
       }
     });
   </script>
