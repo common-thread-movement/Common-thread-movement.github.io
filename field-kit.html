@@ -39,41 +39,6 @@
     .log-entry-meta {
       opacity: 0.8;
     }
-
-    /* PDF overlay for app mode */
-    #pdfOverlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      z-index: 9999;
-      overflow: hidden; /* keep scrolling inside the frame */
-    }
-    #pdfClose {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      padding: 0.4rem 0.9rem;
-      font-size: 0.9rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #111;
-      color: #fff;
-      cursor: pointer;
-      z-index: 10000;
-    }
-    #pdfFrame {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: #222;
-      -webkit-overflow-scrolling: touch;
-    }
   </style>
 </head>
 
@@ -93,25 +58,19 @@
     <ul>
       <li>
         <a href="docs/Fourpages.pdf"
-           target="_blank"
-           class="doc-link"
-           data-doc="docs/Fourpages.pdf">
+           target="_blank">
           CT-PRC-004 — Principles Package (4-Page Brief)
         </a>
       </li>
       <li>
         <a href="docs/handbook.pdf"
-           target="_blank"
-           class="doc-link"
-           data-doc="docs/handbook.pdf">
+           target="_blank">
           CT-HBK-001 — Internal Handbook (Restricted)
         </a>
       </li>
       <li>
         <a href="docs/Fieldkit.pdf"
-           target="_blank"
-           class="doc-link"
-           data-doc="docs/Fieldkit.pdf">
+           target="_blank">
           CT-FLD-010 — Field Kit (Operator Issue)
         </a>
       </li>
@@ -252,12 +211,6 @@
     </div> <!-- END PRIVATE SECTION -->
 
   </section>
-
-  <!-- PDF OVERLAY (APP MODE ONLY) -->
-  <div id="pdfOverlay">
-    <button id="pdfClose">Close</button>
-    <iframe id="pdfFrame" src=""></iframe>
-  </div>
 
   <!-- ========== SCRIPT ========== -->
   <script>
@@ -405,7 +358,7 @@
       });
 
       const text = document.getElementById("selfImprove");
-      if (text && text.value.trim().length > 0) score += 1;
+      if (text && text.value.trim() > 0) score += 1;
 
       const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
       score += bags;
@@ -481,27 +434,6 @@
       if (stored !== null) el.value = stored;
     }
 
-    // PDF overlay helpers
-    function openPdfOverlay(url) {
-      const overlay = document.getElementById("pdfOverlay");
-      const frame = document.getElementById("pdfFrame");
-      if (!overlay || !frame) return;
-      frame.src = url;
-      overlay.style.display = "block";
-      // prevent background scrolling while PDF is open
-      document.body.style.overflow = "hidden";
-    }
-
-    function closePdfOverlay() {
-      const overlay = document.getElementById("pdfOverlay");
-      const frame = document.getElementById("pdfFrame");
-      if (!overlay || !frame) return;
-      frame.src = "";
-      overlay.style.display = "none";
-      // restore scrolling
-      document.body.style.overflow = "";
-    }
-
     document.addEventListener("DOMContentLoaded", function() {
       const inApp = isAppMode();
 
@@ -541,23 +473,6 @@
 
       // Load journal
       loadJournal();
-
-      // Hook up PDF overlay in app mode only
-      const docLinks = document.querySelectorAll(".doc-link");
-      if (inApp) {
-        docLinks.forEach(link => {
-          link.addEventListener("click", function(e) {
-            e.preventDefault();
-            const url = link.getAttribute("data-doc") || link.href;
-            openPdfOverlay(url);
-          });
-        });
-      }
-
-      const closeBtn = document.getElementById("pdfClose");
-      if (closeBtn) {
-        closeBtn.addEventListener("click", closePdfOverlay);
-      }
 
       // Register service worker (safe no-op if missing)
       if ("serviceWorker" in navigator) {
