@@ -59,38 +59,132 @@
       width: 100%;
       margin-bottom: 0.3rem;
     }
+
+    /* PDF overlay viewer */
+    .pdf-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      z-index: 9999;
+    }
+
+    .pdf-overlay.hidden {
+      display: none;
+    }
+
+    .pdf-toolbar {
+      background: #111;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .pdf-toolbar button {
+      cursor: pointer;
+    }
+
+    .pdf-container {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .pdf-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #222;
+    }
+
+    /* Simple bottom navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      padding: 0.4rem 0.2rem;
+      background: rgba(0,0,0,0.95);
+      border-top: 1px solid #333;
+      font-size: 0.8rem;
+      z-index: 5000;
+    }
+
+    .bottom-nav a {
+      text-decoration: none;
+      color: #ffffff;
+      opacity: 0.8;
+    }
+
+    .bottom-nav a:active,
+    .bottom-nav a:focus {
+      opacity: 1;
+    }
   </style>
 </head>
 
-<body>
+<body id="top">
 
   <header>
     <h1>Common Thread · Field Kit</h1>
     <p>Quiet operations for responsible citizens.</p>
   </header>
 
+  <!-- PDF overlay viewer -->
+  <div id="pdfOverlay" class="pdf-overlay hidden">
+    <div class="pdf-toolbar">
+      <button type="button" onclick="closePdf()">← Back</button>
+      <span id="pdfTitleBar"></span>
+    </div>
+    <div class="pdf-container">
+      <iframe id="pdfFrame" title="Field document" loading="lazy"></iframe>
+    </div>
+  </div>
+
   <section class="content-box">
 
     <!-- ========== DOCUMENT LINKS ========== -->
-    <h2>Field Documents</h2>
+    <h2 id="docs">Field Documents</h2>
     <p style="margin-bottom: 0.5rem;">Tap any document below to open it:</p>
 
     <ul>
       <li>
-        <a href="docs/Fourpages.pdf" target="_blank">
+        <a href="docs/Fourpages.pdf"
+           onclick="if (window.openPdf) { openPdf('docs/Fourpages.pdf','CT-PRC-004 — Principles Package (4-Page Brief)'); return false; }">
           CT-PRC-004 — Principles Package (4-Page Brief)
         </a>
       </li>
       <li>
-        <a href="docs/handbook.pdf" target="_blank">
+        <a href="docs/handbook.pdf"
+           onclick="if (window.openPdf) { openPdf('docs/handbook.pdf','CT-HBK-001 — Internal Handbook (Restricted)'); return false; }">
           CT-HBK-001 — Internal Handbook (Restricted)
         </a>
       </li>
       <li>
-        <a href="docs/Fieldkit.pdf" target="_blank">
+        <a href="docs/Fieldkit.pdf"
+           onclick="if (window.openPdf) { openPdf('docs/Fieldkit.pdf','CT-FLD-010 — Field Kit (Operator Issue)'); return false; }">
           CT-FLD-010 — Field Kit (Operator Issue)
         </a>
       </li>
+    </ul>
+
+    <!-- ========== BATHROOM RITUAL CHECKLIST ========== -->
+    <hr>
+
+    <h2>Bathroom Clean-Up Ritual</h2>
+    <p class="small-note">
+      A simple ritual any operator can run anywhere: leave shared spaces better than you found them.
+    </p>
+    <ul>
+      <li>Pick up visible trash (paper towels, cups, wrappers).</li>
+      <li>Wipe the sink and surrounding counter so it’s visibly cleaner.</li>
+      <li>Check the mirror and floor; remove obvious mess if safe to do so.</li>
+      <li>Make sure lights, water, and dispensers are left in a sane, respectful state.</li>
+      <li>Leave without announcing it. The point is posture, not credit.</li>
     </ul>
 
     <!-- ========== DIRECTIONS SECTION FOR INSTALLING APP ========== -->
@@ -129,7 +223,7 @@
       <hr>
 
       <!-- ========== DAILY CIVIC POSTURE CHECKLIST ========== -->
-      <h2>Daily Civic Posture Checklist</h2>
+      <h2 id="tools">Daily Civic Posture Checklist</h2>
 
       <form id="dailyChecklist">
 
@@ -189,7 +283,7 @@
 
       <hr>
 
-      <!-- ========== DAILY SCORE ========== -->
+      <!-- ========== TODAY'S SCORE ========== -->
       <h2>Today’s Score</h2>
 
       <div style="text-align:center;">
@@ -220,8 +314,24 @@
 
       <hr>
 
+      <!-- ========== AMYGDALA DRILL ========== -->
+      <h2>Amygdala Drill — 60-Second Reset</h2>
+      <p class="small-note">
+        CTM term: “Amygdala Drill” — a one-minute reset to catch fight/flight and choose conscience instead.
+      </p>
+      <div id="amygdalaStep" class="small-note" style="margin-bottom:0.4rem;">
+        Press start when you feel the Instinct Spike.
+      </div>
+      <div id="amygdalaTimer" style="font-size:1.4rem; font-weight:bold; margin-bottom:0.4rem;">
+        Ready
+      </div>
+      <button type="button" onclick="startAmygdala()">Start 60-second drill</button>
+      <p id="amygdalaNote" class="small-note" style="margin-top:0.4rem;"></p>
+
+      <hr>
+
       <!-- ========== PATTERN SPOTTER — INSTINCT SPIKE GAME ========== -->
-      <h2>Pattern Spotter — Instinct Spike</h2>
+      <h2 id="games">Pattern Spotter — Instinct Spike</h2>
       <p class="small-note">
         Quick drills to spot Instinct Spike language (amygdala flare) versus grounded or cooling CT posture.
       </p>
@@ -251,7 +361,7 @@
       <hr>
 
       <!-- ========== OPERATION JOURNAL ========== -->
-      <h2>Operation Journal</h2>
+      <h2 id="journalSection">Operation Journal</h2>
       <p class="small-note">
         Free-form notes on conversations, situations, and observations. Saved only on this device.
       </p>
@@ -265,8 +375,40 @@
 
   </section>
 
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav">
+    <a href="#top">Top</a>
+    <a href="#docs">Docs</a>
+    <a href="#tools">Tools</a>
+    <a href="#games">Games</a>
+    <a href="#journalSection">Journal</a>
+  </nav>
+
   <!-- ========== SCRIPT ========== -->
   <script>
+    // PDF viewer controls
+    function openPdf(path, title) {
+      var overlay = document.getElementById("pdfOverlay");
+      var frame = document.getElementById("pdfFrame");
+      var titleBar = document.getElementById("pdfTitleBar");
+      if (!overlay || !frame || !titleBar) return;
+
+      frame.src = path;
+      titleBar.textContent = title || path.split("/").pop();
+      overlay.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closePdf() {
+      var overlay = document.getElementById("pdfOverlay");
+      var frame = document.getElementById("pdfFrame");
+      if (!overlay || !frame) return;
+
+      frame.src = "";
+      overlay.classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
     // Determine if running as installed app (iOS + general)
     function isAppMode() {
       const standaloneMatch = window.matchMedia &&
@@ -301,6 +443,15 @@
       "Choose not to share one piece of outrage content you normally would.",
       "Support someone’s good idea even if they’re from a different camp than you."
     ];
+
+    // Amygdala Drill steps
+    const AMYGDALA_STEPS = [
+      "0–15s: Notice what you’re feeling. Name it without judging it.",
+      "15–30s: Notice where you feel it in your body. Just observe.",
+      "30–45s: Ask: What would my best self want to do here?",
+      "45–60s: Choose one small, grounded action you can take next."
+    ];
+    let amygdalaInterval = null;
 
     // Pattern Spotter questions
     const QUIZ_QUESTIONS = [
@@ -638,6 +789,54 @@
       upsertTodayLog(score);
       renderLog();
       renderStreak();
+    }
+
+    // ---- Amygdala Drill ----
+    function updateAmygdalaStep(remaining) {
+      const stepEl = document.getElementById("amygdalaStep");
+      if (!stepEl) return;
+      if (remaining > 45) stepEl.textContent = AMYGDALA_STEPS[0];
+      else if (remaining > 30) stepEl.textContent = AMYGDALA_STEPS[1];
+      else if (remaining > 15) stepEl.textContent = AMYGDALA_STEPS[2];
+      else stepEl.textContent = AMYGDALA_STEPS[3];
+    }
+
+    function startAmygdala() {
+      const timerEl = document.getElementById("amygdalaTimer");
+      const noteEl = document.getElementById("amygdalaNote");
+      if (!timerEl) return;
+
+      if (amygdalaInterval) {
+        clearInterval(amygdalaInterval);
+      }
+
+      let remaining = 60;
+      timerEl.textContent = remaining + "s";
+      updateAmygdalaStep(remaining);
+
+      if (noteEl) {
+        noteEl.textContent =
+          "You can close your eyes; the timer will run quietly. When it ends, choose one grounded action.";
+      }
+
+      amygdalaInterval = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(amygdalaInterval);
+          amygdalaInterval = null;
+          timerEl.textContent = "Done.";
+          const stepEl = document.getElementById("amygdalaStep");
+          if (stepEl) {
+            stepEl.textContent = "Notice what changed in your body and options. Log anything important in your journal.";
+          }
+          if (noteEl) {
+            noteEl.textContent = "If this drill helped, record the situation in your Operation Journal below.";
+          }
+        } else {
+          timerEl.textContent = remaining + "s";
+          updateAmygdalaStep(remaining);
+        }
+      }, 1000);
     }
 
     // ---- Pattern Spotter — Instinct Spike game ----
