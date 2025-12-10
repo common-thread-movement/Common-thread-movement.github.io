@@ -85,6 +85,27 @@
     .bottom-nav a:focus {
       opacity: 1;
     }
+
+    /* CTM Ladder result styles (minimal) */
+    #ctm-ladder .ladder-result {
+      border: 1px solid #444;
+      padding: 0.5rem;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    #ctm-ladder .ladder-result.zone-red {
+      border-color: #a00;
+      background-color: rgba(160, 0, 0, 0.15);
+    }
+    #ctm-ladder .ladder-result.zone-yellow {
+      border-color: #a78000;
+      background-color: rgba(167, 128, 0, 0.12);
+    }
+    #ctm-ladder .ladder-result.zone-green {
+      border-color: #0a7a2a;
+      background-color: rgba(0, 120, 40, 0.12);
+    }
   </style>
 </head>
 
@@ -277,6 +298,86 @@
       </div>
       <button type="button" onclick="startAmygdala()">Start 60-second drill</button>
       <p id="amygdalaNote" class="small-note" style="margin-top:0.4rem;"></p>
+
+      <hr>
+
+      <!-- ========== CTM LADDER OF INFERENCE ========== -->
+      <h2 id="ctm-ladder-title">CTM Ladder of Inference</h2>
+      <p class="small-note">
+        Use this when you feel a spike of emotion (anger, fear, shame, defensiveness) and need to
+        check whether you’re acting from principle or from reflex. Each checked box = 1 point.
+      </p>
+
+      <ol id="ctm-ladder">
+        <!-- RUNG 1 -->
+        <li class="ladder-rung" data-rung="1">
+          <h3>Rung 1 – Raw Reality (Observed Data)</h3>
+          <p><strong>What did I literally see or hear?</strong></p>
+          <ul class="checklist">
+            <li><label><input type="checkbox"> Am I reacting to how it <em>felt</em> more than to what actually happened?</label></li>
+            <li><label><input type="checkbox"> Did I only catch a slice of the moment (not the full picture)?</label></li>
+            <li><label><input type="checkbox"> Am I relying on memory instead of what I clearly observed?</label></li>
+            <li><label><input type="checkbox"> Is my information second-hand or unverified?</label></li>
+          </ul>
+        </li>
+
+        <!-- RUNG 2 -->
+        <li class="ladder-rung" data-rung="2">
+          <h3>Rung 2 – Filtered Reality (Selected Data)</h3>
+          <p><strong>What did I focus on — and what did I ignore?</strong></p>
+          <ul class="checklist">
+            <li><label><input type="checkbox"> Am I fixated on the most emotional detail instead of the most relevant one?</label></li>
+            <li><label><input type="checkbox"> Did I ignore neutral or positive evidence?</label></li>
+            <li><label><input type="checkbox"> Am I filtering based on past experiences, not this moment?</label></li>
+            <li><label><input type="checkbox"> Would someone else with a different background notice something different?</label></li>
+          </ul>
+        </li>
+
+        <!-- RUNG 3 -->
+        <li class="ladder-rung" data-rung="3">
+          <h3>Rung 3 – Story Added (Meaning)</h3>
+          <p><strong>What story did I add to the moment?</strong></p>
+          <ul class="checklist">
+            <li><label><input type="checkbox"> Am I assuming their intent without proof?</label></li>
+            <li><label><input type="checkbox"> Did I turn one behavior into a character judgment (e.g. “they’re lazy/hostile”)?</label></li>
+            <li><label><input type="checkbox"> Am I predicting the future from this one moment?</label></li>
+            <li><label><input type="checkbox"> Did I link this to a past wound, trauma, or unrelated situation?</label></li>
+          </ul>
+        </li>
+
+        <!-- RUNG 4 -->
+        <li class="ladder-rung" data-rung="4">
+          <h3>Rung 4 – Jump Taken (Assumptions & Conclusions)</h3>
+          <p><strong>What jump did I make?</strong></p>
+          <ul class="checklist">
+            <li><label><input type="checkbox"> Am I treating my assumption as if it were a proven fact?</label></li>
+            <li><label><input type="checkbox"> Did I skip asking any clarifying questions?</label></li>
+            <li><label><input type="checkbox"> Do I feel a strong emotional surge (anger, fear, defensiveness)?</label></li>
+            <li><label><input type="checkbox"> If I had to prove my conclusion in court, could I?</label></li>
+          </ul>
+        </li>
+
+        <!-- RUNG 5 / RESULT -->
+        <li class="ladder-rung">
+          <h3>Rung 5 – Choice of Action (Risk-Averse Scoring)</h3>
+          <p>
+            Each checked box above = <strong>1 point</strong>. The tool will total your score and apply
+            the most conservative rule.
+          </p>
+
+          <div class="ladder-result" data-zone-display>
+            <p><strong>Total score:</strong> <span data-total-score>0</span> / 16</p>
+            <p><strong>Zone:</strong> <span data-zone-label>—</span></p>
+            <p class="small-note" data-zone-description>Check boxes above to evaluate your state.</p>
+          </div>
+
+          <p class="small-note" style="margin-top:0.5rem;">
+            <strong>🟥 RED:</strong> Any single rung ≥ 4 checks, or total ≥ 6 → <em>Do not act.</em><br>
+            <strong>🟧 YELLOW:</strong> Total 3–5, or mixed scores → <em>Seek clarity first.</em><br>
+            <strong>🟩 GREEN:</strong> All rungs 0–1 and total 0–2 → <em>Safe to act by values.</em>
+          </p>
+        </li>
+      </ol>
 
       <hr>
 
@@ -978,6 +1079,66 @@
 
       // Initialize quiz
       renderQuizQuestion();
+
+      // Ladder of Inference tool setup (risk-averse scoring)
+      (function() {
+        const ladder = document.getElementById("ctm-ladder");
+        if (!ladder) return;
+
+        const checkboxes = ladder.querySelectorAll('input[type="checkbox"]');
+        const totalScoreEl = ladder.querySelector("[data-total-score]");
+        const zoneLabelEl = ladder.querySelector("[data-zone-label]");
+        const zoneDescriptionEl = ladder.querySelector("[data-zone-description]");
+        const zoneDisplay = ladder.querySelector("[data-zone-display]");
+
+        function updateLadderScore() {
+          const rungEls = ladder.querySelectorAll(".ladder-rung[data-rung]");
+          let total = 0;
+          const rungScores = [];
+
+          rungEls.forEach(function(rungEl, index) {
+            const checkedCount = rungEl.querySelectorAll('input[type="checkbox"]:checked').length;
+            rungScores[index] = checkedCount;
+            total += checkedCount;
+          });
+
+          const anyRungFourOrMore = rungScores.some(function(score) { return score >= 4; });
+          const allRungsLow = rungScores.length > 0 && rungScores.every(function(score) { return score <= 1; });
+
+          let zone = "—";
+          let description = "Check boxes above to evaluate your state.";
+          let zoneClass = "";
+
+          if (anyRungFourOrMore || total >= 6) {
+            zone = "🟥 RED – NO ACTION";
+            description = "Your thinking is heavily distorted or emotionally charged. Do not send messages, confront, or decide right now. Pause, breathe, gather missing data, and re-run this ladder later.";
+            zoneClass = "zone-red";
+          } else if (allRungsLow && total <= 2) {
+            zone = "🟩 GREEN – Clear to Act (By Values)";
+            description = "Your score is very low across all rungs. You are likely seeing the situation clearly. Act slowly, by CTM values, with honesty and calm boundaries.";
+            zoneClass = "zone-green";
+          } else if (total > 0) {
+            zone = "🟧 YELLOW – Seek Clarity First";
+            description = "Some distortion or assumption is present. Ask neutral clarifying questions, name your assumptions out loud or on paper, and delay emotional or public action until you have more information.";
+            zoneClass = "zone-yellow";
+          }
+
+          if (totalScoreEl) totalScoreEl.textContent = total.toString();
+          if (zoneLabelEl) zoneLabelEl.textContent = zone;
+          if (zoneDescriptionEl) zoneDescriptionEl.textContent = description;
+
+          if (zoneDisplay) {
+            zoneDisplay.classList.remove("zone-red", "zone-yellow", "zone-green");
+            if (zoneClass) zoneDisplay.classList.add(zoneClass);
+          }
+        }
+
+        checkboxes.forEach(function(cb) {
+          cb.addEventListener("change", updateLadderScore);
+        });
+
+        updateLadderScore();
+      })();
 
       // Smooth scrolling for bottom nav anchors
       const nav = document.querySelector(".bottom-nav");
