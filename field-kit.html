@@ -305,7 +305,8 @@
       <h2 id="ctm-ladder-title">CTM Ladder of Inference</h2>
       <p class="small-note">
         Use this when you feel a spike of emotion (anger, fear, shame, defensiveness) and need to
-        check whether you’re acting from principle or from reflex. Each checked box = 1 point.
+        check whether you’re acting from principle or from reflex. Each checked box affects the score:
+        some add risk, some reduce it.
       </p>
 
       <ol id="ctm-ladder">
@@ -314,10 +315,15 @@
           <h3>Rung 1 – Raw Reality (Observed Data)</h3>
           <p><strong>What did I literally see or hear?</strong></p>
           <ul class="checklist">
-            <li><label><input type="checkbox"> Am I reacting to how it <em>felt</em> more than to what actually happened?</label></li>
-            <li><label><input type="checkbox"> Did I only catch a slice of the moment (not the full picture)?</label></li>
-            <li><label><input type="checkbox"> Am I relying on memory instead of what I clearly observed?</label></li>
-            <li><label><input type="checkbox"> Is my information second-hand or unverified?</label></li>
+            <!-- Risk-increasing -->
+            <li><label><input type="checkbox" data-weight="1"> Am I reacting to how it <em>felt</em> more than to what actually happened?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Did I only catch a slice of the moment (not the full picture)?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Am I relying mainly on memory instead of what I clearly observed?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Is my information second-hand or unverified?</label></li>
+            <!-- Risk-reducing -->
+            <li><label><input type="checkbox" data-weight="-1"> Did I slow down and replay the exact words or actions before reacting?</label></li>
+            <li><label><input type="checkbox" data-weight="-1"> Did I ask, even once, “Can you repeat that so I’m sure I heard you right?”</label></li>
+            <li><label><input type="checkbox" data-weight="-1"> Am I genuinely open to being wrong about what I think I saw or heard?</label></li>
           </ul>
         </li>
 
@@ -326,10 +332,15 @@
           <h3>Rung 2 – Filtered Reality (Selected Data)</h3>
           <p><strong>What did I focus on — and what did I ignore?</strong></p>
           <ul class="checklist">
-            <li><label><input type="checkbox"> Am I fixated on the most emotional detail instead of the most relevant one?</label></li>
-            <li><label><input type="checkbox"> Did I ignore neutral or positive evidence?</label></li>
-            <li><label><input type="checkbox"> Am I filtering based on past experiences, not this moment?</label></li>
-            <li><label><input type="checkbox"> Would someone else with a different background notice something different?</label></li>
+            <!-- Risk-increasing -->
+            <li><label><input type="checkbox" data-weight="1"> Am I fixated on the most emotional detail instead of the most relevant one?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Did I ignore neutral or positive evidence?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Am I letting old experiences choose what I notice more than this moment?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Would someone with a different background likely notice different details?</label></li>
+            <!-- Risk-reducing -->
+            <li><label><input type="checkbox" data-weight="-1"> Did I deliberately look for at least one piece of neutral or positive evidence?</label></li>
+            <li><label><input type="checkbox" data-weight="-1"> Did I ask myself, “What am I not seeing or not being told?”</label></li>
+            <li><label><input type="checkbox" data-weight="-1"> Did I pause scrolling, walking, or talking just to scan the whole situation once?</label></li>
           </ul>
         </li>
 
@@ -338,10 +349,15 @@
           <h3>Rung 3 – Story Added (Meaning)</h3>
           <p><strong>What story did I add to the moment?</strong></p>
           <ul class="checklist">
-            <li><label><input type="checkbox"> Am I assuming their intent without proof?</label></li>
-            <li><label><input type="checkbox"> Did I turn one behavior into a character judgment (e.g. “they’re lazy/hostile”)?</label></li>
-            <li><label><input type="checkbox"> Am I predicting the future from this one moment?</label></li>
-            <li><label><input type="checkbox"> Did I link this to a past wound, trauma, or unrelated situation?</label></li>
+            <!-- Risk-increasing -->
+            <li><label><input type="checkbox" data-weight="1"> Am I assuming their intent without proof?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Did I turn one behavior into a character judgment (e.g. “they’re lazy/hostile”)?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Am I predicting the future from this one moment?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Did I link this to a past wound, trauma, or unrelated situation?</label></li>
+            <!-- Risk-reducing -->
+            <li><label><input type="checkbox" data-weight="-1"> Did I name it as a story in my head (e.g. “The story I’m telling myself is…”)?</label></li>
+            <li><label><input type="checkbox" data-weight="-1"> Did I intentionally consider at least one generous or non-hostile explanation?</label></li>
+            <li><label><input type="checkbox" data-weight="-1"> Am I willing to change my story if new information appears?</label></li>
           </ul>
         </li>
 
@@ -350,10 +366,15 @@
           <h3>Rung 4 – Jump Taken (Assumptions & Conclusions)</h3>
           <p><strong>What jump did I make?</strong></p>
           <ul class="checklist">
-            <li><label><input type="checkbox"> Am I treating my assumption as if it were a proven fact?</label></li>
-            <li><label><input type="checkbox"> Did I skip asking any clarifying questions?</label></li>
-            <li><label><input type="checkbox"> Do I feel a strong emotional surge (anger, fear, defensiveness)?</label></li>
-            <li><label><input type="checkbox"> If I had to prove my conclusion in court, could I?</label></li>
+            <!-- Risk-increasing -->
+            <li><label><input type="checkbox" data-weight="1"> Am I treating my assumption as if it were a proven fact?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Did I skip asking any clarifying questions?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> Do I feel a strong emotional surge (anger, fear, defensiveness)?</label></li>
+            <li><label><input type="checkbox" data-weight="1"> If I had to prove my conclusion in court, would I struggle?</label></li>
+            <!-- Risk-reducing / neutral -->
+            <li><label><input type="checkbox" data-weight="-1"> Have I asked at least one genuinely curious clarifying question?</label></li>
+            <li><label><input type="checkbox" data-weight="-1"> Would I be willing to say my conclusion out loud in front of someone I deeply respect?</label></li>
+            <li><label><input type="checkbox" data-weight="-1"> Am I honestly open to updating my conclusion if solid evidence contradicts it?</label></li>
           </ul>
         </li>
 
@@ -361,20 +382,20 @@
         <li class="ladder-rung">
           <h3>Rung 5 – Choice of Action (Risk-Averse Scoring)</h3>
           <p>
-            Each checked box above = <strong>1 point</strong>. The tool will total your score and apply
-            the most conservative rule.
+            Each checked box above has a weight. Some add risk, some reduce it. The tool totals your score
+            and applies the most conservative rule.
           </p>
 
           <div class="ladder-result" data-zone-display>
-            <p><strong>Total score:</strong> <span data-total-score>0</span> / 16</p>
+            <p><strong>Total score:</strong> <span data-total-score>0</span></p>
             <p><strong>Zone:</strong> <span data-zone-label>—</span></p>
             <p class="small-note" data-zone-description>Check boxes above to evaluate your state.</p>
           </div>
 
           <p class="small-note" style="margin-top:0.5rem;">
-            <strong>🟥 RED:</strong> Any single rung ≥ 4 checks, or total ≥ 6 → <em>Do not act.</em><br>
-            <strong>🟧 YELLOW:</strong> Total 3–5, or mixed scores → <em>Seek clarity first.</em><br>
-            <strong>🟩 GREEN:</strong> All rungs 0–1 and total 0–2 → <em>Safe to act by values.</em>
+            <strong>🟥 RED:</strong> Any single rung ≥ 4 points, or total ≥ 6 → <em>Do not act.</em><br>
+            <strong>🟧 YELLOW:</strong> Total 1–5, or mixed scores → <em>Seek clarity first.</em><br>
+            <strong>🟩 GREEN:</strong> All rungs ≤ 1 point and total ≤ 2 → <em>Safe to act by values.</em>
           </p>
         </li>
       </ol>
@@ -1080,7 +1101,7 @@
       // Initialize quiz
       renderQuizQuestion();
 
-      // Ladder of Inference tool setup (risk-averse scoring)
+      // Ladder of Inference tool setup (risk-averse scoring with positive/negative weights)
       (function() {
         const ladder = document.getElementById("ctm-ladder");
         if (!ladder) return;
@@ -1097,9 +1118,17 @@
           const rungScores = [];
 
           rungEls.forEach(function(rungEl, index) {
-            const checkedCount = rungEl.querySelectorAll('input[type="checkbox"]:checked').length;
-            rungScores[index] = checkedCount;
-            total += checkedCount;
+            let rungScore = 0;
+            const rungCheckboxes = rungEl.querySelectorAll('input[type="checkbox"]');
+            rungCheckboxes.forEach(function(cb) {
+              if (cb.checked) {
+                const w = parseFloat(cb.getAttribute("data-weight"));
+                const weight = isNaN(w) ? 1 : w;
+                rungScore += weight;
+              }
+            });
+            rungScores[index] = rungScore;
+            total += rungScore;
           });
 
           const anyRungFourOrMore = rungScores.some(function(score) { return score >= 4; });
@@ -1115,11 +1144,11 @@
             zoneClass = "zone-red";
           } else if (allRungsLow && total <= 2) {
             zone = "🟩 GREEN – Clear to Act (By Values)";
-            description = "Your score is very low across all rungs. You are likely seeing the situation clearly. Act slowly, by CTM values, with honesty and calm boundaries.";
+            description = "Your net score is very low. You are likely seeing the situation clearly. Act slowly, by CTM values, with honesty and calm boundaries.";
             zoneClass = "zone-green";
-          } else if (total > 0) {
+          } else if (total !== 0) {
             zone = "🟧 YELLOW – Seek Clarity First";
-            description = "Some distortion or assumption is present. Ask neutral clarifying questions, name your assumptions out loud or on paper, and delay emotional or public action until you have more information.";
+            description = "Some distortion or assumption is present, or your protective checks are fighting with your risk checks. Ask neutral clarifying questions, name your assumptions out loud or on paper, and delay emotional or public action until you have more information.";
             zoneClass = "zone-yellow";
           }
 
