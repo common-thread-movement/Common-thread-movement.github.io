@@ -17,95 +17,83 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* Hide private tools by default */
-    .private-section {
-      display: none;
+    .small-note { font-size: 0.85rem; opacity: 0.7; }
+    .card {
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 0.9rem;
+      margin: 0.9rem 0;
+      background: rgba(0,0,0,0.22);
     }
+    .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    input[type="text"], input[type="number"] {
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      min-width: 220px;
+      flex: 1;
+    }
+    textarea { width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid #333; background: rgba(255,255,255,0.05); color:#fff; }
 
-    .small-note {
-      font-size: 0.8rem;
-      opacity: 0.65;
-    }
+    /* Public/App root containers */
+    #publicView { display: none; }
+    #appView { display: none; }
 
-    .log-entry {
-      border-top: 1px solid #444;
-      padding: 0.4rem 0;
-      font-size: 0.85rem;
+    /* App top nav (single HTML file "pages") */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.45rem;
+      background: rgba(0,0,0,0.92);
+      border-bottom: 1px solid #333;
     }
-    .log-entry-date {
-      font-weight: bold;
+    .top-nav button {
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 0.35rem 0.55rem;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
       opacity: 0.9;
     }
-    .log-entry-meta {
-      opacity: 0.8;
-    }
+    .top-nav button.active { opacity: 1; border-color: #666; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Log styles */
+    .log-entry { border-top: 1px solid #444; padding: 0.4rem 0; font-size: 0.9rem; }
+    .log-entry-date { font-weight: bold; opacity: 0.9; }
+    .log-entry-meta { opacity: 0.8; }
 
     .mission-card {
       border: 1px solid #444;
       padding: 0.6rem;
-      border-radius: 4px;
+      border-radius: 8px;
       margin: 0.4rem 0 0.6rem 0;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       background: rgba(0,0,0,0.25);
     }
 
-    .quiz-question {
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
+    .quiz-question { font-weight: 600; margin-bottom: 0.5rem; }
+    .quiz-options button { display: block; width: 100%; margin-bottom: 0.35rem; }
 
-    .quiz-options button {
-      display: block;
-      width: 100%;
-      margin-bottom: 0.3rem;
-    }
-
-    /* Simple bottom navigation */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: space-around;
-      padding: 0.4rem 0.2rem;
-      background: rgba(0,0,0,0.95);
-      border-top: 1px solid #333;
-      font-size: 0.8rem;
-      z-index: 5000;
-    }
-
-    .bottom-nav a {
-      text-decoration: none;
-      color: #ffffff;
-      opacity: 0.8;
-    }
-
-    .bottom-nav a:active,
-    .bottom-nav a:focus {
-      opacity: 1;
-    }
-
-    /* CTM Ladder result styles (minimal) */
+    /* Ladder result styles */
     #ctm-ladder .ladder-result {
       border: 1px solid #444;
-      padding: 0.5rem;
-      border-radius: 4px;
-      margin-top: 0.5rem;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin-top: 0.6rem;
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
-    #ctm-ladder .ladder-result.zone-red {
-      border-color: #a00;
-      background-color: rgba(160, 0, 0, 0.15);
-    }
-    #ctm-ladder .ladder-result.zone-yellow {
-      border-color: #a78000;
-      background-color: rgba(167, 128, 0, 0.12);
-    }
-    #ctm-ladder .ladder-result.zone-green {
-      border-color: #0a7a2a;
-      background-color: rgba(0, 120, 40, 0.12);
-    }
+    #ctm-ladder .ladder-result.zone-red { border-color: #a00; background-color: rgba(160, 0, 0, 0.15); }
+    #ctm-ladder .ladder-result.zone-yellow { border-color: #a78000; background-color: rgba(167, 128, 0, 0.12); }
+    #ctm-ladder .ladder-result.zone-green { border-color: #0a7a2a; background-color: rgba(0, 120, 40, 0.12); }
   </style>
 </head>
 
@@ -117,365 +105,512 @@
 
   <section class="content-box">
 
-    <!-- ========== DOCUMENT LINKS ========== -->
-    <h2 id="docs">Field Documents</h2>
-    <p style="margin-bottom: 0.5rem;">Tap any document below to open it:</p>
+    <!-- =====================================================
+         PUBLIC VIEW (WEB-FACING)
+         ONLY: Install instructions + Group code tool
+    ====================================================== -->
+    <div id="publicView">
 
-    <ul>
-      <li>
-        <a href="docs/Fourpages.pdf" target="_blank">
-          CT-PRC-004 — Principles Package (4-Page Brief)
-        </a>
-      </li>
-      <li>
-        <a href="docs/handbook.pdf" target="_blank">
-          CT-HBK-001 — Internal Handbook (Restricted)
-        </a>
-      </li>
-      <li>
-        <a href="docs/Fieldkit.pdf" target="_blank">
-          CT-FLD-010 — Field Kit (Operator Issue)
-        </a>
-      </li>
-    </ul>
+      <div class="card">
+        <h2>Use the Field Kit as an App</h2>
+        <p class="small-note">
+          Install to your Home Screen. No accounts. No tracking. Operator tools only appear in the installed app.
+        </p>
 
-    <!-- ========== DIRECTIONS SECTION FOR INSTALLING APP (WEB-FACING) ========== -->
-    <div id="installSection">
-      <hr>
+        <p><strong>On iPhone / iPad:</strong><br>
+          1) Open this page in Safari<br>
+          2) Tap Share (square + arrow)<br>
+          3) Tap <strong>Add to Home Screen</strong><br>
+          4) Tap <strong>Add</strong>
+        </p>
 
-      <h2>Use the Field Kit as an App</h2>
+        <p><strong>On Android (Chrome):</strong><br>
+          1) Open this page in Chrome<br>
+          2) Tap menu (⋮)<br>
+          3) Tap <strong>Install app</strong> / <strong>Add to Home screen</strong><br>
+          4) Confirm
+        </p>
 
-      <p class="small-note">
-        Installing this page to your Home Screen lets the operator tools run like a quiet, offline app.
-        All data stays on your device.
-      </p>
+        <p class="small-note" style="text-align:center;margin-top:.7rem;">
+          After install, open from your Home Screen icon to access tools.
+        </p>
+      </div>
 
-      <p>
-        <strong>On iPhone / iPad:</strong><br>
-        1. Open this page in Safari.<br>
-        2. Tap the Share icon (square with the arrow).<br>
-        3. Scroll down and tap <strong>Add to Home Screen</strong>.<br>
-        4. Tap <strong>Add</strong>. Use the new icon to open the Field Kit.
-      </p>
+      <div class="card">
+        <h2>Group Code</h2>
+        <p class="small-note">
+          Generate a code to share with a friend. The app remembers your last code on this device.
+        </p>
 
-      <p>
-        <strong>On Android (Chrome):</strong><br>
-        1. Open this page in Chrome.<br>
-        2. Tap the menu (⋮) in the top-right corner.<br>
-        3. Tap <strong>Add to Home screen</strong> or <strong>Install app</strong>.<br>
-        4. Confirm. Use the new icon to open the Field Kit.
-      </p>
+        <div class="row" style="margin:.6rem 0;">
+          <button type="button" onclick="generateGroupCode()">Generate Code</button>
+          <button type="button" onclick="copyGroupCode()">Copy</button>
+        </div>
 
-      <p id="publicHint" class="small-note" style="margin-top:1rem; text-align:center;">
-        Operator tools are available when opened from your Home Screen as an app.
-      </p>
+        <div class="row">
+          <input id="groupCodeDisplay" type="text" readonly placeholder="No code yet" />
+          <span class="small-note" id="groupCodeMsg"></span>
+        </div>
+
+        <hr style="opacity:.25;margin:1rem 0;">
+
+        <h3>Join a Code</h3>
+        <p class="small-note">Paste a code you received. (No login. Stored locally.)</p>
+        <div class="row">
+          <input id="joinCodeInput" type="text" placeholder="e.g. CTM-7K4P-9Q2D" />
+          <button type="button" onclick="joinGroupCode()">Join</button>
+        </div>
+        <p class="small-note" id="joinCodeMsg"></p>
+      </div>
+
     </div>
 
-    <!-- ========== PRIVATE OPERATOR TOOLS (HIDDEN ON NORMAL WEBSITE) ========== -->
-    <div class="private-section" id="privateTools">
 
-      <hr>
+    <!-- =====================================================
+         APP VIEW (PWA MODE)
+         ALL tools + docs + nav (single-file “pages”)
+    ====================================================== -->
+    <div id="appView">
 
-      <!-- ========== DAILY CIVIC POSTURE CHECKLIST ========== -->
-      <h2 id="tools">Daily Civic Posture Checklist</h2>
+      <nav class="top-nav" aria-label="App navigation">
+        <button type="button" data-page="page-home" class="active">Home</button>
+        <button type="button" data-page="page-docs">Docs</button>
+        <button type="button" data-page="page-tools">Tools</button>
+        <button type="button" data-page="page-games">Games</button>
+        <button type="button" data-page="page-journal">Journal</button>
+        <button type="button" data-page="page-groups">Groups</button>
+      </nav>
 
-      <form id="dailyChecklist">
+      <!-- HOME -->
+      <div id="page-home" class="page active">
+        <div class="card">
+          <h2>Operator Status</h2>
+          <p class="small-note">Everything is local to this device.</p>
 
-        <h3>Grounding</h3>
-        <label><input type="checkbox" id="grounding1"> Did I take 3 seconds before responding?</label><br>
-        <label><input type="checkbox" id="grounding2"> Did I observe instead of react at least once?</label>
+          <div style="text-align:center;">
+            <div style="font-size:0.85rem; opacity:0.7;">CURRENT SCORE</div>
+            <div id="scoreCurrent" style="font-size:2.2rem; font-weight:bold;">0</div>
 
-        <h3>Truth Discipline</h3>
-        <label><input type="checkbox" id="truth1"> Did I avoid sharing anything unverified?</label><br>
-        <label><input type="checkbox" id="truth2"> Did I admit "I don't know" when needed?</label><br>
-        <label><input type="checkbox" id="truth3"> Did I correct myself or my "side" if wrong?</label>
-
-        <h3>Non-Tribal Posture</h3>
-        <label><input type="checkbox" id="nontribal1"> Did I disagree respectfully with someone today?</label><br>
-        <label><input type="checkbox" id="nontribal2"> Did I treat people as humans, not camp avatars?</label>
-
-        <h3>De-Escalation</h3>
-        <label><input type="checkbox" id="deesc1"> Did I cool down at least one rising situation?</label><br>
-        <label><input type="checkbox" id="deesc2"> Did I avoid fueling any conflict?</label>
-
-        <h3>Quiet Uplift</h3>
-        <label><input type="checkbox" id="uplift1"> Did I do one helpful act without telling anyone?</label><br>
-        <label><input type="checkbox" id="uplift2"> Did I support someone quietly who needed it?</label>
-
-        <h3>Boundary Health</h3>
-        <label><input type="checkbox" id="boundary1"> Did I maintain realistic boundaries?</label><br>
-        <label><input type="checkbox" id="boundary2"> Did I avoid guilt/pressure from moving me out of position?</label>
-
-        <h3>Operator Integrity</h3>
-        <label><input type="checkbox" id="integrity1"> Did I act within the law?</label><br>
-        <label><input type="checkbox" id="integrity2"> Did I avoid anything harmful to the movement?</label><br>
-        <label><input type="checkbox" id="integrity3"> Did I remain nonpartisan, nonviolent, grounded?</label>
-
-        <h3>Final Self-Audit</h3>
-        <label>What one thing will I improve tomorrow?</label><br>
-        <textarea id="selfImprove" rows="3" style="width:100%;"></textarea>
-
-        <br><br>
-        <button type="button" onclick="saveChecklist()">Save Today's Checklist</button>
-      </form>
-
-      <p id="saveMessage" style="color:#5f5; font-weight:bold;"></p>
-
-      <hr>
-
-      <!-- ========== BATHROOM CLEAN-UP CHECKLIST (PRIVATE) ========== -->
-      <h2>Bathroom Clean-Up Checklist</h2>
-      <p class="small-note">
-        Quiet ritual for shared spaces. This checklist is stored only on this device.
-      </p>
-      <form id="bathroomChecklist">
-        <label><input type="checkbox" id="bath_pickup"> Pick up visible trash (paper towels, cups, wrappers).</label><br>
-        <label><input type="checkbox" id="bath_sink"> Wipe the sink and counter so they are visibly cleaner.</label><br>
-        <label><input type="checkbox" id="bath_mirror"> Check the mirror and floor; remove obvious mess if safe.</label><br>
-        <label><input type="checkbox" id="bath_state"> Leave lights, water, and dispensers in a sane state.</label><br>
-        <label><input type="checkbox" id="bath_silent"> Leave without telling anyone you did it.</label><br><br>
-        <button type="button" onclick="saveBathroom()">Save Bathroom Checklist</button>
-      </form>
-      <p id="bathroomMessage" style="color:#5f5; font-weight:bold;"></p>
-
-      <hr>
-
-      <!-- ========== COMMUNITY BAGS OF TRASH COUNTER ========== -->
-      <h2>Community Bags of Trash</h2>
-
-      <div style="text-align:center; margin-bottom: 1rem;">
-        <div style="font-size:0.85rem; opacity:0.7;">TOTAL BAGS RECORDED</div>
-        <div id="trashCountDisplay" style="font-size:2rem; font-weight:bold;">0</div>
-        <button type="button" onclick="incrementTrash()">+1 Bag</button>
-        <button type="button" onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
-      </div>
-
-      <p id="trashMessage" style="color:#5f5; font-weight:bold; text-align:center;"></p>
-
-      <hr>
-
-      <!-- ========== TODAY'S SCORE ========== -->
-      <h2>Today’s Score</h2>
-
-      <div style="text-align:center;">
-        <div style="font-size:0.85rem; opacity:0.7;">CURRENT SCORE</div>
-        <div id="scoreCurrent" style="font-size:2.2rem; font-weight:bold;">0</div>
-
-        <div style="font-size:0.85rem; opacity:0.7;">PERSONAL BEST</div>
-        <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
-      </div>
-
-      <hr>
-
-      <!-- ========== DAILY MISSION CARD GAME ========== -->
-      <h2>Daily Mission Card</h2>
-      <p class="small-note">
-        One quiet operation for today. Completing it adds to your score. Missions reset each day.
-      </p>
-
-      <div id="missionCard" class="mission-card">
-        <span id="missionText">Tap "Draw Today’s Mission" to begin.</span>
-      </div>
-
-      <button type="button" onclick="drawMission()">Draw Today’s Mission</button>
-      <button type="button" onclick="completeMission()" style="margin-left:0.5rem;">
-        Mark Mission Complete
-      </button>
-      <p id="missionStatus" class="small-note" style="margin-top:0.4rem;"></p>
-
-      <hr>
-
-      <!-- ========== AMYGDALA DRILL ========== -->
-      <h2>Amygdala Drill — 60-Second Reset</h2>
-      <p class="small-note">
-        CTM term: “Amygdala Drill” — a one-minute reset to catch fight/flight and choose conscience instead.
-      </p>
-      <div id="amygdalaStep" class="small-note" style="margin-bottom:0.4rem;">
-        Press start when you feel the Instinct Spike.
-      </div>
-      <div id="amygdalaTimer" style="font-size:1.4rem; font-weight:bold; margin-bottom:0.4rem;">
-        Ready
-      </div>
-      <button type="button" onclick="startAmygdala()">Start 60-second drill</button>
-      <p id="amygdalaNote" class="small-note" style="margin-top:0.4rem;"></p>
-
-      <hr>
-
-      <!-- ========== CTM LADDER OF INFERENCE ========== -->
-      <h2 id="ctm-ladder-title">CTM Ladder of Inference</h2>
-      <p class="small-note">
-        Use this when you feel a spike of emotion (anger, fear, shame, defensiveness) and need to
-        check whether you’re acting from principle or from reflex. Each checked box affects the score:
-        some add risk, some reduce it.
-      </p>
-
-      <ol id="ctm-ladder">
-        <!-- RUNG 1 -->
-        <li class="ladder-rung" data-rung="1">
-          <h3>Rung 1 – Raw Reality (Observed Data)</h3>
-          <p><strong>What did I literally see or hear?</strong></p>
-          <ul class="checklist">
-            <!-- Risk-increasing -->
-            <li><label><input type="checkbox" data-weight="1"> Am I reacting to how it <em>felt</em> more than to what actually happened?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Did I only catch a slice of the moment (not the full picture)?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Am I relying mainly on memory instead of what I clearly observed?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Is my information second-hand or unverified?</label></li>
-            <!-- Risk-reducing -->
-            <li><label><input type="checkbox" data-weight="-1"> Did I slow down and replay the exact words or actions before reacting?</label></li>
-            <li><label><input type="checkbox" data-weight="-1"> Did I ask, even once, “Can you repeat that so I’m sure I heard you right?”</label></li>
-            <li><label><input type="checkbox" data-weight="-1"> Am I genuinely open to being wrong about what I think I saw or heard?</label></li>
-          </ul>
-        </li>
-
-        <!-- RUNG 2 -->
-        <li class="ladder-rung" data-rung="2">
-          <h3>Rung 2 – Filtered Reality (Selected Data)</h3>
-          <p><strong>What did I focus on — and what did I ignore?</strong></p>
-          <ul class="checklist">
-            <!-- Risk-increasing -->
-            <li><label><input type="checkbox" data-weight="1"> Am I fixated on the most emotional detail instead of the most relevant one?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Did I ignore neutral or positive evidence?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Am I letting old experiences choose what I notice more than this moment?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Would someone with a different background likely notice different details?</label></li>
-            <!-- Risk-reducing -->
-            <li><label><input type="checkbox" data-weight="-1"> Did I deliberately look for at least one piece of neutral or positive evidence?</label></li>
-            <li><label><input type="checkbox" data-weight="-1"> Did I ask myself, “What am I not seeing or not being told?”</label></li>
-            <li><label><input type="checkbox" data-weight="-1"> Did I pause scrolling, walking, or talking just to scan the whole situation once?</label></li>
-          </ul>
-        </li>
-
-        <!-- RUNG 3 -->
-        <li class="ladder-rung" data-rung="3">
-          <h3>Rung 3 – Story Added (Meaning)</h3>
-          <p><strong>What story did I add to the moment?</strong></p>
-          <ul class="checklist">
-            <!-- Risk-increasing -->
-            <li><label><input type="checkbox" data-weight="1"> Am I assuming their intent without proof?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Did I turn one behavior into a character judgment (e.g. “they’re lazy/hostile”)?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Am I predicting the future from this one moment?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Did I link this to a past wound, trauma, or unrelated situation?</label></li>
-            <!-- Risk-reducing -->
-            <li><label><input type="checkbox" data-weight="-1"> Did I name it as a story in my head (e.g. “The story I’m telling myself is…”)?</label></li>
-            <li><label><input type="checkbox" data-weight="-1"> Did I intentionally consider at least one generous or non-hostile explanation?</label></li>
-            <li><label><input type="checkbox" data-weight="-1"> Am I willing to change my story if new information appears?</label></li>
-          </ul>
-        </li>
-
-        <!-- RUNG 4 -->
-        <li class="ladder-rung" data-rung="4">
-          <h3>Rung 4 – Jump Taken (Assumptions & Conclusions)</h3>
-          <p><strong>What jump did I make?</strong></p>
-          <ul class="checklist">
-            <!-- Risk-increasing -->
-            <li><label><input type="checkbox" data-weight="1"> Am I treating my assumption as if it were a proven fact?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Did I skip asking any clarifying questions?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> Do I feel a strong emotional surge (anger, fear, defensiveness)?</label></li>
-            <li><label><input type="checkbox" data-weight="1"> If I had to prove my conclusion in court, would I struggle?</label></li>
-            <!-- Risk-reducing / neutral -->
-            <li><label><input type="checkbox" data-weight="-1"> Have I asked at least one genuinely curious clarifying question?</label></li>
-            <li><label><input type="checkbox" data-weight="-1"> Would I be willing to say my conclusion out loud in front of someone I deeply respect?</label></li>
-            <li><label><input type="checkbox" data-weight="-1"> Am I honestly open to updating my conclusion if solid evidence contradicts it?</label></li>
-          </ul>
-        </li>
-
-        <!-- RUNG 5 / RESULT -->
-        <li class="ladder-rung">
-          <h3>Rung 5 – Choice of Action (Risk-Averse Scoring)</h3>
-          <p>
-            Each checked box above has a weight. Some add risk, some reduce it. The tool totals your score
-            and applies the most conservative rule.
-          </p>
-
-          <div class="ladder-result" data-zone-display>
-            <p><strong>Total score:</strong> <span data-total-score>0</span></p>
-            <p><strong>Zone:</strong> <span data-zone-label>—</span></p>
-            <p class="small-note" data-zone-description>Check boxes above to evaluate your state.</p>
+            <div style="font-size:0.85rem; opacity:0.7;">PERSONAL BEST</div>
+            <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
           </div>
 
-          <p class="small-note" style="margin-top:0.5rem;">
-            <strong>🟥 RED:</strong> Any single rung ≥ 4 points, or total ≥ 6 → <em>Do not act.</em><br>
-            <strong>🟧 YELLOW:</strong> Total 1–5, or mixed scores → <em>Seek clarity first.</em><br>
-            <strong>🟩 GREEN:</strong> All rungs ≤ 1 point and total ≤ 2 → <em>Safe to act by values.</em>
-          </p>
-        </li>
-      </ol>
-
-      <hr>
-
-      <!-- ========== PATTERN SPOTTER — INSTINCT SPIKE GAME ========== -->
-      <h2 id="games">Pattern Spotter — Instinct Spike</h2>
-      <p class="small-note">
-        Quick drills to spot Instinct Spike language (amygdala flare) versus grounded or cooling CT posture.
-      </p>
-
-      <div id="quizQuestion" class="quiz-question"></div>
-      <div class="quiz-options">
-        <button type="button" onclick="answerQuiz(0)">Instinct Spike / tribal escalation</button>
-        <button type="button" onclick="answerQuiz(1)">Grounded disagreement</button>
-        <button type="button" onclick="answerQuiz(2)">Cooling / de-escalation</button>
-        <button type="button" onclick="answerQuiz(3)">Neutral / factual</button>
+          <p class="small-note" id="streakText"></p>
+        </div>
       </div>
-      <p id="quizFeedback" class="small-note" style="margin-top:0.4rem;"></p>
-      <button type="button" onclick="nextQuiz()" style="margin-top:0.4rem;">New Scenario</button>
 
-      <hr>
+      <!-- DOCS -->
+      <div id="page-docs" class="page">
+        <div class="card">
+          <h2>Field Documents</h2>
+          <p class="small-note">Tap any document to open it.</p>
+          <ul>
+            <li><a href="docs/Fourpages.pdf" target="_blank" rel="noopener">CT-PRC-004 — Principles Package (4-Page Brief)</a></li>
+            <li><a href="docs/handbook.pdf" target="_blank" rel="noopener">CT-HBK-001 — Internal Handbook (Restricted)</a></li>
+            <li><a href="docs/Fieldkit.pdf" target="_blank" rel="noopener">CT-FLD-010 — Field Kit (Operator Issue)</a></li>
+          </ul>
+          <p class="small-note">If PDFs don’t scroll well on iOS, open them in a new tab and pinch/scroll there.</p>
+        </div>
+      </div>
 
-      <!-- ========== OPERATOR LOG + STREAK ========== -->
-      <h2>Operator Log</h2>
-      <p class="small-note">
-        Local record of recent days: score, bags, and tomorrow’s focus. Stored only on this device.
-      </p>
+      <!-- TOOLS -->
+      <div id="page-tools" class="page">
 
-      <p class="small-note" id="streakText"></p>
+        <!-- ========== DAILY CIVIC POSTURE CHECKLIST ========== -->
+        <div class="card">
+          <h2 id="tools">Daily Civic Posture Checklist</h2>
 
-      <div id="logContainer"></div>
+          <form id="dailyChecklist">
+            <h3>Grounding</h3>
+            <label><input type="checkbox" id="grounding1"> Did I take 3 seconds before responding?</label><br>
+            <label><input type="checkbox" id="grounding2"> Did I observe instead of react at least once?</label>
 
-      <hr>
+            <h3>Truth Discipline</h3>
+            <label><input type="checkbox" id="truth1"> Did I avoid sharing anything unverified?</label><br>
+            <label><input type="checkbox" id="truth2"> Did I admit "I don't know" when needed?</label><br>
+            <label><input type="checkbox" id="truth3"> Did I correct myself or my "side" if wrong?</label>
 
-      <!-- ========== OPERATION JOURNAL ========== -->
-      <h2 id="journalSection">Operation Journal</h2>
-      <p class="small-note">
-        Free-form notes on conversations, situations, and observations. Saved only on this device.
-      </p>
+            <h3>Non-Tribal Posture</h3>
+            <label><input type="checkbox" id="nontribal1"> Did I disagree respectfully with someone today?</label><br>
+            <label><input type="checkbox" id="nontribal2"> Did I treat people as humans, not camp avatars?</label>
 
-      <textarea id="opJournal" rows="6" style="width:100%;"></textarea>
-      <br><br>
-      <button type="button" onclick="saveJournal()">Save Journal</button>
-      <p id="journalMessage" style="color:#5f5; font-weight:bold;"></p>
+            <h3>De-Escalation</h3>
+            <label><input type="checkbox" id="deesc1"> Did I cool down at least one rising situation?</label><br>
+            <label><input type="checkbox" id="deesc2"> Did I avoid fueling any conflict?</label>
 
-      <hr>
+            <h3>Quiet Uplift</h3>
+            <label><input type="checkbox" id="uplift1"> Did I do one helpful act without telling anyone?</label><br>
+            <label><input type="checkbox" id="uplift2"> Did I support someone quietly who needed it?</label>
 
-      <!-- ========== SAVED JOURNAL ENTRIES ========== -->
-      <h3>Saved Entries</h3>
-      <p class="small-note">
-        Each save creates a timestamped entry below. Only this device can see them.
-      </p>
-      <div id="journalEntries"></div>
+            <h3>Boundary Health</h3>
+            <label><input type="checkbox" id="boundary1"> Did I maintain realistic boundaries?</label><br>
+            <label><input type="checkbox" id="boundary2"> Did I avoid guilt/pressure from moving me out of position?</label>
 
-    </div> <!-- END PRIVATE SECTION -->
+            <h3>Operator Integrity</h3>
+            <label><input type="checkbox" id="integrity1"> Did I act within the law?</label><br>
+            <label><input type="checkbox" id="integrity2"> Did I avoid anything harmful to the movement?</label><br>
+            <label><input type="checkbox" id="integrity3"> Did I remain nonpartisan, nonviolent, grounded?</label>
+
+            <h3>Final Self-Audit</h3>
+            <label>What one thing will I improve tomorrow?</label><br>
+            <textarea id="selfImprove" rows="3"></textarea>
+
+            <br><br>
+            <button type="button" onclick="saveChecklist()">Save Today's Checklist</button>
+          </form>
+
+          <p id="saveMessage" style="color:#5f5; font-weight:bold;"></p>
+        </div>
+
+        <!-- ========== BATHROOM CLEAN-UP CHECKLIST ========== -->
+        <div class="card">
+          <h2>Bathroom Clean-Up Checklist</h2>
+          <p class="small-note">Stored only on this device.</p>
+          <form id="bathroomChecklist">
+            <label><input type="checkbox" id="bath_pickup"> Pick up visible trash.</label><br>
+            <label><input type="checkbox" id="bath_sink"> Wipe the sink and counter.</label><br>
+            <label><input type="checkbox" id="bath_mirror"> Check mirror/floor; remove obvious mess if safe.</label><br>
+            <label><input type="checkbox" id="bath_state"> Leave lights/water/dispensers sane.</label><br>
+            <label><input type="checkbox" id="bath_silent"> Leave without telling anyone.</label><br><br>
+            <button type="button" onclick="saveBathroom()">Save Bathroom Checklist</button>
+          </form>
+          <p id="bathroomMessage" style="color:#5f5; font-weight:bold;"></p>
+        </div>
+
+        <!-- ========== COMMUNITY BAGS OF TRASH COUNTER ========== -->
+        <div class="card">
+          <h2>Community Bags of Trash</h2>
+          <div style="text-align:center; margin-bottom: 0.8rem;">
+            <div style="font-size:0.85rem; opacity:0.7;">TOTAL BAGS RECORDED</div>
+            <div id="trashCountDisplay" style="font-size:2rem; font-weight:bold;">0</div>
+            <button type="button" onclick="incrementTrash()">+1 Bag</button>
+            <button type="button" onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
+          </div>
+          <p id="trashMessage" style="color:#5f5; font-weight:bold; text-align:center;"></p>
+        </div>
+
+        <!-- ========== DAILY MISSION CARD GAME ========== -->
+        <div class="card">
+          <h2>Daily Mission Card</h2>
+          <p class="small-note">One quiet operation for today. Stored locally.</p>
+
+          <div id="missionCard" class="mission-card">
+            <span id="missionText">Tap "Draw Today’s Mission" to begin.</span>
+          </div>
+
+          <button type="button" onclick="drawMission()">Draw Today’s Mission</button>
+          <button type="button" onclick="completeMission()" style="margin-left:0.5rem;">Mark Mission Complete</button>
+          <p id="missionStatus" class="small-note" style="margin-top:0.4rem;"></p>
+        </div>
+
+        <!-- ========== AMYGDALA DRILL ========== -->
+        <div class="card">
+          <h2>Amygdala Drill — 60-Second Reset</h2>
+          <p class="small-note">One minute reset.</p>
+          <div id="amygdalaStep" class="small-note" style="margin-bottom:0.4rem;">Press start when you feel the Instinct Spike.</div>
+          <div id="amygdalaTimer" style="font-size:1.4rem; font-weight:bold; margin-bottom:0.4rem;">Ready</div>
+          <button type="button" onclick="startAmygdala()">Start 60-second drill</button>
+          <p id="amygdalaNote" class="small-note" style="margin-top:0.4rem;"></p>
+        </div>
+
+        <!-- ========== CTM LADDER OF INFERENCE ========== -->
+        <div class="card">
+          <h2 id="ctm-ladder-title">CTM Ladder of Inference</h2>
+          <p class="small-note">
+            Check boxes. Some add risk, some reduce it. Score is conservative.
+          </p>
+
+          <ol id="ctm-ladder">
+            <li class="ladder-rung" data-rung="1">
+              <h3>Rung 1 – Raw Reality</h3>
+              <ul class="checklist">
+                <li><label><input type="checkbox" data-weight="1"> Reacting to how it felt more than what happened?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Only caught a slice (not full picture)?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Relying on memory more than observation?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Info second-hand/unverified?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Replayed exact words/actions before reacting?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Asked them to repeat to confirm?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Open to being wrong?</label></li>
+              </ul>
+            </li>
+
+            <li class="ladder-rung" data-rung="2">
+              <h3>Rung 2 – Selected Data</h3>
+              <ul class="checklist">
+                <li><label><input type="checkbox" data-weight="1"> Fixated on emotional detail over relevant detail?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Ignored neutral/positive evidence?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Old experiences choosing what I notice?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Someone else would notice different details?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Looked for one neutral/positive fact?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Asked “what am I not seeing?”</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Scanned the whole situation once?</label></li>
+              </ul>
+            </li>
+
+            <li class="ladder-rung" data-rung="3">
+              <h3>Rung 3 – Meaning Added</h3>
+              <ul class="checklist">
+                <li><label><input type="checkbox" data-weight="1"> Assuming their intent without proof?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Turned behavior into character judgment?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Predicting future from one moment?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Linked to old wound/trauma/unrelated?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Named it as “story in my head”?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Considered generous explanation?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Willing to change story with new info?</label></li>
+              </ul>
+            </li>
+
+            <li class="ladder-rung" data-rung="4">
+              <h3>Rung 4 – Conclusions</h3>
+              <ul class="checklist">
+                <li><label><input type="checkbox" data-weight="1"> Treating assumption like fact?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Skipped clarifying questions?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Strong emotional surge?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Would struggle to prove in court?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Asked one curious clarifying question?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Would say it in front of someone I respect?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Open to updating with solid evidence?</label></li>
+              </ul>
+            </li>
+
+            <li class="ladder-rung">
+              <h3>Rung 5 – Result</h3>
+              <div class="ladder-result" data-zone-display>
+                <p><strong>Total score:</strong> <span data-total-score>0</span></p>
+                <p><strong>Zone:</strong> <span data-zone-label>—</span></p>
+                <p class="small-note" data-zone-description>Check boxes above to evaluate your state.</p>
+              </div>
+              <p class="small-note" style="margin-top:0.6rem;">
+                🟥 RED: any rung ≥4 OR total ≥6 → do not act.<br>
+                🟧 YELLOW: total 1–5 → seek clarity first.<br>
+                🟩 GREEN: all rungs ≤1 and total ≤2 → safe to act.
+              </p>
+            </li>
+          </ol>
+        </div>
+
+        <!-- ========== OPERATOR LOG ========== -->
+        <div class="card">
+          <h2>Operator Log</h2>
+          <p class="small-note">Recent days stored locally.</p>
+          <div id="logContainer"></div>
+        </div>
+      </div>
+
+      <!-- GAMES -->
+      <div id="page-games" class="page">
+        <div class="card">
+          <h2 id="games">Pattern Spotter — Instinct Spike</h2>
+          <p class="small-note">Quick drill.</p>
+
+          <div id="quizQuestion" class="quiz-question"></div>
+          <div class="quiz-options">
+            <button type="button" onclick="answerQuiz(0)">Instinct Spike / tribal escalation</button>
+            <button type="button" onclick="answerQuiz(1)">Grounded disagreement</button>
+            <button type="button" onclick="answerQuiz(2)">Cooling / de-escalation</button>
+            <button type="button" onclick="answerQuiz(3)">Neutral / factual</button>
+          </div>
+          <p id="quizFeedback" class="small-note" style="margin-top:0.4rem;"></p>
+          <button type="button" onclick="nextQuiz()" style="margin-top:0.4rem;">New Scenario</button>
+        </div>
+      </div>
+
+      <!-- JOURNAL -->
+      <div id="page-journal" class="page">
+        <div class="card">
+          <h2 id="journalSection">Operation Journal</h2>
+          <p class="small-note">Saved only on this device.</p>
+
+          <textarea id="opJournal" rows="6"></textarea>
+          <br><br>
+          <button type="button" onclick="saveJournal()">Save Journal</button>
+          <p id="journalMessage" style="color:#5f5; font-weight:bold;"></p>
+
+          <hr style="opacity:.25;margin:1rem 0;">
+
+          <h3>Saved Entries</h3>
+          <p class="small-note">Last 20 shown.</p>
+          <div id="journalEntries"></div>
+        </div>
+      </div>
+
+      <!-- GROUPS -->
+      <div id="page-groups" class="page">
+        <div class="card">
+          <h2>Groups</h2>
+          <p class="small-note">
+            Offline-first group codes. No accounts. Codes are stored locally. (Later we can add real sync, but that requires a backend.)
+          </p>
+
+          <div class="row" style="margin:.6rem 0;">
+            <button type="button" onclick="generateGroupCode()">Generate Code</button>
+            <button type="button" onclick="copyGroupCode()">Copy</button>
+          </div>
+
+          <div class="row">
+            <input id="groupCodeDisplay_app" type="text" readonly placeholder="No code yet" />
+            <span class="small-note" id="groupCodeMsg_app"></span>
+          </div>
+
+          <hr style="opacity:.25;margin:1rem 0;">
+
+          <h3>Join a Code</h3>
+          <div class="row">
+            <input id="joinCodeInput_app" type="text" placeholder="e.g. CTM-7K4P-9Q2D" />
+            <button type="button" onclick="joinGroupCode(true)">Join</button>
+          </div>
+          <p class="small-note" id="joinCodeMsg_app"></p>
+
+          <hr style="opacity:.25;margin:1rem 0;">
+          <h3>My Joined Codes</h3>
+          <div id="joinedCodesList"></div>
+        </div>
+      </div>
+
+    </div><!-- /appView -->
 
   </section>
 
-  <!-- Bottom navigation -->
-  <nav class="bottom-nav">
-    <a href="#top">Top</a>
-    <a href="#docs">Docs</a>
-    <a href="#tools">Tools</a>
-    <a href="#games">Games</a>
-    <a href="#journalSection">Journal</a>
-  </nav>
-
-  <!-- ========== SCRIPT ========== -->
   <script>
-    // Determine if running as installed app (iOS + general)
+    // ----------------------------
+    // Mode detection + view switch
+    // ----------------------------
     function isAppMode() {
-      const standaloneMatch = window.matchMedia &&
-        window.matchMedia('(display-mode: standalone)').matches;
+      const standaloneMatch = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
       const iosStandalone = window.navigator.standalone === true;
       return standaloneMatch || iosStandalone;
     }
 
-    // Checklist items
+    function showPublic() {
+      document.getElementById("publicView").style.display = "block";
+      document.getElementById("appView").style.display = "none";
+    }
+
+    function showApp() {
+      document.getElementById("publicView").style.display = "none";
+      document.getElementById("appView").style.display = "block";
+    }
+
+    // ----------------------------
+    // App nav (single file pages)
+    // ----------------------------
+    function setActivePage(pageId) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      const page = document.getElementById(pageId);
+      if (page) page.classList.add("active");
+
+      document.querySelectorAll(".top-nav button").forEach(b => b.classList.remove("active"));
+      const btn = document.querySelector('.top-nav button[data-page="' + pageId + '"]');
+      if (btn) btn.classList.add("active");
+    }
+
+    // ----------------------------
+    // Group Code tool (offline/local)
+    // ----------------------------
+    function randChar() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // avoid confusing I/O/1/0
+      return chars[Math.floor(Math.random() * chars.length)];
+    }
+    function makeCode() {
+      // CTM-XXXX-XXXX
+      let a = "", b = "";
+      for (let i=0;i<4;i++) a += randChar();
+      for (let i=0;i<4;i++) b += randChar();
+      return "CTM-" + a + "-" + b;
+    }
+
+    function setGroupCodeUI(code, inApp) {
+      const idDisplay = inApp ? "groupCodeDisplay_app" : "groupCodeDisplay";
+      const idMsg = inApp ? "groupCodeMsg_app" : "groupCodeMsg";
+      const el = document.getElementById(idDisplay);
+      const msg = document.getElementById(idMsg);
+      if (el) el.value = code || "";
+      if (msg) msg.textContent = code ? "Saved." : "";
+    }
+
+    function generateGroupCode() {
+      const code = makeCode();
+      localStorage.setItem("ct_group_code", code);
+      setGroupCodeUI(code, false);
+      setGroupCodeUI(code, true);
+    }
+
+    async function copyGroupCode() {
+      const code = localStorage.getItem("ct_group_code") || "";
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code);
+        const m1 = document.getElementById("groupCodeMsg");
+        const m2 = document.getElementById("groupCodeMsg_app");
+        if (m1) m1.textContent = "Copied.";
+        if (m2) m2.textContent = "Copied.";
+      } catch (e) {
+        // fallback: select field
+        const el = document.getElementById("groupCodeDisplay") || document.getElementById("groupCodeDisplay_app");
+        if (el) { el.focus(); el.select(); }
+      }
+    }
+
+    function normalizeCode(raw) {
+      return (raw || "").trim().toUpperCase().replace(/\s+/g,"");
+    }
+
+    function getJoinedCodes() {
+      try {
+        const raw = localStorage.getItem("ct_joined_codes");
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch(e) { return []; }
+    }
+
+    function setJoinedCodes(arr) {
+      localStorage.setItem("ct_joined_codes", JSON.stringify(arr));
+    }
+
+    function renderJoinedCodes() {
+      const box = document.getElementById("joinedCodesList");
+      if (!box) return;
+      const codes = getJoinedCodes();
+      if (!codes.length) {
+        box.innerHTML = "<p class='small-note'>None yet.</p>";
+        return;
+      }
+      box.innerHTML = "";
+      codes.slice().reverse().forEach(c => {
+        const div = document.createElement("div");
+        div.className = "log-entry";
+        div.innerHTML = "<div class='log-entry-date'>" + c + "</div>";
+        box.appendChild(div);
+      });
+    }
+
+    function joinGroupCode(inApp) {
+      const inputId = inApp ? "joinCodeInput_app" : "joinCodeInput";
+      const msgId = inApp ? "joinCodeMsg_app" : "joinCodeMsg";
+      const input = document.getElementById(inputId);
+      const msg = document.getElementById(msgId);
+      const code = normalizeCode(input ? input.value : "");
+      if (!msg) return;
+
+      if (!/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) {
+        msg.textContent = "Invalid code format.";
+        return;
+      }
+
+      const joined = getJoinedCodes();
+      if (!joined.includes(code)) joined.push(code);
+      setJoinedCodes(joined);
+
+      msg.textContent = "Joined (stored locally).";
+      if (input) input.value = "";
+
+      renderJoinedCodes();
+    }
+
+    // ----------------------------
+    // EXISTING TOOL LOGIC (yours)
+    // ----------------------------
+
     const checklistFields = [
       "grounding1","grounding2",
       "truth1","truth2","truth3",
@@ -486,9 +621,8 @@
       "integrity1","integrity2","integrity3",
       "selfImprove"
     ];
-    const checkboxFields = checklistFields.slice(0,16); // first 16 are checkboxes
+    const checkboxFields = checklistFields.slice(0,16);
 
-    // Daily Mission data
     const MISSIONS = [
       "Pick up trash in a spot that bothers you and leave without posting about it.",
       "Defend someone you disagree with from unfair treatment or mockery.",
@@ -502,7 +636,6 @@
       "Support someone’s good idea even if they’re from a different camp than you."
     ];
 
-    // Amygdala Drill steps
     const AMYGDALA_STEPS = [
       "0–15s: Notice what you’re feeling. Name it without judging it.",
       "15–30s: Notice where you feel it in your body. Just observe.",
@@ -511,154 +644,81 @@
     ];
     let amygdalaInterval = null;
 
-    // Pattern Spotter questions
     const QUIZ_QUESTIONS = [
-      {
-        text: "\"Those people are destroying everything.\"",
-        correct: 0,
-        explanation:
-          "This is Instinct Spike / tribal escalation: it collapses complex people into a hostile camp."
-      },
-      {
-        text: "\"I don’t like this policy because I think it harms working families.\"",
-        correct: 1,
-        explanation:
-          "This is grounded disagreement: specific concern, not an attack on a tribe."
-      },
-      {
-        text: "\"From their point of view, this actually makes sense even if I disagree.\"",
-        correct: 2,
-        explanation:
-          "This is cooling language: it lowers Instinct Spike by humanizing the other side."
-      },
-      {
-        text: "\"The report says turnout increased by 7% this year.\"",
-        correct: 3,
-        explanation:
-          "This is neutral / factual language: it can be used well or badly, but isn’t Instinct Spike by itself."
-      },
-      {
-        text: "\"Anyone who disagrees with this is either stupid or evil.\"",
-        correct: 0,
-        explanation:
-          "Classic Instinct Spike pattern: moral condemnation of a whole category of people."
-      },
-      {
-        text: "\"I’m angry, but I want to understand what you were trying to do.\"",
-        correct: 2,
-        explanation:
-          "Cooling / de-escalation: acknowledges emotion while steering toward understanding."
-      },
-      {
-        text: "\"They always play the victim.\"",
-        correct: 0,
-        explanation:
-          "Instinct Spike: broad, contemptuous generalization about a group."
-      },
-      {
-        text: "\"Here’s what I heard you say; tell me if I’m missing anything.\"",
-        correct: 2,
-        explanation:
-          "Cooling posture: slows things down and checks understanding instead of reacting."
-      }
+      { text: "\"Those people are destroying everything.\"", correct: 0, explanation: "Instinct Spike / tribal escalation." },
+      { text: "\"I don’t like this policy because I think it harms working families.\"", correct: 1, explanation: "Grounded disagreement." },
+      { text: "\"From their point of view, this actually makes sense even if I disagree.\"", correct: 2, explanation: "Cooling language." },
+      { text: "\"The report says turnout increased by 7% this year.\"", correct: 3, explanation: "Neutral / factual." },
+      { text: "\"Anyone who disagrees with this is either stupid or evil.\"", correct: 0, explanation: "Instinct Spike generalization." },
+      { text: "\"I’m angry, but I want to understand what you were trying to do.\"", correct: 2, explanation: "Cooling / de-escalation." },
+      { text: "\"They always play the victim.\"", correct: 0, explanation: "Instinct Spike generalization." },
+      { text: "\"Here’s what I heard you say; tell me if I’m missing anything.\"", correct: 2, explanation: "Cooling posture." }
     ];
     let currentQuizIndex = -1;
 
-    function todayKey() {
-      return new Date().toISOString().slice(0,10); // YYYY-MM-DD
-    }
+    function todayKey() { return new Date().toISOString().slice(0,10); }
 
-    // ---- Log utilities ----
     function getLog() {
       try {
         const raw = localStorage.getItem("ct_log");
         if (!raw) return [];
         const parsed = JSON.parse(raw);
         return Array.isArray(parsed) ? parsed : [];
-      } catch (e) {
-        return [];
-      }
+      } catch (e) { return []; }
     }
-
-    function setLog(entries) {
-      localStorage.setItem("ct_log", JSON.stringify(entries));
-    }
+    function setLog(entries) { localStorage.setItem("ct_log", JSON.stringify(entries)); }
 
     function upsertTodayLog(score) {
       const date = todayKey();
       const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
       const noteEl = document.getElementById("selfImprove");
       const note = noteEl ? noteEl.value.trim() : "";
-
       let log = getLog();
       const idx = log.findIndex(e => e.date === date);
       const entry = { date, score, bags, note };
-
-      if (idx >= 0) log[idx] = entry;
-      else log.push(entry);
-
+      if (idx >= 0) log[idx] = entry; else log.push(entry);
       log.sort((a, b) => a.date.localeCompare(b.date));
-
-      if (log.length > 30) {
-        log = log.slice(log.length - 30);
-      }
-
+      if (log.length > 30) log = log.slice(log.length - 30);
       setLog(log);
     }
 
     function computeStreakFromLog(log) {
       if (!log.length) return 0;
-
-      const map = {};
-      log.forEach(e => { map[e.date] = e.score; });
-
+      const map = {}; log.forEach(e => { map[e.date] = e.score; });
       let streak = 0;
       let cursor = new Date(todayKey());
-
       while (true) {
         const key = cursor.toISOString().slice(0,10);
         if (!map[key] || map[key] <= 0) break;
         streak += 1;
         cursor.setDate(cursor.getDate() - 1);
       }
-
       return streak;
     }
 
     function renderLog() {
       const container = document.getElementById("logContainer");
       if (!container) return;
-
       const log = getLog().slice().sort((a, b) => b.date.localeCompare(a.date));
-
-      if (!log.length) {
-        container.innerHTML = "<p class='small-note'>No entries yet.</p>";
-        return;
-      }
-
+      if (!log.length) { container.innerHTML = "<p class='small-note'>No entries yet.</p>"; return; }
       const recent = log.slice(0, 14);
       container.innerHTML = "";
       recent.forEach(entry => {
         const div = document.createElement("div");
         div.className = "log-entry";
-
         const dateEl = document.createElement("div");
         dateEl.className = "log-entry-date";
         dateEl.textContent = entry.date;
-
         const metaEl = document.createElement("div");
         metaEl.className = "log-entry-meta";
         metaEl.textContent = "Score: " + entry.score + " · Bags: " + entry.bags;
-
         div.appendChild(dateEl);
         div.appendChild(metaEl);
-
         if (entry.note) {
           const noteEl = document.createElement("div");
           noteEl.textContent = "Tomorrow: " + entry.note;
           div.appendChild(noteEl);
         }
-
         container.appendChild(div);
       });
     }
@@ -666,119 +726,65 @@
     function renderStreak() {
       const streakText = document.getElementById("streakText");
       if (!streakText) return;
-
-      const log = getLog();
-      const streak = computeStreakFromLog(log);
-
-      if (streak === 0) {
-        streakText.textContent = "Current streak: 0 days.";
-      } else if (streak === 1) {
-        streakText.textContent = "Current streak: 1 day of posture.";
-      } else {
-        streakText.textContent = "Current streak: " + streak + " days of posture.";
-      }
+      const streak = computeStreakFromLog(getLog());
+      streakText.textContent = "Current streak: " + streak + (streak === 1 ? " day." : " days.");
     }
 
-    // ---- Score computation ----
     function computeScore() {
       let score = 0;
-
-      // Checkboxes
-      checkboxFields.forEach(function(id) {
-        const el = document.getElementById(id);
-        if (el && el.checked) score += 1;
-      });
-
-      // Self-improvement note
+      checkboxFields.forEach(id => { const el = document.getElementById(id); if (el && el.checked) score += 1; });
       const text = document.getElementById("selfImprove");
       if (text && text.value.trim().length > 0) score += 1;
-
-      // Bags of trash
       const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
       score += bags;
-
-      // Mission completion (1 point if completed)
       const missionDone = localStorage.getItem("ct_mission_done") === "true";
       if (missionDone) score += 1;
-
       return score;
     }
 
     function saveChecklist() {
-      // Save checklist + note
-      checklistFields.forEach(function(id) {
+      checklistFields.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        if (el.type === "checkbox") {
-          localStorage.setItem("ct_" + id, el.checked);
-        } else {
-          localStorage.setItem("ct_" + id, el.value);
-        }
+        if (el.type === "checkbox") localStorage.setItem("ct_" + id, el.checked);
+        else localStorage.setItem("ct_" + id, el.value);
       });
 
-      // Compute + save score
       const score = computeScore();
       localStorage.setItem("ct_score_today", score);
 
       let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
-      if (score > best) {
-        best = score;
-        localStorage.setItem("ct_score_best", best);
-      }
+      if (score > best) { best = score; localStorage.setItem("ct_score_best", best); }
 
-      document.getElementById("scoreCurrent").innerText = score;
-      document.getElementById("scoreBest").innerText = best;
+      const sc = document.getElementById("scoreCurrent"); if (sc) sc.innerText = score;
+      const sb = document.getElementById("scoreBest"); if (sb) sb.innerText = best;
 
-      // Update log + streak
       upsertTodayLog(score);
       renderLog();
       renderStreak();
 
-      document.getElementById("saveMessage").innerText =
-        (score === best) ?
-        "Checklist saved ✔ New personal best." :
-        "Checklist saved ✔";
+      const msg = document.getElementById("saveMessage");
+      if (msg) msg.innerText = (score === best) ? "Checklist saved ✔ New personal best." : "Checklist saved ✔";
     }
 
-    // ---- Bathroom checklist ----
     function saveBathroom() {
-      const ids = [
-        "bath_pickup",
-        "bath_sink",
-        "bath_mirror",
-        "bath_state",
-        "bath_silent"
-      ];
-      ids.forEach(function(id) {
+      ["bath_pickup","bath_sink","bath_mirror","bath_state","bath_silent"].forEach(id => {
         const el = document.getElementById(id);
-        if (!el) return;
-        localStorage.setItem("ct_" + id, el.checked);
+        if (el) localStorage.setItem("ct_" + id, el.checked);
       });
       const msg = document.getElementById("bathroomMessage");
       if (msg) msg.innerText = "Bathroom checklist saved ✔";
     }
 
     function loadBathroom() {
-      const ids = [
-        "bath_pickup",
-        "bath_sink",
-        "bath_mirror",
-        "bath_state",
-        "bath_silent"
-      ];
-      ids.forEach(function(id) {
+      ["bath_pickup","bath_sink","bath_mirror","bath_state","bath_silent"].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        const stored = localStorage.getItem("ct_" + id);
-        el.checked = stored === "true";
+        el.checked = localStorage.getItem("ct_" + id) === "true";
       });
     }
 
-    // ---- Trash counter ----
-    function getTrashCount() {
-      return parseInt(localStorage.getItem("trashBags") || "0", 10);
-    }
-
+    function getTrashCount() { return parseInt(localStorage.getItem("trashBags") || "0", 10); }
     function setTrashCount(value) {
       if (value < 0) value = 0;
       localStorage.setItem("trashBags", value);
@@ -787,53 +793,158 @@
       const msg = document.getElementById("trashMessage");
       if (msg) msg.innerText = "Updated ✔";
     }
+    function incrementTrash() { setTrashCount(getTrashCount() + 1); }
+    function decrementTrash() { setTrashCount(getTrashCount() - 1); }
 
-    function incrementTrash() {
-      setTrashCount(getTrashCount() + 1);
+    function loadMissionFromStorage() {
+      const date = localStorage.getItem("ct_mission_date");
+      const text = localStorage.getItem("ct_mission_text");
+      const done = localStorage.getItem("ct_mission_done") === "true";
+      const today = todayKey();
+      const missionTextEl = document.getElementById("missionText");
+      const missionStatusEl = document.getElementById("missionStatus");
+      if (!missionTextEl || !missionStatusEl) return;
+
+      if (date === today && text) {
+        missionTextEl.textContent = text;
+        missionStatusEl.textContent = done ? "Mission marked complete for today." : "";
+      } else {
+        localStorage.removeItem("ct_mission_date");
+        localStorage.removeItem("ct_mission_text");
+        localStorage.removeItem("ct_mission_done");
+        missionTextEl.textContent = 'Tap "Draw Today’s Mission" to begin.';
+        missionStatusEl.textContent = "";
+      }
     }
 
-    function decrementTrash() {
-      setTrashCount(getTrashCount() - 1);
+    function drawMission() {
+      const today = todayKey();
+      const randomIndex = Math.floor(Math.random() * MISSIONS.length);
+      const text = MISSIONS[randomIndex];
+      localStorage.setItem("ct_mission_date", today);
+      localStorage.setItem("ct_mission_text", text);
+      localStorage.setItem("ct_mission_done", "false");
+
+      const mt = document.getElementById("missionText"); if (mt) mt.textContent = text;
+      const ms = document.getElementById("missionStatus"); if (ms) ms.textContent = "Mission set for today.";
+
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+      const sc = document.getElementById("scoreCurrent"); if (sc) sc.innerText = score;
     }
 
-    // ---- Operation Journal ----
+    function completeMission() {
+      const date = localStorage.getItem("ct_mission_date");
+      const today = todayKey();
+      const ms = document.getElementById("missionStatus");
+      if (date !== today) { if (ms) ms.textContent = "Draw today’s mission first."; return; }
+
+      localStorage.setItem("ct_mission_done", "true");
+      if (ms) ms.textContent = "Mission marked complete for today.";
+
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+
+      let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
+      if (score > best) { best = score; localStorage.setItem("ct_score_best", best); }
+
+      const sc = document.getElementById("scoreCurrent"); if (sc) sc.innerText = score;
+      const sb = document.getElementById("scoreBest"); if (sb) sb.innerText = best;
+
+      upsertTodayLog(score);
+      renderLog();
+      renderStreak();
+    }
+
+    function updateAmygdalaStep(remaining) {
+      const stepEl = document.getElementById("amygdalaStep");
+      if (!stepEl) return;
+      if (remaining > 45) stepEl.textContent = AMYGDALA_STEPS[0];
+      else if (remaining > 30) stepEl.textContent = AMYGDALA_STEPS[1];
+      else if (remaining > 15) stepEl.textContent = AMYGDALA_STEPS[2];
+      else stepEl.textContent = AMYGDALA_STEPS[3];
+    }
+
+    function startAmygdala() {
+      const timerEl = document.getElementById("amygdalaTimer");
+      const noteEl = document.getElementById("amygdalaNote");
+      if (!timerEl) return;
+
+      if (amygdalaInterval) clearInterval(amygdalaInterval);
+
+      let remaining = 60;
+      timerEl.textContent = remaining + "s";
+      updateAmygdalaStep(remaining);
+      if (noteEl) noteEl.textContent = "Timer runs quietly. When it ends, choose one grounded action.";
+
+      amygdalaInterval = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(amygdalaInterval);
+          amygdalaInterval = null;
+          timerEl.textContent = "Done.";
+          const stepEl = document.getElementById("amygdalaStep");
+          if (stepEl) stepEl.textContent = "Notice what changed. Log it if needed.";
+          if (noteEl) noteEl.textContent = "If helpful, write a note in your journal.";
+        } else {
+          timerEl.textContent = remaining + "s";
+          updateAmygdalaStep(remaining);
+        }
+      }, 1000);
+    }
+
+    function renderQuizQuestion() {
+      const qEl = document.getElementById("quizQuestion");
+      const feedbackEl = document.getElementById("quizFeedback");
+      if (!qEl || !feedbackEl) return;
+
+      if (currentQuizIndex < 0 || currentQuizIndex >= QUIZ_QUESTIONS.length) {
+        qEl.textContent = 'Tap "New Scenario" to start a drill.';
+        feedbackEl.textContent = "";
+        return;
+      }
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      qEl.textContent = q.text;
+      feedbackEl.textContent = "";
+    }
+
+    function nextQuiz() {
+      currentQuizIndex = Math.floor(Math.random() * QUIZ_QUESTIONS.length);
+      renderQuizQuestion();
+    }
+
+    function answerQuiz(choiceIndex) {
+      if (currentQuizIndex < 0 || currentQuizIndex >= QUIZ_QUESTIONS.length) return;
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      const feedbackEl = document.getElementById("quizFeedback");
+      if (!feedbackEl) return;
+
+      if (choiceIndex === q.correct) feedbackEl.textContent = "Correct. " + q.explanation;
+      else feedbackEl.textContent = "Not quite. " + q.explanation;
+    }
+
     function saveJournal() {
       const el = document.getElementById("opJournal");
       if (!el) return;
-
       const fullText = el.value;
       const trimmed = fullText.trim();
-
-      // Keep latest draft
       localStorage.setItem("ct_journal", fullText);
 
-      // Also append a timestamped entry if there is content
       if (trimmed.length > 0) {
         let entries = [];
         try {
           const raw = localStorage.getItem("ct_journal_entries");
           entries = raw ? JSON.parse(raw) : [];
           if (!Array.isArray(entries)) entries = [];
-        } catch (e) {
-          entries = [];
-        }
+        } catch (e) { entries = []; }
 
-        entries.push({
-          date: new Date().toISOString(),
-          text: trimmed
-        });
-
-        // Keep only last 50 entries
-        if (entries.length > 50) {
-          entries = entries.slice(entries.length - 50);
-        }
-
+        entries.push({ date: new Date().toISOString(), text: trimmed });
+        if (entries.length > 50) entries = entries.slice(entries.length - 50);
         localStorage.setItem("ct_journal_entries", JSON.stringify(entries));
       }
 
       const msg = document.getElementById("journalMessage");
       if (msg) msg.innerText = "Journal saved ✔";
-
       renderJournalEntries();
     }
 
@@ -853,9 +964,7 @@
         const raw = localStorage.getItem("ct_journal_entries");
         entries = raw ? JSON.parse(raw) : [];
         if (!Array.isArray(entries)) entries = [];
-      } catch (e) {
-        entries = [];
-      }
+      } catch (e) { entries = []; }
 
       if (!entries.length) {
         container.innerHTML = "<p class='small-note'>No saved entries yet.</p>";
@@ -864,15 +973,13 @@
 
       const recent = entries.slice().reverse().slice(0, 20);
       container.innerHTML = "";
-
       recent.forEach(entry => {
         const wrapper = document.createElement("div");
         wrapper.className = "log-entry";
 
         const dateEl = document.createElement("div");
         dateEl.className = "log-entry-date";
-        const when = new Date(entry.date);
-        dateEl.textContent = when.toLocaleString();
+        dateEl.textContent = new Date(entry.date).toLocaleString();
 
         const textEl = document.createElement("div");
         textEl.className = "log-entry-meta";
@@ -884,185 +991,95 @@
       });
     }
 
-    // ---- Daily Mission game ----
-    function loadMissionFromStorage() {
-      const date = localStorage.getItem("ct_mission_date");
-      const text = localStorage.getItem("ct_mission_text");
-      const done = localStorage.getItem("ct_mission_done") === "true";
-      const today = todayKey();
+    // Ladder scoring
+    function initLadder() {
+      const ladder = document.getElementById("ctm-ladder");
+      if (!ladder) return;
 
-      const missionTextEl = document.getElementById("missionText");
-      const missionStatusEl = document.getElementById("missionStatus");
+      const checkboxes = ladder.querySelectorAll('input[type="checkbox"]');
+      const totalScoreEl = ladder.querySelector("[data-total-score]");
+      const zoneLabelEl = ladder.querySelector("[data-zone-label]");
+      const zoneDescriptionEl = ladder.querySelector("[data-zone-description]");
+      const zoneDisplay = ladder.querySelector("[data-zone-display]");
 
-      if (date === today && text) {
-        missionTextEl.textContent = text;
-        missionStatusEl.textContent = done ? "Mission marked complete for today." : "";
-      } else {
-        // Old mission; clear
-        localStorage.removeItem("ct_mission_date");
-        localStorage.removeItem("ct_mission_text");
-        localStorage.removeItem("ct_mission_done");
-        missionTextEl.textContent = 'Tap "Draw Today’s Mission" to begin.';
-        missionStatusEl.textContent = "";
-      }
-    }
+      function updateLadderScore() {
+        const rungEls = ladder.querySelectorAll(".ladder-rung[data-rung]");
+        let total = 0;
+        const rungScores = [];
 
-    function drawMission() {
-      const today = todayKey();
-      const randomIndex = Math.floor(Math.random() * MISSIONS.length);
-      const text = MISSIONS[randomIndex];
+        rungEls.forEach(function(rungEl, index) {
+          let rungScore = 0;
+          rungEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+            if (cb.checked) {
+              const w = parseFloat(cb.getAttribute("data-weight"));
+              rungScore += isNaN(w) ? 1 : w;
+            }
+          });
+          rungScores[index] = rungScore;
+          total += rungScore;
+        });
 
-      localStorage.setItem("ct_mission_date", today);
-      localStorage.setItem("ct_mission_text", text);
-      localStorage.setItem("ct_mission_done", "false");
+        const anyRungFourOrMore = rungScores.some(s => s >= 4);
+        const allRungsLow = rungScores.length > 0 && rungScores.every(s => s <= 1);
 
-      document.getElementById("missionText").textContent = text;
-      document.getElementById("missionStatus").textContent = "Mission set for today.";
+        let zone = "—";
+        let description = "Check boxes above to evaluate your state.";
+        let zoneClass = "";
 
-      // Recompute score (in case we removed a previously completed mission)
-      const score = computeScore();
-      localStorage.setItem("ct_score_today", score);
-      document.getElementById("scoreCurrent").innerText = score;
-    }
-
-    function completeMission() {
-      const date = localStorage.getItem("ct_mission_date");
-      const today = todayKey();
-      if (date !== today) {
-        document.getElementById("missionStatus").textContent =
-          "Draw today’s mission first.";
-        return;
-      }
-      localStorage.setItem("ct_mission_done", "true");
-      document.getElementById("missionStatus").textContent =
-        "Mission marked complete for today.";
-
-      // Recompute + save score with mission bonus
-      const score = computeScore();
-      localStorage.setItem("ct_score_today", score);
-
-      let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
-      if (score > best) {
-        best = score;
-        localStorage.setItem("ct_score_best", best);
-      }
-
-      document.getElementById("scoreCurrent").innerText = score;
-      document.getElementById("scoreBest").innerText = best;
-
-      upsertTodayLog(score);
-      renderLog();
-      renderStreak();
-    }
-
-    // ---- Amygdala Drill ----
-    function updateAmygdalaStep(remaining) {
-      const stepEl = document.getElementById("amygdalaStep");
-      if (!stepEl) return;
-      if (remaining > 45) stepEl.textContent = AMYGDALA_STEPS[0];
-      else if (remaining > 30) stepEl.textContent = AMYGDALA_STEPS[1];
-      else if (remaining > 15) stepEl.textContent = AMYGDALA_STEPS[2];
-      else stepEl.textContent = AMYGDALA_STEPS[3];
-    }
-
-    function startAmygdala() {
-      const timerEl = document.getElementById("amygdalaTimer");
-      const noteEl = document.getElementById("amygdalaNote");
-      if (!timerEl) return;
-
-      if (amygdalaInterval) {
-        clearInterval(amygdalaInterval);
-      }
-
-      let remaining = 60;
-      timerEl.textContent = remaining + "s";
-      updateAmygdalaStep(remaining);
-
-      if (noteEl) {
-        noteEl.textContent =
-          "You can close your eyes; the timer will run quietly. When it ends, choose one grounded action.";
-      }
-
-      amygdalaInterval = setInterval(function() {
-        remaining--;
-        if (remaining <= 0) {
-          clearInterval(amygdalaInterval);
-          amygdalaInterval = null;
-          timerEl.textContent = "Done.";
-          const stepEl = document.getElementById("amygdalaStep");
-          if (stepEl) {
-            stepEl.textContent = "Notice what changed in your body and options. Log anything important in your journal.";
-          }
-          if (noteEl) {
-            noteEl.textContent = "If this drill helped, record the situation in your Operation Journal below.";
-          }
-        } else {
-          timerEl.textContent = remaining + "s";
-          updateAmygdalaStep(remaining);
+        if (anyRungFourOrMore || total >= 6) {
+          zone = "🟥 RED – NO ACTION";
+          description = "Do not act. Pause, gather missing data, re-run later.";
+          zoneClass = "zone-red";
+        } else if (allRungsLow && total <= 2) {
+          zone = "🟩 GREEN – Clear to Act";
+          description = "Likely seeing clearly. Act slowly and honestly.";
+          zoneClass = "zone-green";
+        } else if (total !== 0) {
+          zone = "🟧 YELLOW – Seek Clarity First";
+          description = "Ask clarifying questions. Delay emotional/public action.";
+          zoneClass = "zone-yellow";
         }
-      }, 1000);
-    }
 
-    // ---- Pattern Spotter — Instinct Spike game ----
-    function renderQuizQuestion() {
-      const qEl = document.getElementById("quizQuestion");
-      const feedbackEl = document.getElementById("quizFeedback");
-      if (!qEl || !feedbackEl) return;
+        if (totalScoreEl) totalScoreEl.textContent = total.toString();
+        if (zoneLabelEl) zoneLabelEl.textContent = zone;
+        if (zoneDescriptionEl) zoneDescriptionEl.textContent = description;
 
-      if (currentQuizIndex < 0 || currentQuizIndex >= QUIZ_QUESTIONS.length) {
-        qEl.textContent = 'Tap "New Scenario" to start a drill.';
-        feedbackEl.textContent = "";
-        return;
+        if (zoneDisplay) {
+          zoneDisplay.classList.remove("zone-red", "zone-yellow", "zone-green");
+          if (zoneClass) zoneDisplay.classList.add(zoneClass);
+        }
       }
 
-      const q = QUIZ_QUESTIONS[currentQuizIndex];
-      qEl.textContent = q.text;
-      feedbackEl.textContent = "";
+      checkboxes.forEach(cb => cb.addEventListener("change", updateLadderScore));
+      updateLadderScore();
     }
 
-    function nextQuiz() {
-      currentQuizIndex = Math.floor(Math.random() * QUIZ_QUESTIONS.length);
-      renderQuizQuestion();
-    }
-
-    function answerQuiz(choiceIndex) {
-      if (currentQuizIndex < 0 || currentQuizIndex >= QUIZ_QUESTIONS.length) {
-        return;
-      }
-      const q = QUIZ_QUESTIONS[currentQuizIndex];
-      const feedbackEl = document.getElementById("quizFeedback");
-      if (!feedbackEl) return;
-
-      if (choiceIndex === q.correct) {
-        feedbackEl.textContent = "Correct. " + q.explanation;
-      } else {
-        let label = "";
-        if (choiceIndex === 0) label = "Instinct Spike / tribal escalation";
-        if (choiceIndex === 1) label = "grounded disagreement";
-        if (choiceIndex === 2) label = "cooling / de-escalation";
-        if (choiceIndex === 3) label = "neutral / factual";
-        feedbackEl.textContent =
-          "Not quite (" + label + "). " + q.explanation;
-      }
-    }
-
-    // ---- DOM Ready ----
+    // ----------------------------
+    // DOM Ready
+    // ----------------------------
     document.addEventListener("DOMContentLoaded", function() {
       const inApp = isAppMode();
+      if (inApp) showApp(); else showPublic();
 
-      // Show private tools only in app mode; hide install section there
-      if (inApp) {
-        const priv = document.querySelector(".private-section");
-        if (priv) priv.style.display = "block";
-
-        const hint = document.getElementById("publicHint");
-        if (hint) hint.style.display = "none";
-
-        const install = document.getElementById("installSection");
-        if (install) install.style.display = "none";
+      // wire nav only when app shown
+      const nav = document.querySelector(".top-nav");
+      if (nav) {
+        nav.addEventListener("click", function(e) {
+          const btn = e.target.closest("button[data-page]");
+          if (!btn) return;
+          setActivePage(btn.getAttribute("data-page"));
+        });
       }
 
-      // Load checklist
+      // Restore group code in both views
+      const savedCode = localStorage.getItem("ct_group_code") || "";
+      if (savedCode) {
+        setGroupCodeUI(savedCode, false);
+        setGroupCodeUI(savedCode, true);
+      }
+      renderJoinedCodes();
+
+      // Load checklist fields
       checklistFields.forEach(function(id) {
         const el = document.getElementById(id);
         if (!el) return;
@@ -1071,128 +1088,34 @@
         else el.value = stored || "";
       });
 
-      // Load bathroom checklist
       loadBathroom();
 
-      // Load trash count
       const trashCount = localStorage.getItem("trashBags");
       if (trashCount !== null) {
         const display = document.getElementById("trashCountDisplay");
         if (display) display.innerText = trashCount;
       }
 
-      // Load score
       const savedScore = localStorage.getItem("ct_score_today");
       const savedBest = localStorage.getItem("ct_score_best");
-      if (savedScore) document.getElementById("scoreCurrent").innerText = savedScore;
-      if (savedBest) document.getElementById("scoreBest").innerText = savedBest;
+      const sc = document.getElementById("scoreCurrent");
+      const sb = document.getElementById("scoreBest");
+      if (savedScore && sc) sc.innerText = savedScore;
+      if (savedBest && sb) sb.innerText = savedBest;
 
-      // Load mission
       loadMissionFromStorage();
-
-      // Load & render log and streak
       renderLog();
       renderStreak();
-
-      // Load journal + entries
       loadJournal();
       renderJournalEntries();
-
-      // Initialize quiz
       renderQuizQuestion();
+      initLadder();
 
-      // Ladder of Inference tool setup (risk-averse scoring with positive/negative weights)
-      (function() {
-        const ladder = document.getElementById("ctm-ladder");
-        if (!ladder) return;
-
-        const checkboxes = ladder.querySelectorAll('input[type="checkbox"]');
-        const totalScoreEl = ladder.querySelector("[data-total-score]");
-        const zoneLabelEl = ladder.querySelector("[data-zone-label]");
-        const zoneDescriptionEl = ladder.querySelector("[data-zone-description]");
-        const zoneDisplay = ladder.querySelector("[data-zone-display]");
-
-        function updateLadderScore() {
-          const rungEls = ladder.querySelectorAll(".ladder-rung[data-rung]");
-          let total = 0;
-          const rungScores = [];
-
-          rungEls.forEach(function(rungEl, index) {
-            let rungScore = 0;
-            const rungCheckboxes = rungEl.querySelectorAll('input[type="checkbox"]');
-            rungCheckboxes.forEach(function(cb) {
-              if (cb.checked) {
-                const w = parseFloat(cb.getAttribute("data-weight"));
-                const weight = isNaN(w) ? 1 : w;
-                rungScore += weight;
-              }
-            });
-            rungScores[index] = rungScore;
-            total += rungScore;
-          });
-
-          const anyRungFourOrMore = rungScores.some(function(score) { return score >= 4; });
-          const allRungsLow = rungScores.length > 0 && rungScores.every(function(score) { return score <= 1; });
-
-          let zone = "—";
-          let description = "Check boxes above to evaluate your state.";
-          let zoneClass = "";
-
-          if (anyRungFourOrMore || total >= 6) {
-            zone = "🟥 RED – NO ACTION";
-            description = "Your thinking is heavily distorted or emotionally charged. Do not send messages, confront, or decide right now. Pause, breathe, gather missing data, and re-run this ladder later.";
-            zoneClass = "zone-red";
-          } else if (allRungsLow && total <= 2) {
-            zone = "🟩 GREEN – Clear to Act (By Values)";
-            description = "Your net score is very low. You are likely seeing the situation clearly. Act slowly, by CTM values, with honesty and calm boundaries.";
-            zoneClass = "zone-green";
-          } else if (total !== 0) {
-            zone = "🟧 YELLOW – Seek Clarity First";
-            description = "Some distortion or assumption is present, or your protective checks are fighting with your risk checks. Ask neutral clarifying questions, name your assumptions out loud or on paper, and delay emotional or public action until you have more information.";
-            zoneClass = "zone-yellow";
-          }
-
-          if (totalScoreEl) totalScoreEl.textContent = total.toString();
-          if (zoneLabelEl) zoneLabelEl.textContent = zone;
-          if (zoneDescriptionEl) zoneDescriptionEl.textContent = description;
-
-          if (zoneDisplay) {
-            zoneDisplay.classList.remove("zone-red", "zone-yellow", "zone-green");
-            if (zoneClass) zoneDisplay.classList.add(zoneClass);
-          }
-        }
-
-        checkboxes.forEach(function(cb) {
-          cb.addEventListener("change", updateLadderScore);
-        });
-
-        updateLadderScore();
-      })();
-
-      // Smooth scrolling for bottom nav anchors
-      const nav = document.querySelector(".bottom-nav");
-      if (nav) {
-        nav.addEventListener("click", function (e) {
-          const target = e.target.closest("a");
-          if (!target) return;
-
-          const href = target.getAttribute("href");
-          if (href && href.startsWith("#")) {
-            const section = document.querySelector(href);
-            if (section) {
-              e.preventDefault();
-              section.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-          }
-        });
-      }
-
-      // Register service worker (safe no-op if missing)
+      // Register service worker
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("service-worker.js").catch(function() {});
       }
     });
   </script>
-
 </body>
 </html>
