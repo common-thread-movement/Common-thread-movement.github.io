@@ -476,19 +476,6 @@
             Option A (HTTP): This uses <span class="tag">GET/POST /room/&lt;CODE&gt;</span> (no WebSockets).
           </p>
 
-          <div class="card" style="margin:0.8rem 0;">
-            <h3>Worker URL</h3>
-            <p class="small-note">
-              Set your Cloudflare Worker base URL here once, and the app will remember it.
-              Example: <span class="tag">https://proud-leaf-609e.paulquestioner.workers.dev</span>
-            </p>
-            <div class="row">
-              <input id="workerBaseInput" type="text" placeholder="https://YOUR-WORKER.workers.dev" />
-              <button type="button" onclick="saveWorkerBase()">Save</button>
-            </div>
-            <p class="small-note" id="workerBaseMsg"></p>
-          </div>
-
           <div class="row" style="margin:.6rem 0;">
             <button type="button" onclick="generateGroupCode()">Generate Code</button>
             <button type="button" onclick="copyGroupCode()">Copy</button>
@@ -553,22 +540,17 @@
     </div><!-- /appView -->
 
   </section>
+    <script>
+    // ============================
+    // OPTION A (HTTP) CONFIG (DEFAULT / NO USER EDITS)
+    // ============================
+    const DEFAULT_WORKER_BASE = "https://proud-leaf-609e.paulquestioner.workers.dev";
 
-  <script>
-    // ============================
-    // OPTION A (HTTP) CONFIG
-    // ============================
-    // IMPORTANT: set this in the Groups page "Worker URL" field.
-    // Stored as localStorage "ct_worker_base".
     function getWorkerBase() {
-      return (localStorage.getItem("ct_worker_base") || "").trim().replace(/\/+$/,"");
-    }
-    function setWorkerBase(url) {
-      localStorage.setItem("ct_worker_base", (url || "").trim().replace(/\/+$/,""));
+      return DEFAULT_WORKER_BASE.replace(/\/+$/,"");
     }
     function roomUrl(code) {
       const base = getWorkerBase();
-      if (!base) return "";
       return base + "/room/" + encodeURIComponent(code);
     }
 
@@ -593,6 +575,7 @@
 
     // ----------------------------
     // App nav (single file pages)
+    // + Auto-connect when Groups tab opens
     // ----------------------------
     function setActivePage(pageId) {
       document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
@@ -602,17 +585,21 @@
       document.querySelectorAll(".top-nav button").forEach(b => b.classList.remove("active"));
       const btn = document.querySelector('.top-nav button[data-page="' + pageId + '"]');
       if (btn) btn.classList.add("active");
+
+      // AUTO-CONNECT on Groups tab
+      if (pageId === "page-groups") {
+        autoConnectGroups();
+      }
     }
 
     // ----------------------------
     // Group Code tool (offline/local)
     // ----------------------------
     function randChar() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // avoid confusing I/O/1/0
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
       return chars[Math.floor(Math.random() * chars.length)];
     }
     function makeCode() {
-      // CTM-XXXX-XXXX
       let a = "", b = "";
       for (let i=0;i<4;i++) a += randChar();
       for (let i=0;i<4;i++) b += randChar();
@@ -711,13 +698,13 @@
 
       renderJoinedCodes();
 
-      // convenience: auto-fill Active Room input in app
       const activeInput = document.getElementById("activeRoomInput");
       if (activeInput) activeInput.value = code;
-    }    // ============================
+    }
+
+    // ============================
     // GROUP SYNC (OPTION A HTTP)
     // ============================
-    // We do NOT use WebSockets. Only fetch GET/POST.
     let roomPollTimer = null;
     let lastSeenFingerprint = "";
 
@@ -747,6 +734,8 @@
       if (input) input.value = c;
       const status = document.getElementById("roomStatus");
       if (status) status.textContent = "Active Room set to " + c + ".";
+      // optional: connect immediately when setting active from list
+      autoConnectGroups(true);
     }
 
     function setActiveCodeFromMyCode() {
@@ -757,23 +746,11 @@
       if (input) input.value = my;
       const status = document.getElementById("roomStatus");
       if (status) status.textContent = "Active Room set to your generated code: " + my + ".";
-    }
-
-    function saveWorkerBase() {
-      const input = document.getElementById("workerBaseInput");
-      const msg = document.getElementById("workerBaseMsg");
-      const val = (input ? input.value : "").trim().replace(/\/+$/,"");
-      if (!val || !/^https?:\/\//i.test(val)) {
-        if (msg) msg.textContent = "Enter a full URL starting with https://";
-        return;
-      }
-      setWorkerBase(val);
-      if (msg) msg.textContent = "Saved Worker URL.";
+      autoConnectGroups(true);
     }
 
     async function roomGET(code) {
       const url = roomUrl(code);
-      if (!url) throw new Error("Worker URL not set.");
       const res = await fetch(url, { method: "GET", cache: "no-store" });
       const txt = await res.text();
       if (!res.ok) throw new Error(txt || ("GET failed (" + res.status + ")"));
@@ -782,7 +759,6 @@
 
     async function roomPOST(code, payload) {
       const url = roomUrl(code);
-      if (!url) throw new Error("Worker URL not set.");
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -791,6 +767,12 @@
       const txt = await res.text();
       if (!res.ok) throw new Error(txt || ("POST failed (" + res.status + ")"));
       return txt;
+    }
+
+    function escapeHtml(s) {
+      return (s || "").replace(/[&<>"']/g, ch => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[ch]));
     }
 
     function renderRoomStream(text) {
@@ -803,41 +785,47 @@
         return;
       }
 
-      // If worker returns JSON, prettify. If it returns plain text, show it.
       let parsed = null;
       try { parsed = JSON.parse(safe); } catch(e) {}
 
-      if (parsed && typeof parsed === "object") {
-        // Common patterns:
-        // - {messages:[{t, name, text}], ...}
-        // - {value: "..."} etc.
-        if (Array.isArray(parsed.messages)) {
-          const msgs = parsed.messages.slice().reverse(); // newest last or first? keep simple
-          stream.innerHTML = "";
-          msgs.forEach(m => {
-            const div = document.createElement("div");
-            div.className = "chat-msg";
-            const when = m.t ? new Date(m.t).toLocaleString() : "";
-            const who = (m.name || "").trim();
-            const body = (m.text || m.message || "").toString();
-            div.textContent = (who ? (who + ": ") : "") + body + (when ? ("\n" + "— " + when) : "");
-            stream.appendChild(div);
-          });
-          return;
-        }
+      // Normalize to an array of message objects if possible:
+      let messages = null;
+      if (Array.isArray(parsed)) messages = parsed;
+      else if (parsed && typeof parsed === "object" && Array.isArray(parsed.messages)) messages = parsed.messages;
 
-        stream.innerHTML = "<pre style='white-space:pre-wrap;margin:0;'>" + escapeHtml(JSON.stringify(parsed, null, 2)) + "</pre>";
+      if (messages) {
+        // Sort oldest -> newest for chat feel
+        const msgs = messages.slice().sort((a,b) => {
+          const ta = (a.t || a.time || a.ts || "");
+          const tb = (b.t || b.time || b.ts || "");
+          return String(ta).localeCompare(String(tb));
+        });
+
+        stream.innerHTML = "";
+        msgs.forEach(m => {
+          const who = (m.name || m.from || "").toString().trim();
+          const body = (m.text ?? m.message ?? m.msg ?? "").toString();
+          const whenRaw = (m.t || m.time || m.ts || "");
+          const when = whenRaw ? new Date(whenRaw).toLocaleString() : "";
+
+          const div = document.createElement("div");
+          div.className = "chat-msg";
+          div.innerHTML =
+            `<div style="opacity:.85;font-size:.82rem;margin-bottom:.15rem;">
+               ${who ? ("<strong>" + escapeHtml(who) + "</strong>") : "<span class='small-note'>Anon</span>"}
+               ${when ? (" <span class='small-note'>· " + escapeHtml(when) + "</span>") : ""}
+             </div>
+             <div>${escapeHtml(body)}</div>`;
+          stream.appendChild(div);
+        });
+
+        // auto-scroll to bottom
+        stream.scrollTop = stream.scrollHeight;
         return;
       }
 
-      // plain text
+      // fallback: show whatever came back
       stream.innerHTML = "<pre style='white-space:pre-wrap;margin:0;'>" + escapeHtml(safe) + "</pre>";
-    }
-
-    function escapeHtml(s) {
-      return (s || "").replace(/[&<>"']/g, ch => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-      }[ch]));
     }
 
     async function refreshRoom() {
@@ -851,7 +839,6 @@
       try {
         if (status) status.textContent = "Fetching room...";
         const data = await roomGET(code);
-        // fingerprint so we don't constantly re-render identical content
         const fp = String(data).length + ":" + String(data).slice(0,120);
         if (fp !== lastSeenFingerprint) {
           lastSeenFingerprint = fp;
@@ -872,7 +859,6 @@
       }
       setActiveRoomStorage(code);
 
-      // stop old poll, start new
       if (roomPollTimer) clearInterval(roomPollTimer);
       roomPollTimer = setInterval(refreshRoom, 3500);
 
@@ -908,7 +894,6 @@
 
       try {
         if (sendStatus) sendStatus.textContent = "Sending...";
-        // payload shape is flexible; worker should store something.
         await roomPOST(code, {
           name: name || undefined,
           text,
@@ -919,6 +904,33 @@
         refreshRoom();
       } catch (e) {
         if (sendStatus) sendStatus.textContent = "Send failed: " + (e && e.message ? e.message : String(e));
+      }
+    }
+
+    // Auto-connect helper (called on Groups tab open)
+    function autoConnectGroups(force) {
+      // only run when the Groups page exists
+      const groupsPage = document.getElementById("page-groups");
+      if (!groupsPage) return;
+
+      // if already connected and not forcing, do nothing
+      if (roomPollTimer && !force) return;
+
+      const ar = getActiveRoom();
+      const arInput = document.getElementById("activeRoomInput");
+
+      // If no active room stored, but the input has one, store it.
+      if (!ar && arInput && arInput.value) {
+        const typed = normalizeCode(arInput.value);
+        if (/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(typed)) setActiveRoomStorage(typed);
+      }
+
+      // If still no active room, but user has "my code", use it automatically
+      const finalAR = getActiveRoom() || normalizeCode(localStorage.getItem("ct_group_code") || "");
+      if (finalAR && /^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(finalAR)) {
+        setActiveRoomStorage(finalAR);
+        if (arInput) arInput.value = finalAR;
+        connectRoom();
       }
     }
 
@@ -1375,7 +1387,6 @@
       const inApp = isAppMode();
       if (inApp) showApp(); else showPublic();
 
-      // wire nav only when app shown
       const nav = document.querySelector(".top-nav");
       if (nav) {
         nav.addEventListener("click", function(e) {
@@ -1385,7 +1396,6 @@
         });
       }
 
-      // Restore group code in both views
       const savedCode = localStorage.getItem("ct_group_code") || "";
       if (savedCode) {
         setGroupCodeUI(savedCode, false);
@@ -1393,16 +1403,10 @@
       }
       renderJoinedCodes();
 
-      // Restore Worker URL + Active Room in Groups page
-      const wb = getWorkerBase();
-      const wbInput = document.getElementById("workerBaseInput");
-      if (wbInput && wb) wbInput.value = wb;
-
       const ar = getActiveRoom();
       const arInput = document.getElementById("activeRoomInput");
       if (arInput && ar) arInput.value = ar;
 
-      // Load checklist fields
       checklistFields.forEach(function(id) {
         const el = document.getElementById(id);
         if (!el) return;
@@ -1434,11 +1438,10 @@
       renderQuizQuestion();
       initLadder();
 
-      // If you want auto-connect when returning to Groups page later,
-      // uncomment this:
-      // if (ar && wb) connectRoom();
+      // If you land on Groups first, auto-connect immediately
+      const groupsActive = document.getElementById("page-groups")?.classList.contains("active");
+      if (groupsActive) autoConnectGroups();
 
-      // Register service worker
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("service-worker.js").catch(function() {});
       }
