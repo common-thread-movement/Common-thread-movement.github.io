@@ -94,6 +94,40 @@
     #ctm-ladder .ladder-result.zone-red { border-color: #a00; background-color: rgba(160, 0, 0, 0.15); }
     #ctm-ladder .ladder-result.zone-yellow { border-color: #a78000; background-color: rgba(167, 128, 0, 0.12); }
     #ctm-ladder .ladder-result.zone-green { border-color: #0a7a2a; background-color: rgba(0, 120, 40, 0.12); }
+
+    /* Group sync */
+    .chat-box {
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.04);
+    }
+    .chat-stream {
+      max-height: 260px;
+      overflow: auto;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 0.6rem;
+      background: rgba(0,0,0,0.18);
+      font-size: 0.92rem;
+      line-height: 1.25;
+    }
+    .chat-msg {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 0.45rem 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .chat-msg:first-child { border-top: none; }
+    .tag {
+      display:inline-block;
+      padding: 0.15rem 0.45rem;
+      border:1px solid #333;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      opacity:0.9;
+      background: rgba(255,255,255,0.05);
+    }
   </style>
 </head>
 
@@ -158,7 +192,7 @@
         <p class="small-note">Paste a code you received. (No login. Stored locally.)</p>
         <div class="row">
           <input id="joinCodeInput" type="text" placeholder="e.g. CTM-7K4P-9Q2D" />
-          <button type="button" onclick="joinGroupCode()">Join</button>
+          <button type="button" onclick="joinGroupCode(false)">Join</button>
         </div>
         <p class="small-note" id="joinCodeMsg"></p>
       </div>
@@ -439,12 +473,26 @@
         <div class="card">
           <h2>Groups</h2>
           <p class="small-note">
-            Offline-first group codes. No accounts. Codes are stored locally. (Later we can add real sync, but that requires a backend.)
+            Option A (HTTP): This uses <span class="tag">GET/POST /room/&lt;CODE&gt;</span> (no WebSockets).
           </p>
+
+          <div class="card" style="margin:0.8rem 0;">
+            <h3>Worker URL</h3>
+            <p class="small-note">
+              Set your Cloudflare Worker base URL here once, and the app will remember it.
+              Example: <span class="tag">https://proud-leaf-609e.paulquestioner.workers.dev</span>
+            </p>
+            <div class="row">
+              <input id="workerBaseInput" type="text" placeholder="https://YOUR-WORKER.workers.dev" />
+              <button type="button" onclick="saveWorkerBase()">Save</button>
+            </div>
+            <p class="small-note" id="workerBaseMsg"></p>
+          </div>
 
           <div class="row" style="margin:.6rem 0;">
             <button type="button" onclick="generateGroupCode()">Generate Code</button>
             <button type="button" onclick="copyGroupCode()">Copy</button>
+            <button type="button" onclick="setActiveCodeFromMyCode()">Use My Code as Active</button>
           </div>
 
           <div class="row">
@@ -464,6 +512,41 @@
           <hr style="opacity:.25;margin:1rem 0;">
           <h3>My Joined Codes</h3>
           <div id="joinedCodesList"></div>
+
+          <hr style="opacity:.25;margin:1rem 0;">
+
+          <h3>Active Room</h3>
+          <p class="small-note">
+            The Active Room is what sync uses. Pick one of your joined codes, then connect.
+          </p>
+
+          <div class="row">
+            <input id="activeRoomInput" type="text" placeholder="CTM-XXXX-XXXX" />
+            <button type="button" onclick="setActiveRoom()">Set Active</button>
+            <button type="button" onclick="connectRoom()">Connect</button>
+            <button type="button" onclick="disconnectRoom()">Disconnect</button>
+          </div>
+          <p class="small-note" id="roomStatus"></p>
+
+          <div class="chat-box" style="margin-top:0.8rem;">
+            <h3>Room Feed</h3>
+            <p class="small-note">
+              Lightweight “room feed” for short notes. Polls every few seconds when connected.
+            </p>
+            <div id="roomStream" class="chat-stream"></div>
+
+            <div class="row" style="margin-top:0.6rem;">
+              <input id="roomNameInput" type="text" placeholder="Name (optional)" />
+              <button type="button" onclick="refreshRoom()">Refresh</button>
+            </div>
+
+            <textarea id="roomMsgInput" rows="3" placeholder="Write a short note to the room..."></textarea>
+            <div class="row" style="margin-top:0.5rem;">
+              <button type="button" onclick="sendRoomMessage()">Send</button>
+              <span class="small-note" id="sendStatus"></span>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -472,6 +555,23 @@
   </section>
 
   <script>
+    // ============================
+    // OPTION A (HTTP) CONFIG
+    // ============================
+    // IMPORTANT: set this in the Groups page "Worker URL" field.
+    // Stored as localStorage "ct_worker_base".
+    function getWorkerBase() {
+      return (localStorage.getItem("ct_worker_base") || "").trim().replace(/\/+$/,"");
+    }
+    function setWorkerBase(url) {
+      localStorage.setItem("ct_worker_base", (url || "").trim().replace(/\/+$/,""));
+    }
+    function roomUrl(code) {
+      const base = getWorkerBase();
+      if (!base) return "";
+      return base + "/room/" + encodeURIComponent(code);
+    }
+
     // ----------------------------
     // Mode detection + view switch
     // ----------------------------
@@ -545,7 +645,6 @@
         if (m1) m1.textContent = "Copied.";
         if (m2) m2.textContent = "Copied.";
       } catch (e) {
-        // fallback: select field
         const el = document.getElementById("groupCodeDisplay") || document.getElementById("groupCodeDisplay_app");
         if (el) { el.focus(); el.select(); }
       }
@@ -579,7 +678,13 @@
       codes.slice().reverse().forEach(c => {
         const div = document.createElement("div");
         div.className = "log-entry";
-        div.innerHTML = "<div class='log-entry-date'>" + c + "</div>";
+        div.innerHTML = `
+          <div class="row" style="justify-content:space-between;">
+            <div class="log-entry-date">${c}</div>
+            <div class="row">
+              <button type="button" onclick="quickSetActive('${c.replace(/'/g,"")}')">Set Active</button>
+            </div>
+          </div>`;
         box.appendChild(div);
       });
     }
@@ -605,12 +710,221 @@
       if (input) input.value = "";
 
       renderJoinedCodes();
+
+      // convenience: auto-fill Active Room input in app
+      const activeInput = document.getElementById("activeRoomInput");
+      if (activeInput) activeInput.value = code;
+    }    // ============================
+    // GROUP SYNC (OPTION A HTTP)
+    // ============================
+    // We do NOT use WebSockets. Only fetch GET/POST.
+    let roomPollTimer = null;
+    let lastSeenFingerprint = "";
+
+    function getActiveRoom() {
+      return normalizeCode(localStorage.getItem("ct_active_room") || "");
+    }
+    function setActiveRoomStorage(code) {
+      localStorage.setItem("ct_active_room", normalizeCode(code || ""));
+    }
+
+    function setActiveRoom() {
+      const input = document.getElementById("activeRoomInput");
+      const code = normalizeCode(input ? input.value : "");
+      const status = document.getElementById("roomStatus");
+      if (!/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) {
+        if (status) status.textContent = "Active Room: invalid code format.";
+        return;
+      }
+      setActiveRoomStorage(code);
+      if (status) status.textContent = "Active Room set to " + code + ".";
+    }
+
+    function quickSetActive(code) {
+      const c = normalizeCode(code);
+      setActiveRoomStorage(c);
+      const input = document.getElementById("activeRoomInput");
+      if (input) input.value = c;
+      const status = document.getElementById("roomStatus");
+      if (status) status.textContent = "Active Room set to " + c + ".";
+    }
+
+    function setActiveCodeFromMyCode() {
+      const my = normalizeCode(localStorage.getItem("ct_group_code") || "");
+      if (!my) return;
+      setActiveRoomStorage(my);
+      const input = document.getElementById("activeRoomInput");
+      if (input) input.value = my;
+      const status = document.getElementById("roomStatus");
+      if (status) status.textContent = "Active Room set to your generated code: " + my + ".";
+    }
+
+    function saveWorkerBase() {
+      const input = document.getElementById("workerBaseInput");
+      const msg = document.getElementById("workerBaseMsg");
+      const val = (input ? input.value : "").trim().replace(/\/+$/,"");
+      if (!val || !/^https?:\/\//i.test(val)) {
+        if (msg) msg.textContent = "Enter a full URL starting with https://";
+        return;
+      }
+      setWorkerBase(val);
+      if (msg) msg.textContent = "Saved Worker URL.";
+    }
+
+    async function roomGET(code) {
+      const url = roomUrl(code);
+      if (!url) throw new Error("Worker URL not set.");
+      const res = await fetch(url, { method: "GET", cache: "no-store" });
+      const txt = await res.text();
+      if (!res.ok) throw new Error(txt || ("GET failed (" + res.status + ")"));
+      return txt;
+    }
+
+    async function roomPOST(code, payload) {
+      const url = roomUrl(code);
+      if (!url) throw new Error("Worker URL not set.");
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {})
+      });
+      const txt = await res.text();
+      if (!res.ok) throw new Error(txt || ("POST failed (" + res.status + ")"));
+      return txt;
+    }
+
+    function renderRoomStream(text) {
+      const stream = document.getElementById("roomStream");
+      if (!stream) return;
+
+      const safe = (text || "").trim();
+      if (!safe) {
+        stream.innerHTML = "<p class='small-note'>No room data yet.</p>";
+        return;
+      }
+
+      // If worker returns JSON, prettify. If it returns plain text, show it.
+      let parsed = null;
+      try { parsed = JSON.parse(safe); } catch(e) {}
+
+      if (parsed && typeof parsed === "object") {
+        // Common patterns:
+        // - {messages:[{t, name, text}], ...}
+        // - {value: "..."} etc.
+        if (Array.isArray(parsed.messages)) {
+          const msgs = parsed.messages.slice().reverse(); // newest last or first? keep simple
+          stream.innerHTML = "";
+          msgs.forEach(m => {
+            const div = document.createElement("div");
+            div.className = "chat-msg";
+            const when = m.t ? new Date(m.t).toLocaleString() : "";
+            const who = (m.name || "").trim();
+            const body = (m.text || m.message || "").toString();
+            div.textContent = (who ? (who + ": ") : "") + body + (when ? ("\n" + "— " + when) : "");
+            stream.appendChild(div);
+          });
+          return;
+        }
+
+        stream.innerHTML = "<pre style='white-space:pre-wrap;margin:0;'>" + escapeHtml(JSON.stringify(parsed, null, 2)) + "</pre>";
+        return;
+      }
+
+      // plain text
+      stream.innerHTML = "<pre style='white-space:pre-wrap;margin:0;'>" + escapeHtml(safe) + "</pre>";
+    }
+
+    function escapeHtml(s) {
+      return (s || "").replace(/[&<>"']/g, ch => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[ch]));
+    }
+
+    async function refreshRoom() {
+      const status = document.getElementById("roomStatus");
+      const code = getActiveRoom() || normalizeCode((document.getElementById("activeRoomInput")||{}).value || "");
+      if (!/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) {
+        if (status) status.textContent = "Set a valid Active Room code first.";
+        return;
+      }
+
+      try {
+        if (status) status.textContent = "Fetching room...";
+        const data = await roomGET(code);
+        // fingerprint so we don't constantly re-render identical content
+        const fp = String(data).length + ":" + String(data).slice(0,120);
+        if (fp !== lastSeenFingerprint) {
+          lastSeenFingerprint = fp;
+          renderRoomStream(data);
+        }
+        if (status) status.textContent = "Connected to " + code + " (last refresh: " + new Date().toLocaleTimeString() + ")";
+      } catch (e) {
+        if (status) status.textContent = "Room error: " + (e && e.message ? e.message : String(e));
+      }
+    }
+
+    function connectRoom() {
+      const status = document.getElementById("roomStatus");
+      const code = getActiveRoom() || normalizeCode((document.getElementById("activeRoomInput")||{}).value || "");
+      if (!/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) {
+        if (status) status.textContent = "Set a valid Active Room code first.";
+        return;
+      }
+      setActiveRoomStorage(code);
+
+      // stop old poll, start new
+      if (roomPollTimer) clearInterval(roomPollTimer);
+      roomPollTimer = setInterval(refreshRoom, 3500);
+
+      if (status) status.textContent = "Connecting to " + code + "...";
+      refreshRoom();
+    }
+
+    function disconnectRoom() {
+      const status = document.getElementById("roomStatus");
+      if (roomPollTimer) clearInterval(roomPollTimer);
+      roomPollTimer = null;
+      if (status) status.textContent = "Disconnected.";
+    }
+
+    async function sendRoomMessage() {
+      const code = getActiveRoom();
+      const sendStatus = document.getElementById("sendStatus");
+      const status = document.getElementById("roomStatus");
+      const msgEl = document.getElementById("roomMsgInput");
+      const nameEl = document.getElementById("roomNameInput");
+
+      const text = (msgEl ? msgEl.value : "").trim();
+      const name = (nameEl ? nameEl.value : "").trim();
+
+      if (!code) {
+        if (status) status.textContent = "Set Active Room first.";
+        return;
+      }
+      if (!text) {
+        if (sendStatus) sendStatus.textContent = "Write a message first.";
+        return;
+      }
+
+      try {
+        if (sendStatus) sendStatus.textContent = "Sending...";
+        // payload shape is flexible; worker should store something.
+        await roomPOST(code, {
+          name: name || undefined,
+          text,
+          t: new Date().toISOString()
+        });
+        if (sendStatus) sendStatus.textContent = "Sent.";
+        if (msgEl) msgEl.value = "";
+        refreshRoom();
+      } catch (e) {
+        if (sendStatus) sendStatus.textContent = "Send failed: " + (e && e.message ? e.message : String(e));
+      }
     }
 
     // ----------------------------
     // EXISTING TOOL LOGIC (yours)
     // ----------------------------
-
     const checklistFields = [
       "grounding1","grounding2",
       "truth1","truth2","truth3",
@@ -1079,6 +1393,15 @@
       }
       renderJoinedCodes();
 
+      // Restore Worker URL + Active Room in Groups page
+      const wb = getWorkerBase();
+      const wbInput = document.getElementById("workerBaseInput");
+      if (wbInput && wb) wbInput.value = wb;
+
+      const ar = getActiveRoom();
+      const arInput = document.getElementById("activeRoomInput");
+      if (arInput && ar) arInput.value = ar;
+
       // Load checklist fields
       checklistFields.forEach(function(id) {
         const el = document.getElementById(id);
@@ -1110,6 +1433,10 @@
       renderJournalEntries();
       renderQuizQuestion();
       initLadder();
+
+      // If you want auto-connect when returning to Groups page later,
+      // uncomment this:
+      // if (ar && wb) connectRoom();
 
       // Register service worker
       if ("serviceWorker" in navigator) {
