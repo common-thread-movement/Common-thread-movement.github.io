@@ -7,45 +7,127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
 
-  <!-- PWA -->
+  <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json">
+
+  <!-- App icon for iOS Home Screen -->
   <link rel="apple-touch-icon" href="icons/IMG_8375.png">
 
-  <!-- Shared styles -->
+  <!-- Your existing site styles -->
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* Minimal structural styles only — enhanced in Part 2 */
+    .small-note { font-size: 0.85rem; opacity: 0.7; }
+    .card {
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 0.9rem;
+      margin: 0.9rem 0;
+      background: rgba(0,0,0,0.22);
+    }
+    .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    input[type="text"], input[type="number"] {
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      min-width: 220px;
+      flex: 1;
+    }
+    textarea { width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid #333; background: rgba(255,255,255,0.05); color:#fff; }
+
+    /* Public/App root containers */
     #publicView { display: none; }
     #appView { display: none; }
 
+    /* App top nav (single HTML file "pages") */
     .top-nav {
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 9999;
       display: flex;
+      flex-wrap: wrap;
       gap: 0.4rem;
-      padding: 0.5rem;
-      background: rgba(0,0,0,0.95);
+      padding: 0.45rem;
+      background: rgba(0,0,0,0.92);
       border-bottom: 1px solid #333;
     }
-
     .top-nav button {
       border: 1px solid #333;
       border-radius: 10px;
-      padding: 0.35rem 0.6rem;
+      padding: 0.35rem 0.55rem;
       background: rgba(255,255,255,0.06);
       color: #fff;
-      opacity: 0.85;
+      opacity: 0.9;
     }
-
-    .top-nav button.active {
-      opacity: 1;
-      border-color: #666;
-    }
+    .top-nav button.active { opacity: 1; border-color: #666; }
 
     .page { display: none; }
     .page.active { display: block; }
+
+    /* Log styles */
+    .log-entry { border-top: 1px solid #444; padding: 0.4rem 0; font-size: 0.9rem; }
+    .log-entry-date { font-weight: bold; opacity: 0.9; }
+    .log-entry-meta { opacity: 0.8; }
+
+    .mission-card {
+      border: 1px solid #444;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin: 0.4rem 0 0.6rem 0;
+      font-size: 0.95rem;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .quiz-question { font-weight: 600; margin-bottom: 0.5rem; }
+    .quiz-options button { display: block; width: 100%; margin-bottom: 0.35rem; }
+
+    /* Ladder result styles */
+    #ctm-ladder .ladder-result {
+      border: 1px solid #444;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin-top: 0.6rem;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    #ctm-ladder .ladder-result.zone-red { border-color: #a00; background-color: rgba(160, 0, 0, 0.15); }
+    #ctm-ladder .ladder-result.zone-yellow { border-color: #a78000; background-color: rgba(167, 128, 0, 0.12); }
+    #ctm-ladder .ladder-result.zone-green { border-color: #0a7a2a; background-color: rgba(0, 120, 40, 0.12); }
+
+    /* Group sync */
+    .chat-box {
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.04);
+    }
+    .chat-stream {
+      max-height: 260px;
+      overflow: auto;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 0.6rem;
+      background: rgba(0,0,0,0.18);
+      font-size: 0.92rem;
+      line-height: 1.25;
+    }
+    .chat-msg {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 0.45rem 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .chat-msg:first-child { border-top: none; }
+    .tag {
+      display:inline-block;
+      padding: 0.15rem 0.45rem;
+      border:1px solid #333;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      opacity:0.9;
+      background: rgba(255,255,255,0.05);
+    }
   </style>
 </head>
 
@@ -57,75 +139,430 @@
 
   <section class="content-box">
 
-    <!-- ===============================
-         PUBLIC VIEW (Web / install)
-    ================================ -->
+    <!-- =====================================================
+         PUBLIC VIEW (WEB-FACING)
+         ONLY: Install instructions + Group code tool
+    ====================================================== -->
     <div id="publicView">
-      <h2>Use the Field Kit as an App</h2>
-      <p class="small-note">
-        Install to your Home Screen. No accounts. No tracking.
-        Operator tools appear only in the installed app.
-      </p>
 
-      <p><strong>iPhone / iPad:</strong><br>
-        Safari → Share → Add to Home Screen
-      </p>
+      <div class="card">
+        <h2>Use the Field Kit as an App</h2>
+        <p class="small-note">
+          Install to your Home Screen. No accounts. No tracking. Operator tools only appear in the installed app.
+        </p>
 
-      <p><strong>Android:</strong><br>
-        Chrome → Menu → Install App
-      </p>
+        <p><strong>On iPhone / iPad:</strong><br>
+          1) Open this page in Safari<br>
+          2) Tap Share (square + arrow)<br>
+          3) Tap <strong>Add to Home Screen</strong><br>
+          4) Tap <strong>Add</strong>
+        </p>
 
-      <p class="small-note">
-        After install, open from your Home Screen icon.
-      </p>
-    </div>
+        <p><strong>On Android (Chrome):</strong><br>
+          1) Open this page in Chrome<br>
+          2) Tap menu (⋮)<br>
+          3) Tap <strong>Install app</strong> / <strong>Add to Home screen</strong><br>
+          4) Confirm
+        </p>
 
-    <!-- ===============================
-         APP VIEW (PWA only)
-    ================================ -->
-    <div id="appView">
-
-      <nav class="top-nav">
-        <button data-page="page-home" class="active">Home</button>
-        <button data-page="page-docs">Docs</button>
-        <button data-page="page-tools">Tools</button>
-        <button data-page="page-games">Games</button>
-        <button data-page="page-journal">Journal</button>
-        <button data-page="page-groups">Groups</button>
-      </nav>
-
-      <div id="page-home" class="page active">
-        <h2>Operator Status</h2>
-        <p class="small-note">Local-only. Nothing leaves this device.</p>
-
-        <div style="text-align:center;">
-          <div class="small-note">CURRENT SCORE</div>
-          <div id="scoreCurrent" style="font-size:2.2rem;font-weight:bold;">0</div>
-
-          <div class="small-note">PERSONAL BEST</div>
-          <div id="scoreBest" style="font-size:1.4rem;font-weight:bold;">0</div>
-        </div>
-
-        <p id="streakText" class="small-note"></p>
+        <p class="small-note" style="text-align:center;margin-top:.7rem;">
+          After install, open from your Home Screen icon to access tools.
+        </p>
       </div>
 
-      <!-- Remaining pages injected by Parts 2 & 3 -->
+      <div class="card">
+        <h2>Group Code</h2>
+        <p class="small-note">
+          Generate a code to share with a friend. The app remembers your last code on this device.
+        </p>
+
+        <div class="row" style="margin:.6rem 0;">
+          <button type="button" onclick="generateGroupCode()">Generate Code</button>
+          <button type="button" onclick="copyGroupCode()">Copy</button>
+        </div>
+
+        <div class="row">
+          <input id="groupCodeDisplay" type="text" readonly placeholder="No code yet" />
+          <span class="small-note" id="groupCodeMsg"></span>
+        </div>
+
+        <hr style="opacity:.25;margin:1rem 0;">
+
+        <h3>Join a Code</h3>
+        <p class="small-note">Paste a code you received. (No login. Stored locally.)</p>
+        <div class="row">
+          <input id="joinCodeInput" type="text" placeholder="e.g. CTM-7K4P-9Q2D" />
+          <button type="button" onclick="joinGroupCode(false)">Join</button>
+        </div>
+        <p class="small-note" id="joinCodeMsg"></p>
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         APP VIEW (PWA MODE)
+         ALL tools + docs + nav (single-file “pages”)
+    ====================================================== -->
+    <div id="appView">
+
+      <nav class="top-nav" aria-label="App navigation">
+        <button type="button" data-page="page-home" class="active">Home</button>
+        <button type="button" data-page="page-docs">Docs</button>
+        <button type="button" data-page="page-tools">Tools</button>
+        <button type="button" data-page="page-games">Games</button>
+        <button type="button" data-page="page-journal">Journal</button>
+        <button type="button" data-page="page-groups">Groups</button>
+      </nav>
+
+      <!-- HOME -->
+      <div id="page-home" class="page active">
+        <div class="card">
+          <h2>Operator Status</h2>
+          <p class="small-note">Everything is local to this device.</p>
+
+          <div style="text-align:center;">
+            <div style="font-size:0.85rem; opacity:0.7;">CURRENT SCORE</div>
+            <div id="scoreCurrent" style="font-size:2.2rem; font-weight:bold;">0</div>
+
+            <div style="font-size:0.85rem; opacity:0.7;">PERSONAL BEST</div>
+            <div id="scoreBest" style="font-size:1.4rem; font-weight:bold;">0</div>
+          </div>
+
+          <p class="small-note" id="streakText"></p>
+        </div>
+      </div>
+
+      <!-- DOCS -->
+      <div id="page-docs" class="page">
+        <div class="card">
+          <h2>Field Documents</h2>
+          <p class="small-note">Tap any document to open it.</p>
+          <ul>
+            <li><a href="docs/Fourpages.pdf" target="_blank" rel="noopener">CT-PRC-004 — Principles Package (4-Page Brief)</a></li>
+            <li><a href="docs/handbook.pdf" target="_blank" rel="noopener">CT-HBK-001 — Internal Handbook (Restricted)</a></li>
+            <li><a href="docs/Fieldkit.pdf" target="_blank" rel="noopener">CT-FLD-010 — Field Kit (Operator Issue)</a></li>
+          </ul>
+          <p class="small-note">If PDFs don’t scroll well on iOS, open them in a new tab and pinch/scroll there.</p>
+        </div>
+      </div>
+
+      <!-- TOOLS -->
+      <div id="page-tools" class="page">
+
+        <!-- ========== DAILY CIVIC POSTURE CHECKLIST ========== -->
+        <div class="card">
+          <h2 id="tools">Daily Civic Posture Checklist</h2>
+
+          <form id="dailyChecklist">
+            <h3>Grounding</h3>
+            <label><input type="checkbox" id="grounding1"> Did I take 3 seconds before responding?</label><br>
+            <label><input type="checkbox" id="grounding2"> Did I observe instead of react at least once?</label>
+
+            <h3>Truth Discipline</h3>
+            <label><input type="checkbox" id="truth1"> Did I avoid sharing anything unverified?</label><br>
+            <label><input type="checkbox" id="truth2"> Did I admit "I don't know" when needed?</label><br>
+            <label><input type="checkbox" id="truth3"> Did I correct myself or my "side" if wrong?</label>
+
+            <h3>Non-Tribal Posture</h3>
+            <label><input type="checkbox" id="nontribal1"> Did I disagree respectfully with someone today?</label><br>
+            <label><input type="checkbox" id="nontribal2"> Did I treat people as humans, not camp avatars?</label>
+
+            <h3>De-Escalation</h3>
+            <label><input type="checkbox" id="deesc1"> Did I cool down at least one rising situation?</label><br>
+            <label><input type="checkbox" id="deesc2"> Did I avoid fueling any conflict?</label>
+
+            <h3>Quiet Uplift</h3>
+            <label><input type="checkbox" id="uplift1"> Did I do one helpful act without telling anyone?</label><br>
+            <label><input type="checkbox" id="uplift2"> Did I support someone quietly who needed it?</label>
+
+            <h3>Boundary Health</h3>
+            <label><input type="checkbox" id="boundary1"> Did I maintain realistic boundaries?</label><br>
+            <label><input type="checkbox" id="boundary2"> Did I avoid guilt/pressure from moving me out of position?</label>
+
+            <h3>Operator Integrity</h3>
+            <label><input type="checkbox" id="integrity1"> Did I act within the law?</label><br>
+            <label><input type="checkbox" id="integrity2"> Did I avoid anything harmful to the movement?</label><br>
+            <label><input type="checkbox" id="integrity3"> Did I remain nonpartisan, nonviolent, grounded?</label>
+
+            <h3>Final Self-Audit</h3>
+            <label>What one thing will I improve tomorrow?</label><br>
+            <textarea id="selfImprove" rows="3"></textarea>
+
+            <br><br>
+            <button type="button" onclick="saveChecklist()">Save Today's Checklist</button>
+          </form>
+
+          <p id="saveMessage" style="color:#5f5; font-weight:bold;"></p>
+        </div>
+
+        <!-- ========== BATHROOM CLEAN-UP CHECKLIST ========== -->
+        <div class="card">
+          <h2>Bathroom Clean-Up Checklist</h2>
+          <p class="small-note">Stored only on this device.</p>
+          <form id="bathroomChecklist">
+            <label><input type="checkbox" id="bath_pickup"> Pick up visible trash.</label><br>
+            <label><input type="checkbox" id="bath_sink"> Wipe the sink and counter.</label><br>
+            <label><input type="checkbox" id="bath_mirror"> Check mirror/floor; remove obvious mess if safe.</label><br>
+            <label><input type="checkbox" id="bath_state"> Leave lights/water/dispensers sane.</label><br>
+            <label><input type="checkbox" id="bath_silent"> Leave without telling anyone.</label><br><br>
+            <button type="button" onclick="saveBathroom()">Save Bathroom Checklist</button>
+          </form>
+          <p id="bathroomMessage" style="color:#5f5; font-weight:bold;"></p>
+        </div>
+
+        <!-- ========== COMMUNITY BAGS OF TRASH COUNTER ========== -->
+        <div class="card">
+          <h2>Community Bags of Trash</h2>
+          <div style="text-align:center; margin-bottom: 0.8rem;">
+            <div style="font-size:0.85rem; opacity:0.7;">TOTAL BAGS RECORDED</div>
+            <div id="trashCountDisplay" style="font-size:2rem; font-weight:bold;">0</div>
+            <button type="button" onclick="incrementTrash()">+1 Bag</button>
+            <button type="button" onclick="decrementTrash()" style="margin-left:0.5rem;">Undo (–1)</button>
+          </div>
+          <p id="trashMessage" style="color:#5f5; font-weight:bold; text-align:center;"></p>
+        </div>
+
+        <!-- ========== DAILY MISSION CARD GAME ========== -->
+        <div class="card">
+          <h2>Daily Mission Card</h2>
+          <p class="small-note">One quiet operation for today. Stored locally.</p>
+
+          <div id="missionCard" class="mission-card">
+            <span id="missionText">Tap "Draw Today’s Mission" to begin.</span>
+          </div>
+
+          <button type="button" onclick="drawMission()">Draw Today’s Mission</button>
+          <button type="button" onclick="completeMission()" style="margin-left:0.5rem;">Mark Mission Complete</button>
+          <p id="missionStatus" class="small-note" style="margin-top:0.4rem;"></p>
+        </div>
+
+        <!-- ========== AMYGDALA DRILL ========== -->
+        <div class="card">
+          <h2>Amygdala Drill — 60-Second Reset</h2>
+          <p class="small-note">One minute reset.</p>
+          <div id="amygdalaStep" class="small-note" style="margin-bottom:0.4rem;">Press start when you feel the Instinct Spike.</div>
+          <div id="amygdalaTimer" style="font-size:1.4rem; font-weight:bold; margin-bottom:0.4rem;">Ready</div>
+          <button type="button" onclick="startAmygdala()">Start 60-second drill</button>
+          <p id="amygdalaNote" class="small-note" style="margin-top:0.4rem;"></p>
+        </div>
+
+        <!-- ========== CTM LADDER OF INFERENCE ========== -->
+        <div class="card">
+          <h2 id="ctm-ladder-title">CTM Ladder of Inference</h2>
+          <p class="small-note">
+            Check boxes. Some add risk, some reduce it. Score is conservative.
+          </p>
+
+          <ol id="ctm-ladder">
+            <li class="ladder-rung" data-rung="1">
+              <h3>Rung 1 – Raw Reality</h3>
+              <ul class="checklist">
+                <li><label><input type="checkbox" data-weight="1"> Reacting to how it felt more than what happened?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Only caught a slice (not full picture)?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Relying on memory more than observation?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Info second-hand/unverified?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Replayed exact words/actions before reacting?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Asked them to repeat to confirm?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Open to being wrong?</label></li>
+              </ul>
+            </li>
+
+            <li class="ladder-rung" data-rung="2">
+              <h3>Rung 2 – Selected Data</h3>
+              <ul class="checklist">
+                <li><label><input type="checkbox" data-weight="1"> Fixated on emotional detail over relevant detail?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Ignored neutral/positive evidence?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Old experiences choosing what I notice?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Someone else would notice different details?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Looked for one neutral/positive fact?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Asked “what am I not seeing?”</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Scanned the whole situation once?</label></li>
+              </ul>
+            </li>
+
+            <li class="ladder-rung" data-rung="3">
+              <h3>Rung 3 – Meaning Added</h3>
+              <ul class="checklist">
+                <li><label><input type="checkbox" data-weight="1"> Assuming their intent without proof?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Turned behavior into character judgment?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Predicting future from one moment?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Linked to old wound/trauma/unrelated?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Named it as “story in my head”?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Considered generous explanation?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Willing to change story with new info?</label></li>
+              </ul>
+            </li>
+
+            <li class="ladder-rung" data-rung="4">
+              <h3>Rung 4 – Conclusions</h3>
+              <ul class="checklist">
+                <li><label><input type="checkbox" data-weight="1"> Treating assumption like fact?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Skipped clarifying questions?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Strong emotional surge?</label></li>
+                <li><label><input type="checkbox" data-weight="1"> Would struggle to prove in court?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Asked one curious clarifying question?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Would say it in front of someone I respect?</label></li>
+                <li><label><input type="checkbox" data-weight="-1"> Open to updating with solid evidence?</label></li>
+              </ul>
+            </li>
+
+            <li class="ladder-rung">
+              <h3>Rung 5 – Result</h3>
+              <div class="ladder-result" data-zone-display>
+                <p><strong>Total score:</strong> <span data-total-score>0</span></p>
+                <p><strong>Zone:</strong> <span data-zone-label>—</span></p>
+                <p class="small-note" data-zone-description>Check boxes above to evaluate your state.</p>
+              </div>
+              <p class="small-note" style="margin-top:0.6rem;">
+                🟥 RED: any rung ≥4 OR total ≥6 → do not act.<br>
+                🟧 YELLOW: total 1–5 → seek clarity first.<br>
+                🟩 GREEN: all rungs ≤1 and total ≤2 → safe to act.
+              </p>
+            </li>
+          </ol>
+        </div>
+
+        <!-- ========== OPERATOR LOG ========== -->
+        <div class="card">
+          <h2>Operator Log</h2>
+          <p class="small-note">Recent days stored locally.</p>
+          <div id="logContainer"></div>
+        </div>
+      </div>
+
+      <!-- GAMES -->
+      <div id="page-games" class="page">
+        <div class="card">
+          <h2 id="games">Pattern Spotter — Instinct Spike</h2>
+          <p class="small-note">Quick drill.</p>
+
+          <div id="quizQuestion" class="quiz-question"></div>
+          <div class="quiz-options">
+            <button type="button" onclick="answerQuiz(0)">Instinct Spike / tribal escalation</button>
+            <button type="button" onclick="answerQuiz(1)">Grounded disagreement</button>
+            <button type="button" onclick="answerQuiz(2)">Cooling / de-escalation</button>
+            <button type="button" onclick="answerQuiz(3)">Neutral / factual</button>
+          </div>
+          <p id="quizFeedback" class="small-note" style="margin-top:0.4rem;"></p>
+          <button type="button" onclick="nextQuiz()" style="margin-top:0.4rem;">New Scenario</button>
+        </div>
+      </div>
+
+      <!-- JOURNAL -->
+      <div id="page-journal" class="page">
+        <div class="card">
+          <h2 id="journalSection">Operation Journal</h2>
+          <p class="small-note">Saved only on this device.</p>
+
+          <textarea id="opJournal" rows="6"></textarea>
+          <br><br>
+          <button type="button" onclick="saveJournal()">Save Journal</button>
+          <p id="journalMessage" style="color:#5f5; font-weight:bold;"></p>
+
+          <hr style="opacity:.25;margin:1rem 0;">
+
+          <h3>Saved Entries</h3>
+          <p class="small-note">Last 20 shown.</p>
+          <div id="journalEntries"></div>
+        </div>
+      </div>
+
+      <!-- GROUPS -->
+      <div id="page-groups" class="page">
+        <div class="card">
+          <h2>Groups</h2>
+          <p class="small-note">
+            Option A (HTTP): This uses <span class="tag">GET/POST /room/&lt;CODE&gt;</span> (no WebSockets).
+          </p>
+
+          <div class="row" style="margin:.6rem 0;">
+            <button type="button" onclick="generateGroupCode()">Generate Code</button>
+            <button type="button" onclick="copyGroupCode()">Copy</button>
+            <button type="button" onclick="setActiveCodeFromMyCode()">Use My Code as Active</button>
+          </div>
+
+          <div class="row">
+            <input id="groupCodeDisplay_app" type="text" readonly placeholder="No code yet" />
+            <span class="small-note" id="groupCodeMsg_app"></span>
+          </div>
+
+          <hr style="opacity:.25;margin:1rem 0;">
+
+          <h3>Join a Code</h3>
+          <div class="row">
+            <input id="joinCodeInput_app" type="text" placeholder="e.g. CTM-7K4P-9Q2D" />
+            <button type="button" onclick="joinGroupCode(true)">Join</button>
+          </div>
+          <p class="small-note" id="joinCodeMsg_app"></p>
+
+          <hr style="opacity:.25;margin:1rem 0;">
+          <h3>My Joined Codes</h3>
+          <div id="joinedCodesList"></div>
+
+          <hr style="opacity:.25;margin:1rem 0;">
+
+          <h3>Active Room</h3>
+          <p class="small-note">
+            The Active Room is what sync uses. Pick one of your joined codes, then connect.
+          </p>
+
+          <div class="row">
+            <input id="activeRoomInput" type="text" placeholder="CTM-XXXX-XXXX" />
+            <button type="button" onclick="setActiveRoom()">Set Active</button>
+            <button type="button" onclick="connectRoom()">Connect</button>
+            <button type="button" onclick="disconnectRoom()">Disconnect</button>
+          </div>
+          <p class="small-note" id="roomStatus"></p>
+
+          <div class="chat-box" style="margin-top:0.8rem;">
+            <h3>Room Feed</h3>
+            <p class="small-note">
+              Lightweight “room feed” for short notes. Polls every few seconds when connected.
+            </p>
+            <div id="roomStream" class="chat-stream"></div>
+
+            <div class="row" style="margin-top:0.6rem;">
+              <input id="roomNameInput" type="text" placeholder="Name (optional)" />
+              <button type="button" onclick="refreshRoom()">Refresh</button>
+            </div>
+
+            <textarea id="roomMsgInput" rows="3" placeholder="Write a short note to the room..."></textarea>
+            <div class="row" style="margin-top:0.5rem;">
+              <button type="button" onclick="sendRoomMessage()">Send</button>
+              <span class="small-note" id="sendStatus"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
 
     </div><!-- /appView -->
 
   </section>
-
   <script>
-    /* =====================================================
-       CORE MODE / BOOTSTRAP (SINGLE SOURCE OF TRUTH)
-       Parts 2 & 3 MUST NOT add DOMContentLoaded
-    ====================================================== */
+    // ============================
+    // OPTION A (HTTP) CONFIG
+    // ============================
 
+    // 🔒 Hard-coded Worker base URL (no user edits)
+    const WORKER_BASE_DEFAULT = "https://proud-leaf-609e.paulquestioner.workers.dev";
+
+    function getWorkerBase() {
+      return WORKER_BASE_DEFAULT.replace(/\/+$/,"");
+    }
+    function roomUrl(code) {
+      const base = getWorkerBase();
+      return base + "/room/" + encodeURIComponent(code);
+    }
+
+    // ----------------------------
+    // Mode detection + view switch
+    // ----------------------------
     function isAppMode() {
-      return (
-        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-        window.navigator.standalone === true
-      );
+      const standaloneMatch = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      const iosStandalone = window.navigator.standalone === true;
+      return standaloneMatch || iosStandalone;
     }
 
     function showPublic() {
@@ -138,796 +575,919 @@
       document.getElementById("appView").style.display = "block";
     }
 
+    // ----------------------------
+    // App nav (single file pages)
+    // ----------------------------
     function setActivePage(pageId) {
       document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
       const page = document.getElementById(pageId);
       if (page) page.classList.add("active");
 
       document.querySelectorAll(".top-nav button").forEach(b => b.classList.remove("active"));
-      const btn = document.querySelector(`.top-nav button[data-page="${pageId}"]`);
+      const btn = document.querySelector('.top-nav button[data-page="' + pageId + '"]');
       if (btn) btn.classList.add("active");
+
+      // Auto-connect when entering Groups tab (if active room exists)
+      if (pageId === "page-groups") maybeAutoConnectGroups();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const inApp = isAppMode();
+    // ----------------------------
+    // Group Code tool (offline/local)
+    // ----------------------------
+    function randChar() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // avoid confusing I/O/1/0
+      return chars[Math.floor(Math.random() * chars.length)];
+    }
+    function makeCode() {
+      // CTM-XXXX-XXXX
+      let a = "", b = "";
+      for (let i=0;i<4;i++) a += randChar();
+      for (let i=0;i<4;i++) b += randChar();
+      return "CTM-" + a + "-" + b;
+    }
 
-      if (inApp) {
-        showApp();
+    function setGroupCodeUI(code, inApp) {
+      const idDisplay = inApp ? "groupCodeDisplay_app" : "groupCodeDisplay";
+      const idMsg = inApp ? "groupCodeMsg_app" : "groupCodeMsg";
+      const el = document.getElementById(idDisplay);
+      const msg = document.getElementById(idMsg);
+      if (el) el.value = code || "";
+      if (msg) msg.textContent = code ? "Saved." : "";
+    }
 
-        // 🔌 Hooks implemented in Part 2 & Part 3
-        if (window.initDeepLinkAndLastTab) initDeepLinkAndLastTab();
-        if (window.initPdfOverlayBindings) initPdfOverlayBindings();
-        if (window.initOperatorKit) initOperatorKit();
+    function generateGroupCode() {
+      const code = makeCode();
+      localStorage.setItem("ct_group_code", code);
+      setGroupCodeUI(code, false);
+      setGroupCodeUI(code, true);
+    }
 
-      } else {
-        showPublic();
+    async function copyGroupCode() {
+      const code = localStorage.getItem("ct_group_code") || "";
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code);
+        const m1 = document.getElementById("groupCodeMsg");
+        const m2 = document.getElementById("groupCodeMsg_app");
+        if (m1) m1.textContent = "Copied.";
+        if (m2) m2.textContent = "Copied.";
+      } catch (e) {
+        const el = document.getElementById("groupCodeDisplay") || document.getElementById("groupCodeDisplay_app");
+        if (el) { el.focus(); el.select(); }
+      }
+    }
+
+    function normalizeCode(raw) {
+      return (raw || "").trim().toUpperCase().replace(/\s+/g,"");
+    }
+
+    function getJoinedCodes() {
+      try {
+        const raw = localStorage.getItem("ct_joined_codes");
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch(e) { return []; }
+    }
+
+    function setJoinedCodes(arr) {
+      localStorage.setItem("ct_joined_codes", JSON.stringify(arr));
+    }
+
+    function renderJoinedCodes() {
+      const box = document.getElementById("joinedCodesList");
+      if (!box) return;
+      const codes = getJoinedCodes();
+      if (!codes.length) {
+        box.innerHTML = "<p class='small-note'>None yet.</p>";
+        return;
+      }
+      box.innerHTML = "";
+      codes.slice().reverse().forEach(c => {
+        const safeC = c.replace(/'/g,"");
+        const div = document.createElement("div");
+        div.className = "log-entry";
+        div.innerHTML = `
+          <div class="row" style="justify-content:space-between;">
+            <div class="log-entry-date">${safeC}</div>
+            <div class="row">
+              <button type="button" onclick="quickSetActive('${safeC}')">Set Active</button>
+            </div>
+          </div>`;
+        box.appendChild(div);
+      });
+    }
+
+    function joinGroupCode(inApp) {
+      const inputId = inApp ? "joinCodeInput_app" : "joinCodeInput";
+      const msgId = inApp ? "joinCodeMsg_app" : "joinCodeMsg";
+      const input = document.getElementById(inputId);
+      const msg = document.getElementById(msgId);
+      const code = normalizeCode(input ? input.value : "");
+      if (!msg) return;
+
+      if (!/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) {
+        msg.textContent = "Invalid code format.";
+        return;
       }
 
-      // Navigation wiring (safe, single attach)
+      const joined = getJoinedCodes();
+      if (!joined.includes(code)) joined.push(code);
+      setJoinedCodes(joined);
+
+      msg.textContent = "Joined (stored locally).";
+      if (input) input.value = "";
+
+      renderJoinedCodes();
+
+      // convenience: auto-fill Active Room input in app
+      const activeInput = document.getElementById("activeRoomInput");
+      if (activeInput) activeInput.value = code;
+    }
+
+    // ============================
+    // ROOM NAME (local)
+    // ============================
+    function getRoomName() {
+      return (localStorage.getItem("ct_room_name") || "").trim();
+    }
+    function setRoomName(v) {
+      localStorage.setItem("ct_room_name", (v || "").trim());
+    }
+
+    // ============================
+    // GROUP SYNC (OPTION A HTTP)
+    // ============================
+    // We do NOT use WebSockets. Only fetch GET/POST.
+    let roomPollTimer = null;
+    let lastSeenFingerprint = "";
+    let connectedRoomCode = ""; // to avoid reconnect loops
+
+    function getActiveRoom() {
+      return normalizeCode(localStorage.getItem("ct_active_room") || "");
+    }
+    function setActiveRoomStorage(code) {
+      localStorage.setItem("ct_active_room", normalizeCode(code || ""));
+    }
+
+    function setActiveRoom() {
+      const input = document.getElementById("activeRoomInput");
+      const code = normalizeCode(input ? input.value : "");
+      const status = document.getElementById("roomStatus");
+      if (!/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) {
+        if (status) status.textContent = "Active Room: invalid code format.";
+        return;
+      }
+      setActiveRoomStorage(code);
+      if (status) status.textContent = "Active Room set to " + code + ".";
+      // immediate auto-connect
+      connectRoom();
+    }
+
+    function quickSetActive(code) {
+      const c = normalizeCode(code);
+      setActiveRoomStorage(c);
+      const input = document.getElementById("activeRoomInput");
+      if (input) input.value = c;
+      const status = document.getElementById("roomStatus");
+      if (status) status.textContent = "Active Room set to " + c + ".";
+      // immediate auto-connect
+      connectRoom();
+    }
+
+    function setActiveCodeFromMyCode() {
+      const my = normalizeCode(localStorage.getItem("ct_group_code") || "");
+      if (!my) return;
+      setActiveRoomStorage(my);
+      const input = document.getElementById("activeRoomInput");
+      if (input) input.value = my;
+      const status = document.getElementById("roomStatus");
+      if (status) status.textContent = "Active Room set to your generated code: " + my + ".";
+      // immediate auto-connect
+      connectRoom();
+    }
+
+    async function roomGET(code) {
+      const url = roomUrl(code);
+      const res = await fetch(url, { method: "GET", cache: "no-store" });
+      const txt = await res.text();
+      if (!res.ok) throw new Error(txt || ("GET failed (" + res.status + ")"));
+      return txt;
+    }
+
+    async function roomPOST(code, payload) {
+      const url = roomUrl(code);
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {})
+      });
+      const txt = await res.text();
+      if (!res.ok) throw new Error(txt || ("POST failed (" + res.status + ")"));
+      return txt;
+    }
+
+    function escapeHtml(s) {
+      return (s || "").replace(/[&<>"']/g, ch => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[ch]));
+    }
+
+    // ✅ Improved renderer: tight spacing + supports name keys
+    function renderRoomStream(text) {
+      const stream = document.getElementById("roomStream");
+      if (!stream) return;
+
+      const safe = (text || "").trim();
+      if (!safe) {
+        stream.innerHTML = "<p class='small-note'>No room data yet.</p>";
+        return;
+      }
+
+      let parsed = null;
+      try { parsed = JSON.parse(safe); } catch(e) {}
+
+      function pickName(m) {
+        return (m && (m.name || m.user || m.from || m.n || m.handle)) ? String(m.name || m.user || m.from || m.n || m.handle).trim() : "";
+      }
+      function pickText(m) {
+        return (m && (m.text || m.message || m.msg || m.body)) ? String(m.text || m.message || m.msg || m.body) : "";
+      }
+      function pickTime(m) {
+        const t = m && (m.t || m.time || m.ts || m.date);
+        if (!t) return "";
+        const d = new Date(t);
+        return isNaN(d.getTime()) ? "" : d.toLocaleString();
+      }
+
+      let msgs = null;
+      if (parsed && typeof parsed === "object") {
+        if (Array.isArray(parsed)) msgs = parsed;
+        else if (Array.isArray(parsed.messages)) msgs = parsed.messages;
+      }
+
+      if (Array.isArray(msgs)) {
+        stream.innerHTML = "";
+
+        msgs.forEach(m => {
+          const name = pickName(m) || "Anon";
+          const when = pickTime(m);
+          const body = pickText(m);
+
+          const wrap = document.createElement("div");
+          wrap.className = "chat-msg";
+
+          const meta = document.createElement("div");
+          meta.className = "chat-msg-meta";
+          meta.textContent = when ? `${name} • ${when}` : name;
+
+          const msg = document.createElement("div");
+          msg.className = "chat-msg-body";
+          msg.textContent = body;
+
+          wrap.appendChild(meta);
+          wrap.appendChild(msg);
+          stream.appendChild(wrap);
+        });
+
+        stream.scrollTop = stream.scrollHeight;
+        return;
+      }
+
+      if (parsed && typeof parsed === "object") {
+        stream.innerHTML = "<pre style='white-space:pre-wrap;margin:0;'>" + escapeHtml(JSON.stringify(parsed, null, 2)) + "</pre>";
+        return;
+      }
+      stream.innerHTML = "<pre style='white-space:pre-wrap;margin:0;'>" + escapeHtml(safe) + "</pre>";
+    }
+
+    async function refreshRoom() {
+      const status = document.getElementById("roomStatus");
+      const code = getActiveRoom() || normalizeCode((document.getElementById("activeRoomInput")||{}).value || "");
+      if (!/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) {
+        if (status) status.textContent = "Set a valid Active Room code first.";
+        return;
+      }
+
+      try {
+        if (status) status.textContent = "Fetching room...";
+        const data = await roomGET(code);
+
+        const fp = String(data).length + ":" + String(data).slice(0,120);
+        if (fp !== lastSeenFingerprint) {
+          lastSeenFingerprint = fp;
+          renderRoomStream(data);
+        }
+
+        if (status) status.textContent =
+          "Connected to " + code + " (last refresh: " + new Date().toLocaleTimeString() + ")";
+      } catch (e) {
+        if (status) status.textContent = "Room error: " + (e && e.message ? e.message : String(e));
+      }
+    }
+
+    function connectRoom() {
+      const status = document.getElementById("roomStatus");
+      const code = getActiveRoom() || normalizeCode((document.getElementById("activeRoomInput")||{}).value || "");
+      if (!/^CTM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(code)) {
+        if (status) status.textContent = "Set a valid Active Room code first.";
+        return;
+      }
+      setActiveRoomStorage(code);
+
+      // already polling this room
+      if (connectedRoomCode === code && roomPollTimer) {
+        refreshRoom();
+        return;
+      }
+
+      connectedRoomCode = code;
+
+      if (roomPollTimer) clearInterval(roomPollTimer);
+      roomPollTimer = setInterval(refreshRoom, 3500);
+
+      if (status) status.textContent = "Connecting to " + code + "...";
+      refreshRoom();
+    }
+
+    function disconnectRoom() {
+      const status = document.getElementById("roomStatus");
+      if (roomPollTimer) clearInterval(roomPollTimer);
+      roomPollTimer = null;
+      connectedRoomCode = "";
+      if (status) status.textContent = "Disconnected.";
+    }
+
+    function maybeAutoConnectGroups() {
+      const code = getActiveRoom();
+      if (!code) return;
+      // connect if not connected
+      if (!roomPollTimer || connectedRoomCode !== code) connectRoom();
+    }
+
+    async function sendRoomMessage() {
+      const code = getActiveRoom();
+      const sendStatus = document.getElementById("sendStatus");
+      const status = document.getElementById("roomStatus");
+      const msgEl = document.getElementById("roomMsgInput");
+      const nameEl = document.getElementById("roomNameInput");
+
+      const text = (msgEl ? msgEl.value : "").trim();
+      const nameTyped = (nameEl ? nameEl.value : "").trim();
+      const name = nameTyped || getRoomName(); // ✅ use stored name if field empty
+
+      if (!code) {
+        if (status) status.textContent = "Set Active Room first.";
+        return;
+      }
+      if (!text) {
+        if (sendStatus) sendStatus.textContent = "Write a message first.";
+        return;
+      }
+
+      // persist name if user typed it
+      if (nameTyped) setRoomName(nameTyped);
+
+      try {
+        if (sendStatus) sendStatus.textContent = "Sending...";
+        await roomPOST(code, {
+          name: name || undefined,
+          text,
+          t: new Date().toISOString()
+        });
+        if (sendStatus) sendStatus.textContent = "Sent.";
+        if (msgEl) msgEl.value = "";
+        refreshRoom();
+      } catch (e) {
+        if (sendStatus) sendStatus.textContent = "Send failed: " + (e && e.message ? e.message : String(e));
+      }
+    }
+
+    // ----------------------------
+    // EXISTING TOOL LOGIC (yours)
+    // ----------------------------
+    const checklistFields = [
+      "grounding1","grounding2",
+      "truth1","truth2","truth3",
+      "nontribal1","nontribal2",
+      "deesc1","deesc2",
+      "uplift1","uplift2",
+      "boundary1","boundary2",
+      "integrity1","integrity2","integrity3",
+      "selfImprove"
+    ];
+    const checkboxFields = checklistFields.slice(0,16);
+
+    const MISSIONS = [
+      "Pick up trash in a spot that bothers you and leave without posting about it.",
+      "Defend someone you disagree with from unfair treatment or mockery.",
+      "Ask one person a curious question instead of arguing your point.",
+      "Quietly fix or clean one thing nobody asked you to touch.",
+      "Clarify someone’s position before you criticize it: repeat it back fairly first.",
+      "Offer a sincere compliment to someone outside your usual circle or tribe.",
+      "De-escalate one tense moment by lowering your tone and pace.",
+      "Admit one small fault today without blame-shifting or excuse.",
+      "Choose not to share one piece of outrage content you normally would.",
+      "Support someone’s good idea even if they’re from a different camp than you."
+    ];
+
+    const AMYGDALA_STEPS = [
+      "0–15s: Notice what you’re feeling. Name it without judging it.",
+      "15–30s: Notice where you feel it in your body. Just observe.",
+      "30–45s: Ask: What would my best self want to do here?",
+      "45–60s: Choose one small, grounded action you can take next."
+    ];
+    let amygdalaInterval = null;
+
+    const QUIZ_QUESTIONS = [
+      { text: "\"Those people are destroying everything.\"", correct: 0, explanation: "Instinct Spike / tribal escalation." },
+      { text: "\"I don’t like this policy because I think it harms working families.\"", correct: 1, explanation: "Grounded disagreement." },
+      { text: "\"From their point of view, this actually makes sense even if I disagree.\"", correct: 2, explanation: "Cooling language." },
+      { text: "\"The report says turnout increased by 7% this year.\"", correct: 3, explanation: "Neutral / factual." },
+      { text: "\"Anyone who disagrees with this is either stupid or evil.\"", correct: 0, explanation: "Instinct Spike generalization." },
+      { text: "\"I’m angry, but I want to understand what you were trying to do.\"", correct: 2, explanation: "Cooling / de-escalation." },
+      { text: "\"They always play the victim.\"", correct: 0, explanation: "Instinct Spike generalization." },
+      { text: "\"Here’s what I heard you say; tell me if I’m missing anything.\"", correct: 2, explanation: "Cooling posture." }
+    ];
+    let currentQuizIndex = -1;
+
+    function todayKey() { return new Date().toISOString().slice(0,10); }
+
+    function getLog() {
+      try {
+        const raw = localStorage.getItem("ct_log");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) { return []; }
+    }
+    function setLog(entries) { localStorage.setItem("ct_log", JSON.stringify(entries)); }
+
+    function upsertTodayLog(score) {
+      const date = todayKey();
+      const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
+      const noteEl = document.getElementById("selfImprove");
+      const note = noteEl ? noteEl.value.trim() : "";
+      let log = getLog();
+      const idx = log.findIndex(e => e.date === date);
+      const entry = { date, score, bags, note };
+      if (idx >= 0) log[idx] = entry; else log.push(entry);
+      log.sort((a, b) => a.date.localeCompare(b.date));
+      if (log.length > 30) log = log.slice(log.length - 30);
+      setLog(log);
+    }
+
+    function computeStreakFromLog(log) {
+      if (!log.length) return 0;
+      const map = {}; log.forEach(e => { map[e.date] = e.score; });
+      let streak = 0;
+      let cursor = new Date(todayKey());
+      while (true) {
+        const key = cursor.toISOString().slice(0,10);
+        if (!map[key] || map[key] <= 0) break;
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      return streak;
+    }
+
+    function renderLog() {
+      const container = document.getElementById("logContainer");
+      if (!container) return;
+      const log = getLog().slice().sort((a, b) => b.date.localeCompare(a.date));
+      if (!log.length) { container.innerHTML = "<p class='small-note'>No entries yet.</p>"; return; }
+      const recent = log.slice(0, 14);
+      container.innerHTML = "";
+      recent.forEach(entry => {
+        const div = document.createElement("div");
+        div.className = "log-entry";
+        const dateEl = document.createElement("div");
+        dateEl.className = "log-entry-date";
+        dateEl.textContent = entry.date;
+        const metaEl = document.createElement("div");
+        metaEl.className = "log-entry-meta";
+        metaEl.textContent = "Score: " + entry.score + " · Bags: " + entry.bags;
+        div.appendChild(dateEl);
+        div.appendChild(metaEl);
+        if (entry.note) {
+          const noteEl = document.createElement("div");
+          noteEl.textContent = "Tomorrow: " + entry.note;
+          div.appendChild(noteEl);
+        }
+        container.appendChild(div);
+      });
+    }
+
+    function renderStreak() {
+      const streakText = document.getElementById("streakText");
+      if (!streakText) return;
+      const streak = computeStreakFromLog(getLog());
+      streakText.textContent = "Current streak: " + streak + (streak === 1 ? " day." : " days.");
+    }
+
+    function computeScore() {
+      let score = 0;
+      checkboxFields.forEach(id => { const el = document.getElementById(id); if (el && el.checked) score += 1; });
+      const text = document.getElementById("selfImprove");
+      if (text && text.value.trim().length > 0) score += 1;
+      const bags = parseInt(localStorage.getItem("trashBags") || "0", 10);
+      score += bags;
+      const missionDone = localStorage.getItem("ct_mission_done") === "true";
+      if (missionDone) score += 1;
+      return score;
+    }
+
+    function saveChecklist() {
+      checklistFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === "checkbox") localStorage.setItem("ct_" + id, el.checked);
+        else localStorage.setItem("ct_" + id, el.value);
+      });
+
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+
+      let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
+      if (score > best) { best = score; localStorage.setItem("ct_score_best", best); }
+
+      const sc = document.getElementById("scoreCurrent"); if (sc) sc.innerText = score;
+      const sb = document.getElementById("scoreBest"); if (sb) sb.innerText = best;
+
+      upsertTodayLog(score);
+      renderLog();
+      renderStreak();
+
+      const msg = document.getElementById("saveMessage");
+      if (msg) msg.innerText = (score === best) ? "Checklist saved ✔ New personal best." : "Checklist saved ✔";
+    }
+
+    function saveBathroom() {
+      ["bath_pickup","bath_sink","bath_mirror","bath_state","bath_silent"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) localStorage.setItem("ct_" + id, el.checked);
+      });
+      const msg = document.getElementById("bathroomMessage");
+      if (msg) msg.innerText = "Bathroom checklist saved ✔";
+    }
+
+    function loadBathroom() {
+      ["bath_pickup","bath_sink","bath_mirror","bath_state","bath_silent"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.checked = localStorage.getItem("ct_" + id) === "true";
+      });
+    }
+
+    function getTrashCount() { return parseInt(localStorage.getItem("trashBags") || "0", 10); }
+    function setTrashCount(value) {
+      if (value < 0) value = 0;
+      localStorage.setItem("trashBags", value);
+      const display = document.getElementById("trashCountDisplay");
+      if (display) display.innerText = value;
+      const msg = document.getElementById("trashMessage");
+      if (msg) msg.innerText = "Updated ✔";
+    }
+    function incrementTrash() { setTrashCount(getTrashCount() + 1); }
+    function decrementTrash() { setTrashCount(getTrashCount() - 1); }
+
+    function loadMissionFromStorage() {
+      const date = localStorage.getItem("ct_mission_date");
+      const text = localStorage.getItem("ct_mission_text");
+      const done = localStorage.getItem("ct_mission_done") === "true";
+      const today = todayKey();
+      const missionTextEl = document.getElementById("missionText");
+      const missionStatusEl = document.getElementById("missionStatus");
+      if (!missionTextEl || !missionStatusEl) return;
+
+      if (date === today && text) {
+        missionTextEl.textContent = text;
+        missionStatusEl.textContent = done ? "Mission marked complete for today." : "";
+      } else {
+        localStorage.removeItem("ct_mission_date");
+        localStorage.removeItem("ct_mission_text");
+        localStorage.removeItem("ct_mission_done");
+        missionTextEl.textContent = 'Tap "Draw Today’s Mission" to begin.';
+        missionStatusEl.textContent = "";
+      }
+    }
+
+    function drawMission() {
+      const today = todayKey();
+      const randomIndex = Math.floor(Math.random() * MISSIONS.length);
+      const text = MISSIONS[randomIndex];
+      localStorage.setItem("ct_mission_date", today);
+      localStorage.setItem("ct_mission_text", text);
+      localStorage.setItem("ct_mission_done", "false");
+
+      const mt = document.getElementById("missionText"); if (mt) mt.textContent = text;
+      const ms = document.getElementById("missionStatus"); if (ms) ms.textContent = "Mission set for today.";
+
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+      const sc = document.getElementById("scoreCurrent"); if (sc) sc.innerText = score;
+    }
+
+    function completeMission() {
+      const date = localStorage.getItem("ct_mission_date");
+      const today = todayKey();
+      const ms = document.getElementById("missionStatus");
+      if (date !== today) { if (ms) ms.textContent = "Draw today’s mission first."; return; }
+
+      localStorage.setItem("ct_mission_done", "true");
+      if (ms) ms.textContent = "Mission marked complete for today.";
+
+      const score = computeScore();
+      localStorage.setItem("ct_score_today", score);
+
+      let best = parseInt(localStorage.getItem("ct_score_best") || "0", 10);
+      if (score > best) { best = score; localStorage.setItem("ct_score_best", best); }
+
+      const sc = document.getElementById("scoreCurrent"); if (sc) sc.innerText = score;
+      const sb = document.getElementById("scoreBest"); if (sb) sb.innerText = best;
+
+      upsertTodayLog(score);
+      renderLog();
+      renderStreak();
+    }
+
+    function updateAmygdalaStep(remaining) {
+      const stepEl = document.getElementById("amygdalaStep");
+      if (!stepEl) return;
+      if (remaining > 45) stepEl.textContent = AMYGDALA_STEPS[0];
+      else if (remaining > 30) stepEl.textContent = AMYGDALA_STEPS[1];
+      else if (remaining > 15) stepEl.textContent = AMYGDALA_STEPS[2];
+      else stepEl.textContent = AMYGDALA_STEPS[3];
+    }
+
+    function startAmygdala() {
+      const timerEl = document.getElementById("amygdalaTimer");
+      const noteEl = document.getElementById("amygdalaNote");
+      if (!timerEl) return;
+
+      if (amygdalaInterval) clearInterval(amygdalaInterval);
+
+      let remaining = 60;
+      timerEl.textContent = remaining + "s";
+      updateAmygdalaStep(remaining);
+      if (noteEl) noteEl.textContent = "Timer runs quietly. When it ends, choose one grounded action.";
+
+      amygdalaInterval = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(amygdalaInterval);
+          amygdalaInterval = null;
+          timerEl.textContent = "Done.";
+          const stepEl = document.getElementById("amygdalaStep");
+          if (stepEl) stepEl.textContent = "Notice what changed. Log it if needed.";
+          if (noteEl) noteEl.textContent = "If helpful, write a note in your journal.";
+        } else {
+          timerEl.textContent = remaining + "s";
+          updateAmygdalaStep(remaining);
+        }
+      }, 1000);
+    }
+
+    function renderQuizQuestion() {
+      const qEl = document.getElementById("quizQuestion");
+      const feedbackEl = document.getElementById("quizFeedback");
+      if (!qEl || !feedbackEl) return;
+
+      if (currentQuizIndex < 0 || currentQuizIndex >= QUIZ_QUESTIONS.length) {
+        qEl.textContent = 'Tap "New Scenario" to start a drill.';
+        feedbackEl.textContent = "";
+        return;
+      }
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      qEl.textContent = q.text;
+      feedbackEl.textContent = "";
+    }
+
+    function nextQuiz() {
+      currentQuizIndex = Math.floor(Math.random() * QUIZ_QUESTIONS.length);
+      renderQuizQuestion();
+    }
+
+    function answerQuiz(choiceIndex) {
+      if (currentQuizIndex < 0 || currentQuizIndex >= QUIZ_QUESTIONS.length) return;
+      const q = QUIZ_QUESTIONS[currentQuizIndex];
+      const feedbackEl = document.getElementById("quizFeedback");
+      if (!feedbackEl) return;
+
+      if (choiceIndex === q.correct) feedbackEl.textContent = "Correct. " + q.explanation;
+      else feedbackEl.textContent = "Not quite. " + q.explanation;
+    }
+
+    function saveJournal() {
+      const el = document.getElementById("opJournal");
+      if (!el) return;
+      const fullText = el.value;
+      const trimmed = fullText.trim();
+      localStorage.setItem("ct_journal", fullText);
+
+      if (trimmed.length > 0) {
+        let entries = [];
+        try {
+          const raw = localStorage.getItem("ct_journal_entries");
+          entries = raw ? JSON.parse(raw) : [];
+          if (!Array.isArray(entries)) entries = [];
+        } catch (e) { entries = []; }
+
+        entries.push({ date: new Date().toISOString(), text: trimmed });
+        if (entries.length > 50) entries = entries.slice(entries.length - 50);
+        localStorage.setItem("ct_journal_entries", JSON.stringify(entries));
+      }
+
+      const msg = document.getElementById("journalMessage");
+      if (msg) msg.innerText = "Journal saved ✔";
+      renderJournalEntries();
+    }
+
+    function loadJournal() {
+      const el = document.getElementById("opJournal");
+      if (!el) return;
+      const stored = localStorage.getItem("ct_journal");
+      if (stored !== null) el.value = stored;
+    }
+
+    function renderJournalEntries() {
+      const container = document.getElementById("journalEntries");
+      if (!container) return;
+
+      let entries = [];
+      try {
+        const raw = localStorage.getItem("ct_journal_entries");
+        entries = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(entries)) entries = [];
+      } catch (e) { entries = []; }
+
+      if (!entries.length) {
+        container.innerHTML = "<p class='small-note'>No saved entries yet.</p>";
+        return;
+      }
+
+      const recent = entries.slice().reverse().slice(0, 20);
+      container.innerHTML = "";
+      recent.forEach(entry => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "log-entry";
+
+        const dateEl = document.createElement("div");
+        dateEl.className = "log-entry-date";
+        dateEl.textContent = new Date(entry.date).toLocaleString();
+
+        const textEl = document.createElement("div");
+        textEl.className = "log-entry-meta";
+        textEl.textContent = entry.text;
+
+        wrapper.appendChild(dateEl);
+        wrapper.appendChild(textEl);
+        container.appendChild(wrapper);
+      });
+    }
+
+    // Ladder scoring
+    function initLadder() {
+      const ladder = document.getElementById("ctm-ladder");
+      if (!ladder) return;
+
+      const checkboxes = ladder.querySelectorAll('input[type="checkbox"]');
+      const totalScoreEl = ladder.querySelector("[data-total-score]");
+      const zoneLabelEl = ladder.querySelector("[data-zone-label]");
+      const zoneDescriptionEl = ladder.querySelector("[data-zone-description]");
+      const zoneDisplay = ladder.querySelector("[data-zone-display]");
+
+      function updateLadderScore() {
+        const rungEls = ladder.querySelectorAll(".ladder-rung[data-rung]");
+        let total = 0;
+        const rungScores = [];
+
+        rungEls.forEach(function(rungEl, index) {
+          let rungScore = 0;
+          rungEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+            if (cb.checked) {
+              const w = parseFloat(cb.getAttribute("data-weight"));
+              rungScore += isNaN(w) ? 1 : w;
+            }
+          });
+          rungScores[index] = rungScore;
+          total += rungScore;
+        });
+
+        const anyRungFourOrMore = rungScores.some(s => s >= 4);
+        const allRungsLow = rungScores.length > 0 && rungScores.every(s => s <= 1);
+
+        let zone = "—";
+        let description = "Check boxes above to evaluate your state.";
+        let zoneClass = "";
+
+        if (anyRungFourOrMore || total >= 6) {
+          zone = "🟥 RED – NO ACTION";
+          description = "Do not act. Pause, gather missing data, re-run later.";
+          zoneClass = "zone-red";
+        } else if (allRungsLow && total <= 2) {
+          zone = "🟩 GREEN – Clear to Act";
+          description = "Likely seeing clearly. Act slowly and honestly.";
+          zoneClass = "zone-green";
+        } else if (total !== 0) {
+          zone = "🟧 YELLOW – Seek Clarity First";
+          description = "Ask clarifying questions. Delay emotional/public action.";
+          zoneClass = "zone-yellow";
+        }
+
+        if (totalScoreEl) totalScoreEl.textContent = total.toString();
+        if (zoneLabelEl) zoneLabelEl.textContent = zone;
+        if (zoneDescriptionEl) zoneDescriptionEl.textContent = description;
+
+        if (zoneDisplay) {
+          zoneDisplay.classList.remove("zone-red", "zone-yellow", "zone-green");
+          if (zoneClass) zoneDisplay.classList.add(zoneClass);
+        }
+      }
+
+      checkboxes.forEach(cb => cb.addEventListener("change", updateLadderScore));
+      updateLadderScore();
+    }
+
+    // ----------------------------
+    // DOM Ready
+    // ----------------------------
+    document.addEventListener("DOMContentLoaded", function() {
+      const inApp = isAppMode();
+      if (inApp) showApp(); else showPublic();
+
+      // wire nav only when app shown
       const nav = document.querySelector(".top-nav");
       if (nav) {
-        nav.addEventListener("click", (e) => {
+        nav.addEventListener("click", function(e) {
           const btn = e.target.closest("button[data-page]");
           if (!btn) return;
           setActivePage(btn.getAttribute("data-page"));
         });
       }
+
+      // Restore group code in both views
+      const savedCode = localStorage.getItem("ct_group_code") || "";
+      if (savedCode) {
+        setGroupCodeUI(savedCode, false);
+        setGroupCodeUI(savedCode, true);
+      }
+      renderJoinedCodes();
+
+      // Restore Active Room
+      const ar = getActiveRoom();
+      const arInput = document.getElementById("activeRoomInput");
+      if (arInput && ar) arInput.value = ar;
+
+      // Restore / persist room name
+      const rn = getRoomName();
+      const rnInput = document.getElementById("roomNameInput");
+      if (rnInput) {
+        if (rn) rnInput.value = rn;
+        rnInput.addEventListener("input", () => setRoomName(rnInput.value));
+      }
+
+      // Load checklist fields
+      checklistFields.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const stored = localStorage.getItem("ct_" + id);
+        if (el.type === "checkbox") el.checked = stored === "true";
+        else el.value = stored || "";
+      });
+
+      loadBathroom();
+
+      const trashCount = localStorage.getItem("trashBags");
+      if (trashCount !== null) {
+        const display = document.getElementById("trashCountDisplay");
+        if (display) display.innerText = trashCount;
+      }
+
+      const savedScore = localStorage.getItem("ct_score_today");
+      const savedBest = localStorage.getItem("ct_score_best");
+      const sc = document.getElementById("scoreCurrent");
+      const sb = document.getElementById("scoreBest");
+      if (savedScore && sc) sc.innerText = savedScore;
+      if (savedBest && sb) sb.innerText = savedBest;
+
+      loadMissionFromStorage();
+      renderLog();
+      renderStreak();
+      loadJournal();
+      renderJournalEntries();
+      renderQuizQuestion();
+      initLadder();
+
+      // Auto-connect immediately if app loads on Groups tab later
+      if (document.getElementById("page-groups")?.classList.contains("active")) {
+        maybeAutoConnectGroups();
+      }
+
+      // Register service worker
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js").catch(function() {});
+      }
     });
   </script>
-
-<!-- PART 2 WILL CONTINUE BELOW --><!-- =========================
-     PART 2 START
-========================= -->
-
-<style>
-  /* ============================
-     PART 2 — PREMIUM APP UI LAYER
-     (keeps your site style.css intact,
-      but makes the Field Kit feel like a product)
-  ============================ */
-
-  /* Overall app feel */
-  body {
-    background: #000; /* keep dark app tone */
-    color: #fff;
-  }
-
-  header#top {
-    background: #000;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    padding: 18px 16px 12px;
-    text-align: left;
-  }
-
-  header#top h1 {
-    font-size: 18px;
-    letter-spacing: 0.3px;
-    margin: 0;
-  }
-
-  header#top p {
-    margin-top: 6px;
-    opacity: 0.72;
-    font-size: 13px;
-  }
-
-  /* Make content-box dark for app */
-  .content-box {
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-    max-width: 980px;
-    padding: 14px 12px 80px;
-    margin: 0 auto;
-    color: #fff;
-  }
-
-  .small-note { font-size: 0.85rem; opacity: 0.72; line-height: 1.35; }
-
-  /* Card system */
-  .card {
-    border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 14px;
-    padding: 14px;
-    margin: 12px 0;
-    background: rgba(255,255,255,0.04);
-    backdrop-filter: blur(6px);
-  }
-
-  .card h2 { margin: 0 0 8px 0; font-size: 18px; }
-  .card h3 { margin: 14px 0 8px 0; font-size: 15px; opacity: 0.95; }
-
-  .row { display:flex; gap:.55rem; flex-wrap:wrap; align-items:center; }
-
-  input[type="text"], input[type="number"], textarea {
-    padding: 0.55rem 0.65rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.14);
-    background: rgba(255,255,255,0.05);
-    color: #fff;
-    outline: none;
-    min-width: 220px;
-    flex: 1;
-  }
-
-  textarea { width: 100%; min-width: 100%; }
-
-  button {
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 12px;
-    padding: 0.55rem 0.75rem;
-    background: rgba(255,255,255,0.06);
-    color: #fff;
-    cursor: pointer;
-    transition: transform 0.08s ease, opacity 0.2s ease, border-color 0.2s ease;
-  }
-
-  button:active { transform: scale(0.99); }
-  button:hover { opacity: 0.95; border-color: rgba(255,255,255,0.28); }
-
-  button.primary {
-    background: rgba(255,255,255,0.14);
-    border-color: rgba(255,255,255,0.26);
-    font-weight: 800;
-  }
-
-  a { color: #fff; opacity: 0.9; }
-  a:hover { opacity: 1; }
-
-  hr { border: none; border-top: 1px solid rgba(255,255,255,0.10); margin: 14px 0; }
-
-  /* Tags */
-  .tag {
-    display:inline-block;
-    padding: 0.15rem 0.5rem;
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 999px;
-    font-size: 0.75rem;
-    opacity: 0.85;
-    background: rgba(255,255,255,0.05);
-  }
-
-  /* Chat */
-  .chat-box {
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 14px;
-    padding: 12px;
-    background: rgba(0,0,0,0.22);
-  }
-
-  .chat-stream {
-    max-height: 280px;
-    overflow: auto;
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 14px;
-    padding: 10px;
-    background: rgba(0,0,0,0.25);
-    font-size: 0.92rem;
-    line-height: 1.25;
-  }
-
-  .chat-msg {
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding: 0.55rem 0;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .chat-msg:first-child { border-top: none; }
-
-  /* Zone styles used by ladder (Part 3 initializes logic) */
-  .ladder-result.zone-red { border-color: rgba(255,80,80,0.55) !important; background: rgba(255,80,80,0.10) !important; }
-  .ladder-result.zone-yellow { border-color: rgba(255,200,80,0.55) !important; background: rgba(255,200,80,0.10) !important; }
-  .ladder-result.zone-green { border-color: rgba(80,255,140,0.45) !important; background: rgba(80,255,140,0.10) !important; }
-
-  /* ========= PDF Overlay (kills iOS scroll pain) ========= */
-  #pdfOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: none;
-    background: rgba(0,0,0,0.92);
-  }
-
-  #pdfOverlay.active { display: block; }
-
-  #pdfOverlay .pdf-bar {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-    background: rgba(0,0,0,0.96);
-  }
-
-  #pdfOverlay .pdf-title {
-    font-size: 0.9rem;
-    opacity: 0.9;
-    font-weight: 800;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 62vw;
-  }
-
-  #pdfOverlay .pdf-actions {
-    display: flex;
-    gap: 0.45rem;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  #pdfOverlay .pdf-frame-wrap {
-    height: calc(100dvh - 56px);
-    overflow: hidden;
-  }
-
-  #pdfOverlay iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    background: #111;
-  }
-
-  /* Mobile polish */
-  @media (max-width: 700px) {
-    .content-box { padding: 12px 10px 96px; }
-    #pdfOverlay .pdf-title { max-width: 52vw; }
-  }
-</style>
-
-<script>
-/* =====================================================
-   PART 2 — Page shells + Docs overlay + Deep links
-   No DOMContentLoaded here — Part 1 calls these.
-===================================================== */
-
-(function(){
-  // expose functions for Part 1 boot
-  window.initDeepLinkAndLastTab = initDeepLinkAndLastTab;
-  window.initPdfOverlayBindings = initPdfOverlayBindings;
-
-  // ---------- Add the missing page shells (only once) ----------
-  ensurePageShellsExist();
-  ensurePdfOverlayExists();
-
-  function ensurePageShellsExist(){
-    // If pages already exist, do nothing.
-    const mustExist = ["page-docs","page-tools","page-games","page-journal","page-groups"];
-    const already = mustExist.every(id => document.getElementById(id));
-    if (already) return;
-
-    const appView = document.getElementById("appView");
-    if (!appView) return;
-
-    // Insert after home page (so ordering feels natural)
-    const home = document.getElementById("page-home");
-    const insertAfter = home || appView.querySelector(".top-nav");
-
-    const wrap = document.createElement("div");
-    wrap.innerHTML = `
-      <div id="page-docs" class="page">
-        <div class="card">
-          <h2>Field Documents</h2>
-          <p class="small-note">Tap any document to open it inside the app (with a back button).</p>
-
-          <ul style="margin-left:1.2rem;">
-            <li>
-              <a href="docs/Fourpages.pdf" class="doc-link"
-                 data-doc-title="CT-PRC-004 — Principles Package (4-Page Brief)">
-                CT-PRC-004 — Principles Package (4-Page Brief)
-              </a>
-            </li>
-            <li>
-              <a href="docs/handbook.pdf" class="doc-link"
-                 data-doc-title="CT-HBK-001 — Internal Handbook (Restricted)">
-                CT-HBK-001 — Internal Handbook (Restricted)
-              </a>
-            </li>
-            <li>
-              <a href="docs/Fieldkit.pdf" class="doc-link"
-                 data-doc-title="CT-FLD-010 — Field Kit (Operator Issue)">
-                CT-FLD-010 — Field Kit (Operator Issue)
-              </a>
-            </li>
-          </ul>
-
-          <hr>
-          <p class="small-note">
-            If a PDF ever fails to render in-app, use <span class="tag">Open in New Tab</span>.
-          </p>
-        </div>
-      </div>
-
-      <div id="page-tools" class="page">
-        <!-- Part 3 replaces the inside of this page with your full tools -->
-        <div class="card">
-          <h2>Tools</h2>
-          <p class="small-note">Loading tools… (Part 3)</p>
-        </div>
-      </div>
-
-      <div id="page-games" class="page">
-        <!-- Part 3 replaces the inside of this page with your game -->
-        <div class="card">
-          <h2>Games</h2>
-          <p class="small-note">Loading games… (Part 3)</p>
-        </div>
-      </div>
-
-      <div id="page-journal" class="page">
-        <!-- Part 3 replaces the inside of this page with your journal -->
-        <div class="card">
-          <h2>Journal</h2>
-          <p class="small-note">Loading journal… (Part 3)</p>
-        </div>
-      </div>
-
-      <div id="page-groups" class="page">
-        <!-- Part 3 replaces the inside of this page with your groups sync -->
-        <div class="card">
-          <h2>Groups</h2>
-          <p class="small-note">Loading group tools… (Part 3)</p>
-        </div>
-      </div>
-    `;
-
-    // Insert after home
-    if (insertAfter && insertAfter.parentNode) {
-      insertAfter.parentNode.insertBefore(wrap, insertAfter.nextSibling);
-    } else {
-      appView.appendChild(wrap);
-    }
-  }
-
-  // ---------- PDF Overlay ----------
-  function ensurePdfOverlayExists(){
-    if (document.getElementById("pdfOverlay")) return;
-
-    const overlay = document.createElement("div");
-    overlay.id = "pdfOverlay";
-    overlay.innerHTML = `
-      <div class="pdf-bar">
-        <div class="pdf-title" id="pdfTitle">Document</div>
-
-        <div class="pdf-actions">
-          <button type="button" class="primary" id="pdfCloseBtn">Back</button>
-          <button type="button" id="pdfOpenTabBtn">Open in New Tab</button>
-        </div>
-      </div>
-
-      <div class="pdf-frame-wrap">
-        <iframe id="pdfFrame" title="Field Document" loading="lazy"></iframe>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-  }
-
-  function openPdfInOverlay(url, title){
-    const overlay = document.getElementById("pdfOverlay");
-    const frame = document.getElementById("pdfFrame");
-    const titleEl = document.getElementById("pdfTitle");
-
-    if (!overlay || !frame || !titleEl) return;
-
-    titleEl.textContent = title || "Document";
-    frame.src = url;
-    overlay.classList.add("active");
-
-    // Lock background scroll
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-
-    // Remember last doc for re-open if needed
-    try {
-      sessionStorage.setItem("ct_last_doc_url", url);
-      sessionStorage.setItem("ct_last_doc_title", title || "");
-    } catch(e) {}
-  }
-
-  function closePdfOverlay(){
-    const overlay = document.getElementById("pdfOverlay");
-    const frame = document.getElementById("pdfFrame");
-    if (!overlay || !frame) return;
-
-    overlay.classList.remove("active");
-    frame.src = "about:blank";
-
-    // Restore scroll
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
-  }
-
-  // Called by Part 1 boot
-  function initPdfOverlayBindings(){
-    // Bind doc clicks (event delegation)
-    document.addEventListener("click", (e) => {
-      const a = e.target.closest("a.doc-link");
-      if (!a) return;
-
-      // Only intercept in-app
-      if (!(window.isAppMode && window.isAppMode())) return;
-
-      e.preventDefault();
-      const url = a.getAttribute("href");
-      const title = a.getAttribute("data-doc-title") || a.textContent.trim();
-      openPdfInOverlay(url, title);
-    });
-
-    // Bind overlay buttons
-    const closeBtn = document.getElementById("pdfCloseBtn");
-    const openTabBtn = document.getElementById("pdfOpenTabBtn");
-
-    if (closeBtn) closeBtn.addEventListener("click", closePdfOverlay);
-
-    if (openTabBtn) {
-      openTabBtn.addEventListener("click", () => {
-        const frame = document.getElementById("pdfFrame");
-        if (!frame || !frame.src || frame.src === "about:blank") return;
-        window.open(frame.src, "_blank", "noopener");
-      });
-    }
-
-    // Escape closes overlay
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        const overlay = document.getElementById("pdfOverlay");
-        if (overlay && overlay.classList.contains("active")) closePdfOverlay();
-      }
-    });
-  }
-
-  // Called by Part 1 boot
-  function initDeepLinkAndLastTab(){
-    // Restore last tab (app only)
-    try{
-      const last = localStorage.getItem("ct_last_tab");
-      if (last && document.getElementById(last)) {
-        window.setActivePage(last);
-      }
-    }catch(e){}
-
-    // Hash routing (#docs, #tools, #games, #journal, #groups, #home)
-    function routeFromHash(){
-      const raw = (location.hash || "").replace("#","").trim().toLowerCase();
-      const map = {
-        "home":"page-home",
-        "docs":"page-docs",
-        "tools":"page-tools",
-        "games":"page-games",
-        "journal":"page-journal",
-        "groups":"page-groups"
-      };
-      const page = map[raw];
-      if (page && document.getElementById(page)) {
-        window.setActivePage(page);
-      }
-    }
-
-    window.addEventListener("hashchange", routeFromHash);
-
-    // Patch setActivePage to remember last tab + keep hash in sync
-    const originalSetActivePage = window.setActivePage;
-    if (typeof originalSetActivePage === "function" && !window.__ctmPatchedSetActivePage) {
-      window.__ctmPatchedSetActivePage = true;
-
-      window.setActivePage = function(pageId){
-        originalSetActivePage(pageId);
-
-        try { localStorage.setItem("ct_last_tab", pageId); } catch(e){}
-
-        const reverse = {
-          "page-home":"home",
-          "page-docs":"docs",
-          "page-tools":"tools",
-          "page-games":"games",
-          "page-journal":"journal",
-          "page-groups":"groups"
-        };
-        const h = reverse[pageId];
-        if (h && ("#" + h) !== location.hash) {
-          history.replaceState(null, "", "#" + h);
-        }
-      };
-    }
-
-    // Apply hash route on boot
-    routeFromHash();
-  }
-})();
-</script>
-
-<!-- =========================
-     PART 2 END
-========================= -->
-
-<!-- PART 3 WILL CONTINUE BELOW --><!-- =========================
-     PART 3 START
-========================= -->
-
-<script>
-/* =====================================================
-   PART 3 — OPERATOR KIT CORE
-   Activated ONLY by initOperatorKit() from Part 1
-===================================================== */
-
-(function(){
-  // Expose initializer
-  window.initOperatorKit = initOperatorKit;
-
-  // -------------------------
-  // Constants / storage keys
-  // -------------------------
-  const STORAGE = {
-    SCORE_TODAY: "ct_score_today",
-    SCORE_BEST: "ct_score_best",
-    LOG: "ct_log",
-    TRASH: "trashBags",
-    JOURNAL: "ct_journal",
-    JOURNAL_ENTRIES: "ct_journal_entries",
-    LAST_MISSION_DATE: "ct_mission_date",
-    LAST_MISSION_TEXT: "ct_mission_text",
-    LAST_MISSION_DONE: "ct_mission_done"
-  };
-
-  const MISSIONS = [
-    "Pick up trash in a place you didn’t cause and leave quietly.",
-    "Ask a clarifying question instead of stating an opinion.",
-    "De-escalate one tense moment by slowing your voice.",
-    "Defend someone from unfair treatment without attacking.",
-    "Correct yourself publicly if you were wrong.",
-    "Fix or clean one thing nobody asked you to fix.",
-    "Choose not to post one piece of outrage content today.",
-    "Support someone outside your usual circle.",
-    "Repeat someone’s view back accurately before disagreeing.",
-    "Leave a place better than you found it without credit."
-  ];
-
-  const QUIZ = [
-    { t:"Those people are ruining everything.", c:0 },
-    { t:"I disagree because I think this harms families.", c:1 },
-    { t:"From their perspective this makes sense.", c:2 },
-    { t:"Turnout increased by 7% this year.", c:3 }
-  ];
-
-  // -------------------------
-  // Utility
-  // -------------------------
-  const todayKey = () => new Date().toISOString().slice(0,10);
-
-  function getJSON(key, def){
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : def;
-    } catch { return def; }
-  }
-
-  function setJSON(key, val){
-    try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
-  }
-
-  // -------------------------
-  // Main initializer
-  // -------------------------
-  function initOperatorKit(){
-    buildToolsPage();
-    buildGamesPage();
-    buildJournalPage();
-    buildGroupsPage();
-
-    restoreScores();
-    restoreJournal();
-    restoreLog();
-  }
-
-  // -------------------------
-  // TOOLS PAGE
-  // -------------------------
-  function buildToolsPage(){
-    const page = document.getElementById("page-tools");
-    if (!page) return;
-
-    page.innerHTML = `
-      <div class="card">
-        <h2>Daily Civic Posture</h2>
-        <p class="small-note">Quiet actions count. Stored locally.</p>
-        <button class="primary" id="doMission">Draw Today’s Mission</button>
-        <p id="missionText" class="small-note"></p>
-      </div>
-
-      <div class="card">
-        <h2>Community Bags of Trash</h2>
-        <div style="text-align:center">
-          <div class="small-note">TOTAL</div>
-          <div id="trashCount" style="font-size:2rem;font-weight:bold;">0</div>
-          <button id="trashPlus">+1</button>
-          <button id="trashMinus">Undo</button>
-        </div>
-      </div>
-    `;
-
-    // Mission
-    const btn = document.getElementById("doMission");
-    const txt = document.getElementById("missionText");
-
-    btn.onclick = () => {
-      const m = MISSIONS[Math.floor(Math.random()*MISSIONS.length)];
-      localStorage.setItem(STORAGE.LAST_MISSION_TEXT, m);
-      localStorage.setItem(STORAGE.LAST_MISSION_DATE, todayKey());
-      localStorage.setItem(STORAGE.LAST_MISSION_DONE, "false");
-      txt.textContent = m;
-      incrementScore(1);
-    };
-
-    // Trash counter
-    const updateTrash = v => {
-      if (v < 0) v = 0;
-      localStorage.setItem(STORAGE.TRASH, v);
-      document.getElementById("trashCount").textContent = v;
-    };
-
-    document.getElementById("trashPlus").onclick = () =>
-      updateTrash((+localStorage.getItem(STORAGE.TRASH)||0)+1);
-
-    document.getElementById("trashMinus").onclick = () =>
-      updateTrash((+localStorage.getItem(STORAGE.TRASH)||0)-1);
-
-    updateTrash(+localStorage.getItem(STORAGE.TRASH)||0);
-  }
-
-  // -------------------------
-  // GAMES PAGE
-  // -------------------------
-  function buildGamesPage(){
-    const page = document.getElementById("page-games");
-    if (!page) return;
-
-    let idx = -1;
-
-    page.innerHTML = `
-      <div class="card">
-        <h2>Pattern Spotter</h2>
-        <p id="quizQ" class="small-note">Tap New Scenario</p>
-        <div class="row">
-          <button data-a="0">Instinct Spike</button>
-          <button data-a="1">Grounded Disagreement</button>
-          <button data-a="2">Cooling Language</button>
-          <button data-a="3">Neutral Fact</button>
-        </div>
-        <button id="newQ">New Scenario</button>
-        <p id="quizF" class="small-note"></p>
-      </div>
-    `;
-
-    page.querySelector("#newQ").onclick = () => {
-      idx = Math.floor(Math.random()*QUIZ.length);
-      page.querySelector("#quizQ").textContent = QUIZ[idx].t;
-      page.querySelector("#quizF").textContent = "";
-    };
-
-    page.querySelectorAll("button[data-a]").forEach(b=>{
-      b.onclick = ()=>{
-        if (idx < 0) return;
-        const ok = +b.dataset.a === QUIZ[idx].c;
-        page.querySelector("#quizF").textContent =
-          ok ? "Correct." : "Not quite.";
-      };
-    });
-  }
-
-  // -------------------------
-  // JOURNAL PAGE
-  // -------------------------
-  function buildJournalPage(){
-    const page = document.getElementById("page-journal");
-    if (!page) return;
-
-    page.innerHTML = `
-      <div class="card">
-        <h2>Operation Journal</h2>
-        <textarea id="journalInput" rows="6"></textarea>
-        <button id="saveJournal">Save</button>
-        <div id="journalList"></div>
-      </div>
-    `;
-
-    document.getElementById("saveJournal").onclick = ()=>{
-      const val = document.getElementById("journalInput").value.trim();
-      if (!val) return;
-
-      const entries = getJSON(STORAGE.JOURNAL_ENTRIES, []);
-      entries.push({ t:new Date().toISOString(), v:val });
-      setJSON(STORAGE.JOURNAL_ENTRIES, entries.slice(-30));
-      document.getElementById("journalInput").value = "";
-      restoreJournal();
-    };
-  }
-
-  function restoreJournal(){
-    const list = document.getElementById("journalList");
-    if (!list) return;
-    const entries = getJSON(STORAGE.JOURNAL_ENTRIES, []);
-    list.innerHTML = entries.slice().reverse().map(e=>`
-      <div class="log-entry">
-        <div class="log-entry-date">${new Date(e.t).toLocaleString()}</div>
-        <div class="log-entry-meta">${e.v}</div>
-      </div>
-    `).join("");
-  }
-
-  // -------------------------
-  // GROUPS PAGE (stub safe)
-  // -------------------------
-  function buildGroupsPage(){
-    const page = document.getElementById("page-groups");
-    if (!page) return;
-
-    page.innerHTML = `
-      <div class="card">
-        <h2>Groups</h2>
-        <p class="small-note">
-          Group sync is handled by the Cloudflare Worker.
-          This UI is intentionally minimal and offline-safe.
-        </p>
-      </div>
-    `;
-  }
-
-  // -------------------------
-  // SCORE / LOG
-  // -------------------------
-  function incrementScore(v){
-    let s = +localStorage.getItem(STORAGE.SCORE_TODAY)||0;
-    s += v;
-    localStorage.setItem(STORAGE.SCORE_TODAY, s);
-
-    let best = +localStorage.getItem(STORAGE.SCORE_BEST)||0;
-    if (s > best){
-      best = s;
-      localStorage.setItem(STORAGE.SCORE_BEST, best);
-    }
-
-    const sc = document.getElementById("scoreCurrent");
-    const sb = document.getElementById("scoreBest");
-    if (sc) sc.textContent = s;
-    if (sb) sb.textContent = best;
-
-    upsertLog(s);
-  }
-
-  function upsertLog(score){
-    const log = getJSON(STORAGE.LOG, []);
-    const d = todayKey();
-    const idx = log.findIndex(e=>e.d===d);
-    if (idx>=0) log[idx].s = score;
-    else log.push({ d, s:score });
-    setJSON(STORAGE.LOG, log.slice(-30));
-  }
-
-  function restoreLog(){
-    const log = getJSON(STORAGE.LOG, []);
-    if (!log.length) return;
-    const last = log[log.length-1];
-    if (last){
-      const sc = document.getElementById("scoreCurrent");
-      if (sc) sc.textContent = last.s;
-    }
-  }
-
-  function restoreScores(){
-    const sc = document.getElementById("scoreCurrent");
-    const sb = document.getElementById("scoreBest");
-    if (sc) sc.textContent = localStorage.getItem(STORAGE.SCORE_TODAY)||0;
-    if (sb) sb.textContent = localStorage.getItem(STORAGE.SCORE_BEST)||0;
-  }
-
-})();
-</script>
-
-<!-- =========================
-     PART 3 END
-========================= -->
+</body>
+</html>
