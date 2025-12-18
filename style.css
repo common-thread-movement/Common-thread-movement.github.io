@@ -295,3 +295,61 @@ button + button {
         width: 100%;
     }
 }
+/* =========================================================
+   PWA / FIELD KIT PATCH
+   Goal: prevent global site header/nav styles from interfering
+   with the Field Kit app experience (especially sticky top-nav).
+   Paste at END of style.css.
+========================================================= */
+
+/* 1) In app mode (PWA / standalone), remove the big site-header feel.
+   This prevents the "following header/nav" vibe + iOS sticky glitches. */
+@media all and (display-mode: standalone) {
+  body {
+    padding-bottom: 0; /* PWA doesn't need the extra footer spacing */
+  }
+
+  /* Neutralize the global site header styling in PWA */
+  header {
+    padding: 14px 12px 10px 12px;
+    box-shadow: none;
+    border-bottom: 0;
+  }
+
+  /* Your field-kit top nav already handles navigation */
+  header nav,
+  header nav ul,
+  header nav li {
+    display: none !important;
+  }
+}
+
+/* iOS standalone uses window.navigator.standalone (no media query),
+   so we also add an opt-in class hook you can set in field-kit.html later
+   if needed. This won't break anything if unused. */
+body.pwa header {
+  padding: 14px 12px 10px 12px;
+  box-shadow: none;
+  border-bottom: 0;
+}
+body.pwa header nav { display: none !important; }
+
+/* 2) Make sticky top-nav behave smoothly on iOS:
+   Avoid blur/shadow weirdness and ensure it paints above content. */
+.top-nav {
+  z-index: 9999;
+  transform: translateZ(0); /* helps iOS repaint sticky smoothly */
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 3) Prevent accidental "scroll container" behavior.
+   Sticky breaks if an ancestor has overflow: hidden/auto/scroll. */
+html, body {
+  overflow-x: hidden;
+}
+
+/* If any future wrapper gets overflow set, this keeps the app smooth. */
+#appView, #publicView {
+  overflow: visible;
+}
