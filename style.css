@@ -76,6 +76,13 @@ nav a:hover {
     color: #d4a017; /* Gold hover */
 }
 
+/* Active nav state (you already use class="active" in HTML) */
+nav a.active {
+    color: #ffd76d;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+}
+
 /* ---------------------------------------------------------
    MAIN CONTENT BOX / CARD
 --------------------------------------------------------- */
@@ -84,10 +91,18 @@ section,
     max-width: 900px;
     margin: 45px auto;
     background: #ffffff;
-    padding: 30px;
+    padding: 36px; /* upgraded padding for premium feel */
     border-radius: 14px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12); /* richer, cleaner shadow */
     color: #0b0b0b;
+}
+
+/* Better reading measure */
+section p,
+.content-box p,
+section li,
+.content-box li {
+    max-width: 72ch;
 }
 
 /* Headings inside content */
@@ -97,6 +112,7 @@ section h1,
     margin-bottom: 18px;
     font-weight: bold;
     color: #0a2342;
+    line-height: 1.15;
 }
 
 section h2,
@@ -106,6 +122,16 @@ section h2,
     font-size: 24px;
     font-weight: bold;
     color: #0a2342;
+    line-height: 1.2;
+}
+
+/* Hero emphasis for the new start section */
+#start.content-box h1 {
+    font-size: 36px;
+}
+
+#start.content-box p {
+    font-size: 17px;
 }
 
 /* Paragraph spacing */
@@ -119,6 +145,8 @@ section a,
 .content-box a {
     color: #0044cc;
     font-weight: bold;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
 }
 
 section a:hover,
@@ -138,6 +166,14 @@ section ol {
 .content-box li,
 section li {
     margin-bottom: 0.4em;
+}
+
+/* Dividers */
+hr {
+    border: none;
+    height: 1px;
+    background: rgba(11, 11, 11, 0.12);
+    margin: 22px 0;
 }
 
 /* ---------------------------------------------------------
@@ -171,7 +207,7 @@ footer a:hover {
 }
 
 /* ---------------------------------------------------------
-   FORMS (future-proofed)
+   FORMS + BUTTONS (PRO CTA STYLE)
 --------------------------------------------------------- */
 input[type="text"],
 input[type="email"],
@@ -184,20 +220,38 @@ textarea {
     margin-bottom: 14px;
 }
 
+/* Buttons upgraded to feel intentional + premium */
 button,
 input[type="submit"] {
     background: #d4a017;
     border: none;
-    padding: 10px 22px;
+    padding: 12px 22px;
     font-weight: bold;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 10px;
     color: #0b0b0b;
+    font-size: 16px;
+    letter-spacing: 0.2px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.14);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
 }
 
 button:hover,
 input[type="submit"]:hover {
     background: #e2b63a;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(0,0,0,0.18);
+}
+
+button:active,
+input[type="submit"]:active {
+    transform: translateY(0px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.14);
+}
+
+/* Optional: make consecutive buttons look cleaner */
+button + button {
+    margin-left: 10px;
 }
 
 /* ---------------------------------------------------------
@@ -220,7 +274,24 @@ input[type="submit"]:hover {
 
     section,
     .content-box {
-        padding: 20px;
+        padding: 22px;
         margin: 20px auto;
+    }
+
+    #start.content-box h1 {
+        font-size: 30px;
+    }
+
+    /* Stack buttons naturally on small screens */
+    button + button {
+        margin-left: 0;
+        margin-top: 10px;
+        display: block;
+        width: 100%;
+    }
+
+    button,
+    input[type="submit"] {
+        width: 100%;
     }
 }
